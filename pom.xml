@@ -59,6 +59,13 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- ── H2 Database (test profile / CI) ───────────────────────────── -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- ── PostgreSQL (prod database) ───────────────────────────────── -->
         <dependency>
             <groupId>org.postgresql</groupId>
