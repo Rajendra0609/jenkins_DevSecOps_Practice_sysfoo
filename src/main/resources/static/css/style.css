@@ -1,0 +1,72 @@
+/* ── Base ──────────────────────────────────────────────────────────────────── */
+body {
+    padding-top: 30px;
+    background-color: #f5f7fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+/* ── Container ─────────────────────────────────────────────────────────────── */
+.container {
+    max-width: 750px;
+}
+
+/* ── Cards ─────────────────────────────────────────────────────────────────── */
+.card {
+    margin-bottom: 24px;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.card-title {
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 12px;
+}
+
+.card-text {
+    color: #718096;
+    line-height: 1.8;
+}
+
+/* ── Database status badges ────────────────────────────────────────────────── */
+.connected {
+    background-color: #38a169;
+    color: white;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.disconnected {
+    background-color: #e53e3e;
+    color: white;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+/* ── To-Do list ────────────────────────────────────────────────────────────── */
+.list-group-item {
+    border-radius: 8px !important;
+    margin-bottom: 6px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ── Responsive ────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .container {
+        padding: 12px;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+}
