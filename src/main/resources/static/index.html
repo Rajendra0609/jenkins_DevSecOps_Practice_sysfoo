@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sysfoo — System Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #07090f;
+      --bg-1:       #0d1117;
+      --bg-2:       #111827;
+      --bg-3:       #1c2333;
+      --border:     rgba(255,255,255,0.07);
+      --border-hi:  rgba(0,212,170,0.35);
+      --teal:       #00d4aa;
+      --teal-dim:   rgba(0,212,170,0.12);
+      --cyan:       #38bdf8;
+      --red:        #f87171;
+      --amber:      #fbbf24;
+      --green:      #4ade80;
+      --purple:     #a78bfa;
+      --txt:        #e2e8f0;
+      --txt-2:      #94a3b8;
+      --txt-3:      #475569;
+      --mono:       'JetBrains Mono', monospace;
+      --sans:       'Syne', sans-serif;
+      --radius:     14px;
+      --radius-sm:  8px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--txt);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(0,212,170,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,170,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,212,170,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .page { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+    .header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-bottom: 2rem; margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+      animation: fadeDown 0.5s ease both;
+    }
+
+    .logo { display: flex; align-items: center; gap: 12px; }
+
+    .logo-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: var(--teal-dim); border: 1px solid var(--border-hi);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-icon svg { width: 20px; height: 20px; }
+
+    .logo-text { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+    .logo-text span { color: var(--teal); }
+    .logo-sub { font-size: 11px; font-family: var(--mono); color: var(--txt-3); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 1px; }
+
+    .header-right { display: flex; align-items: center; gap: 16px; }
+
+    .live-clock {
+      font-family: var(--mono); font-size: 13px; color: var(--txt-2);
+      background: var(--bg-2); border: 1px solid var(--border);
+      padding: 6px 14px; border-radius: 999px; letter-spacing: 0.05em;
+    }
+
+    .refresh-btn {
+      font-family: var(--sans); font-size: 12px; font-weight: 600;
+      color: var(--teal); background: var(--teal-dim);
+      border: 1px solid var(--border-hi); border-radius: 999px;
+      padding: 6px 14px; cursor: pointer; display: flex; align-items: center; gap: 6px;
+      transition: all 0.2s; letter-spacing: 0.02em;
+    }
+    .refresh-btn:hover { background: rgba(0,212,170,0.2); }
+    .refresh-btn svg { width: 13px; height: 13px; }
+    .refresh-btn.spinning svg { animation: spin 0.8s linear infinite; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .card {
+      background: var(--bg-1);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      position: relative; overflow: hidden;
+      animation: fadeUp 0.5s ease both;
+    }
+    .card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.02) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .card:nth-child(1) { animation-delay: 0.1s; }
+    .card:nth-child(2) { animation-delay: 0.15s; }
+    .card:nth-child(3) { animation-delay: 0.2s; }
+    .card:nth-child(4) { animation-delay: 0.25s; }
+    .card-full { grid-column: 1 / -1; }
+
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+
+    .card-title {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--txt-3);
+    }
+    .card-title svg { width: 14px; height: 14px; color: var(--teal); }
+
+    .stat-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .stat-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .stat-key { color: var(--txt-3); font-family: var(--mono); font-size: 12px; }
+    .stat-val { font-family: var(--mono); font-size: 12px; color: var(--txt); display: flex; align-items: center; gap: 8px; }
+
+    .copy-btn {
+      background: none; border: none; cursor: pointer; padding: 3px;
+      color: var(--txt-3); border-radius: 4px; transition: color 0.2s;
+      display: flex; align-items: center;
+    }
+    .copy-btn:hover { color: var(--teal); }
+    .copy-btn svg { width: 11px; height: 11px; }
+
+    .version-display {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 6px; height: 100px;
+    }
+    .version-label { font-size: 11px; font-family: var(--mono); color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.1em; }
+    .version-number { font-family: var(--mono); font-size: 40px; font-weight: 700; color: var(--teal); letter-spacing: -1px; }
+
+    .db-status { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 1.25rem 0; }
+    .status-dot-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
+    .status-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--txt-3); }
+    .status-dot.connected { background: var(--green); }
+    .status-dot.disconnected { background: var(--red); }
+    .status-dot.connected::before {
+      content: ''; position: absolute;
+      width: 30px; height: 30px; border-radius: 50%;
+      background: rgba(74,222,128,0.2);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .status-label { font-size: 15px; font-weight: 600; }
+    .status-label.connected { color: var(--green); }
+    .status-label.disconnected { color: var(--red); }
+    .db-type {
+      font-family: var(--mono); font-size: 11px; color: var(--txt-3);
+      background: var(--bg-3); border: 1px solid var(--border);
+      padding: 4px 12px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.08em;
+    }
+
+    .badge {
+      font-family: var(--mono); font-size: 10px; font-weight: 500;
+      padding: 4px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.08em;
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+    .badge-yes { background: rgba(74,222,128,0.12); color: var(--green); border: 1px solid rgba(74,222,128,0.25); }
+    .badge-no  { background: var(--bg-3); color: var(--txt-3); border: 1px solid var(--border); }
+
+    /* ── Todo: Input area ─────────────────────────────────────────────────── */
+    .todo-form {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      margin-bottom: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: border-color 0.2s;
+    }
+    .todo-form:focus-within { border-color: var(--border-hi); }
+
+    .todo-form-row { display: flex; gap: 10px; align-items: center; }
+
+    .todo-field-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+    .todo-field-label {
+      font-size: 10px;
+      font-family: var(--mono);
+      color: var(--txt-3);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .todo-input {
+      width: 100%;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 9px 12px;
+      font-family: var(--sans); font-size: 14px; color: var(--txt);
+      outline: none; transition: border-color 0.2s;
+    }
+    .todo-input::placeholder { color: var(--txt-3); }
+    .todo-input:focus { border-color: var(--border-hi); }
+
+    .todo-name-input {
+      width: 180px;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 9px 12px;
+      font-family: var(--mono); font-size: 13px; color: var(--purple);
+      outline: none; transition: border-color 0.2s;
+      flex-shrink: 0;
+    }
+    .todo-name-input::placeholder { color: var(--txt-3); }
+    .todo-name-input:focus { border-color: rgba(167,139,250,0.4); }
+
+    .todo-form-actions { display: flex; align-items: center; justify-content: space-between; }
+
+    .todo-form-hint {
+      font-size: 11px; font-family: var(--mono); color: var(--txt-3);
+    }
+
+    .todo-add-btn {
+      background: var(--teal); color: #000; border: none;
+      border-radius: var(--radius-sm); padding: 10px 20px;
+      font-family: var(--sans); font-size: 13px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; gap: 6px;
+      transition: all 0.2s; white-space: nowrap;
+    }
+    .todo-add-btn:hover { background: #00f0c0; transform: translateY(-1px); }
+    .todo-add-btn:active { transform: translateY(0); }
+    .todo-add-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .todo-add-btn svg { width: 14px; height: 14px; }
+
+    /* ── Todo: Filters & meta ─────────────────────────────────────────────── */
+    .todo-controls {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1rem; gap: 10px; flex-wrap: wrap;
+    }
+    .todo-filters { display: flex; gap: 6px; }
+    .filter-btn {
+      font-family: var(--sans); font-size: 11px; font-weight: 600;
+      padding: 4px 12px; border-radius: 999px; cursor: pointer;
+      border: 1px solid var(--border); background: none; color: var(--txt-3);
+      transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .filter-btn.active { background: var(--teal-dim); border-color: var(--border-hi); color: var(--teal); }
+
+    .todo-sort {
+      font-family: var(--mono); font-size: 11px; color: var(--txt-3);
+      background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 4px 10px;
+      cursor: pointer; outline: none; transition: border-color 0.2s;
+    }
+    .todo-sort:focus { border-color: var(--border-hi); }
+
+    .todo-meta {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px; font-size: 12px; color: var(--txt-3);
+    }
+    .todo-count { font-family: var(--mono); }
+    .todo-meta-right { display: flex; gap: 10px; align-items: center; }
+    .clear-done-btn {
+      background: none; border: none; cursor: pointer;
+      color: var(--txt-3); font-size: 11px; font-family: var(--sans);
+      text-decoration: underline; transition: color 0.2s;
+    }
+    .clear-done-btn:hover { color: var(--red); }
+
+    /* ── Todo: List items ─────────────────────────────────────────────────── */
+    .todo-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+
+    .todo-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 12px 14px;
+      transition: all 0.25s; animation: slideIn 0.25s ease both;
+    }
+    .todo-item:hover { border-color: var(--border-hi); background: var(--bg-3); }
+    .todo-item.done { opacity: 0.45; }
+    .todo-item.done .todo-text { text-decoration: line-through; color: var(--txt-3); }
+    .todo-item.removing { animation: slideOut 0.25s ease forwards; }
+
+    .todo-check {
+      width: 18px; height: 18px; border-radius: 5px;
+      border: 1.5px solid var(--txt-3); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all 0.2s; margin-top: 2px;
+    }
+    .todo-item.done .todo-check { background: var(--teal); border-color: var(--teal); }
+    .todo-check svg { width: 10px; height: 10px; display: none; }
+    .todo-item.done .todo-check svg { display: block; }
+
+    .todo-body { flex: 1; min-width: 0; }
+
+    .todo-header-row {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 3px; flex-wrap: wrap;
+    }
+
+    .todo-name-tag {
+      font-family: var(--mono); font-size: 10px;
+      color: var(--purple); background: rgba(167,139,250,0.1);
+      border: 1px solid rgba(167,139,250,0.25);
+      padding: 2px 8px; border-radius: 999px;
+      display: inline-flex; align-items: center; gap: 4px;
+      flex-shrink: 0;
+    }
+    .todo-name-tag svg { width: 9px; height: 9px; }
+
+    .todo-text { font-size: 14px; color: var(--txt); line-height: 1.5; word-break: break-word; }
+
+    .todo-footer-row {
+      display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap;
+    }
+
+    .todo-timestamp { font-family: var(--mono); font-size: 10px; color: var(--txt-3); }
+
+    .todo-priority {
+      font-family: var(--mono); font-size: 9px; text-transform: uppercase;
+      letter-spacing: 0.08em; padding: 2px 7px; border-radius: 999px;
+    }
+    .todo-priority.high   { color: var(--red);   background: rgba(248,113,113,0.1);  border: 1px solid rgba(248,113,113,0.25); }
+    .todo-priority.medium { color: var(--amber);  background: rgba(251,191,36,0.1);   border: 1px solid rgba(251,191,36,0.25); }
+    .todo-priority.low    { color: var(--green);  background: rgba(74,222,128,0.1);   border: 1px solid rgba(74,222,128,0.25); }
+
+    .todo-item-actions { display: flex; gap: 4px; flex-shrink: 0; margin-left: auto; }
+
+    .todo-del {
+      background: none; border: none; cursor: pointer;
+      color: var(--txt-3); display: flex; align-items: center;
+      border-radius: 4px; padding: 4px; transition: color 0.2s;
+    }
+    .todo-del:hover { color: var(--red); }
+    .todo-del svg { width: 13px; height: 13px; }
+
+    .todo-empty { text-align: center; padding: 2.5rem 0; color: var(--txt-3); font-size: 13px; font-family: var(--mono); }
+    .todo-empty-icon { font-size: 32px; margin-bottom: 8px; }
+
+    /* ── Priority picker ──────────────────────────────────────────────────── */
+    .priority-row { display: flex; gap: 8px; align-items: center; }
+    .priority-label { font-size: 10px; font-family: var(--mono); color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.08em; }
+    .priority-btn {
+      font-size: 10px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.07em;
+      padding: 3px 10px; border-radius: 999px; cursor: pointer;
+      border: 1px solid var(--border); background: none; color: var(--txt-3);
+      transition: all 0.15s;
+    }
+    .priority-btn.sel-high   { color: var(--red);   background: rgba(248,113,113,0.1);  border-color: rgba(248,113,113,0.35); }
+    .priority-btn.sel-medium { color: var(--amber);  background: rgba(251,191,36,0.1);   border-color: rgba(251,191,36,0.35); }
+    .priority-btn.sel-low    { color: var(--green);  background: rgba(74,222,128,0.1);   border-color: rgba(74,222,128,0.35); }
+
+    /* ── Misc ─────────────────────────────────────────────────────────────── */
+    .skeleton {
+      background: linear-gradient(90deg, var(--bg-2) 25%, var(--bg-3) 50%, var(--bg-2) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 4px; height: 12px; margin: 6px 0;
+    }
+
+    .toast-container { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 1000; }
+    .toast {
+      font-size: 13px; padding: 10px 18px; border-radius: var(--radius-sm);
+      display: flex; align-items: center; gap: 8px;
+      animation: toastIn 0.3s ease both;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+    .toast.success { background: rgba(74,222,128,0.15); border: 1px solid rgba(74,222,128,0.3); color: var(--green); }
+    .toast.error   { background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.3); color: var(--red); }
+    .toast.info    { background: rgba(56,189,248,0.15);  border: 1px solid rgba(56,189,248,0.3);  color: var(--cyan); }
+    .toast.removing { animation: toastOut 0.25s ease forwards; }
+    .toast svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    .uptime-bar {
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--mono); font-size: 11px; color: var(--txt-3);
+      padding: 10px 16px; background: var(--bg-1);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      margin-bottom: 16px; animation: fadeUp 0.5s 0.05s ease both;
+      flex-wrap: wrap;
+    }
+    .uptime-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; animation: pulse 2s ease-in-out infinite; }
+    .uptime-sep { color: var(--border); }
+
+    .countdown-ring { width: 28px; height: 28px; flex-shrink: 0; }
+    .countdown-ring circle { fill: none; stroke: var(--border); stroke-width: 2; r: 11; cx: 14; cy: 14; }
+    .countdown-ring .progress { stroke: var(--teal); stroke-linecap: round; transform-origin: 14px 14px; transform: rotate(-90deg); stroke-dasharray: 69.1; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear; }
+
+    @keyframes fadeDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
+    @keyframes fadeUp   { from { opacity: 0; transform: translateY(16px); }  to { opacity: 1; transform: none; } }
+    @keyframes slideIn  { from { opacity: 0; transform: translateX(-8px); }  to { opacity: 1; transform: none; } }
+    @keyframes slideOut { to   { opacity: 0; transform: translateX(8px); height: 0; padding: 0; margin: 0; } }
+    @keyframes spin     { to   { transform: rotate(360deg); } }
+    @keyframes pulse    { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.4); } }
+    @keyframes shimmer  { to { background-position: -200% 0; } }
+    @keyframes toastIn  { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
+    @keyframes toastOut { to   { opacity: 0; transform: translateX(20px); } }
+
+    @media (max-width: 640px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .card { grid-row: span 1 !important; }
+      .todo-form-row { flex-direction: column; }
+      .todo-name-input { width: 100%; }
+    }
+    @media (max-width: 480px) {
+      .header { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .header-right { width: 100%; justify-content: space-between; }
+      .version-number { font-size: 28px; }
+      .todo-add-btn span { display: none; }
+      .uptime-bar { gap: 6px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <header class="header">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#00d4aa" stroke-width="2" stroke-linecap="round">
+          <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+          <path d="M7 8h.01M11 8h6M7 12h10"/>
+        </svg>
+      </div>
+      <div>
+        <div class="logo-text">Sys<span>foo</span></div>
+        <div class="logo-sub">System Dashboard</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="live-clock" id="clock">--:--:--</div>
+      <button class="refresh-btn" id="refresh-btn" onclick="refreshAll()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+          <path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+          <path d="M8 16H3v5"/>
+        </svg>
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  <div class="uptime-bar">
+    <div class="uptime-dot"></div>
+    <span>LIVE</span>
+    <span class="uptime-sep">|</span>
+    <span>Next refresh</span>
+    <svg class="countdown-ring" id="countdown-ring">
+      <circle/><circle class="progress" id="countdown-progress"/>
+    </svg>
+    <span id="countdown-text">30s</span>
+    <span class="uptime-sep">|</span>
+    <span>Session: <span id="session-start">--</span></span>
+    <span class="uptime-sep">|</span>
+    <span>Uptime: <span id="page-uptime">0s</span></span>
+  </div>
+
+  <div class="grid-2">
+
+    <div class="card" style="grid-row: span 2;">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          System Info
+        </div>
+        <div id="sysinfo-loading" style="display:none;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00d4aa" stroke-width="2.5" stroke-linecap="round" style="animation:spin 0.8s linear infinite"><path d="M21 12a9 9 0 1 1-6.22-8.56"/></svg>
+        </div>
+      </div>
+      <div id="system-info">
+        <div class="skeleton" style="width:80%"></div>
+        <div class="skeleton" style="width:60%"></div>
+        <div class="skeleton" style="width:70%"></div>
+        <div class="skeleton" style="width:55%"></div>
+        <div class="skeleton" style="width:65%"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          App Version
+        </div>
+      </div>
+      <div class="version-display">
+        <div class="version-label">Current Release</div>
+        <div class="version-number" id="app-version">—</div>
+        <div style="font-size:11px;color:var(--txt-3);font-family:var(--mono);">sysfoo-app</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg>
+          Database
+        </div>
+      </div>
+      <div class="db-status" id="database-info">
+        <div class="skeleton" style="width:60px;height:60px;border-radius:50%;margin:0 auto;"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Advanced To-Do Section ───────────────────────────────────────────── -->
+  <div class="card card-full">
+    <div class="card-header">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        To-Do List
+      </div>
+      <div style="font-size:11px;font-family:var(--mono);color:var(--txt-3);">
+        press <kbd style="background:var(--bg-3);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:10px;">Enter</kbd> to add
+      </div>
+    </div>
+
+    <!-- Input form -->
+    <div class="todo-form" id="todo-form">
+      <!-- Row 1: Name + Task text -->
+      <div class="todo-form-row">
+        <div class="todo-field-wrap" style="flex:0 0 auto;width:170px;">
+          <label class="todo-field-label">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="display:inline;vertical-align:middle;margin-right:3px"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Assigned To
+          </label>
+          <input class="todo-name-input" id="todo-name" type="text" placeholder="Your name" maxlength="40" />
+        </div>
+        <div class="todo-field-wrap">
+          <label class="todo-field-label">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="display:inline;vertical-align:middle;margin-right:3px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Task Description
+          </label>
+          <input class="todo-input" id="todo-text" type="text" placeholder="What needs to be done?" maxlength="200" />
+        </div>
+      </div>
+
+      <!-- Row 2: Priority + Add button -->
+      <div class="todo-form-actions">
+        <div class="priority-row">
+          <span class="priority-label">Priority:</span>
+          <button class="priority-btn" data-p="high"   onclick="selectPriority('high')">High</button>
+          <button class="priority-btn sel-medium" data-p="medium" onclick="selectPriority('medium')">Medium</button>
+          <button class="priority-btn" data-p="low"    onclick="selectPriority('low')">Low</button>
+        </div>
+        <button class="todo-add-btn" id="add-todo-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          <span>Add Task</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Controls: filter + sort -->
+    <div class="todo-controls">
+      <div class="todo-filters">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="active">Active</button>
+        <button class="filter-btn" data-filter="done">Done</button>
+      </div>
+      <select class="todo-sort" id="todo-sort" onchange="renderTodos()">
+        <option value="newest">Newest first</option>
+        <option value="oldest">Oldest first</option>
+        <option value="priority">By priority</option>
+        <option value="name">By name</option>
+      </select>
+    </div>
+
+    <!-- Meta row -->
+    <div class="todo-meta">
+      <span class="todo-count" id="todo-count">0 tasks</span>
+      <div class="todo-meta-right">
+        <button class="clear-done-btn" onclick="clearDone()">Clear completed</button>
+      </div>
+    </div>
+
+    <!-- List -->
+    <ul class="todo-list" id="todo-list"></ul>
+    <div class="todo-empty" id="todo-empty" style="display:none;">
+      <div class="todo-empty-icon">✓</div>
+      <div>All clear! Add a task above.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+  var todos = [], filter = 'all', refreshInterval, countdownInterval;
+  var sessionStart = Date.now(), refreshSeconds = 30, currentCountdown = 30;
+  var localIdCounter = 0;
+  var CIRCUMFERENCE = 2 * Math.PI * 11;
+  var selectedPriority = 'medium';
+
+  var PRIORITY_ORDER = { high: 0, medium: 1, low: 2 };
+
+  // ── Priority selector ──────────────────────────────────────────────────────
+  function selectPriority(p) {
+    selectedPriority = p;
+    document.querySelectorAll('.priority-btn').forEach(function(btn) {
+      btn.className = 'priority-btn';
+      if (btn.dataset.p === p) btn.classList.add('sel-' + p);
+    });
+  }
+
+  // ── Toast ──────────────────────────────────────────────────────────────────
+  function showToast(msg, type) {
+    type = type || 'info';
+    var icons = {
+      success: '<path d="M20 6L9 17l-5-5"/>',
+      error:   '<circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/>',
+      info:    '<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>'
+    };
+    var el = document.createElement('div');
+    el.className = 'toast ' + type;
+    el.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">' + icons[type] + '</svg>' + msg;
+    document.getElementById('toast-container').appendChild(el);
+    setTimeout(function() {
+      el.classList.add('removing');
+      setTimeout(function() { el.remove(); }, 300);
+    }, 2800);
+  }
+
+  // ── Clock & uptime ─────────────────────────────────────────────────────────
+  function updateClock() {
+    var now = new Date();
+    document.getElementById('clock').textContent = now.toLocaleTimeString('en-GB');
+    var sec = Math.floor((Date.now() - sessionStart) / 1000);
+    var h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+    document.getElementById('page-uptime').textContent = h ? h+'h '+m+'m '+s+'s' : m ? m+'m '+s+'s' : s+'s';
+  }
+
+  function formatTime(ts) {
+    return new Date(ts).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function formatDate(ts) {
+    return new Date(ts).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+  }
+
+  // ── Countdown ring ─────────────────────────────────────────────────────────
+  function updateCountdown(seconds) {
+    var frac = seconds / refreshSeconds;
+    document.getElementById('countdown-progress').style.strokeDashoffset = CIRCUMFERENCE * (1 - frac);
+    document.getElementById('countdown-text').textContent = seconds + 's';
+  }
+
+  function startCountdown() {
+    clearInterval(countdownInterval);
+    currentCountdown = refreshSeconds;
+    updateCountdown(currentCountdown);
+    countdownInterval = setInterval(function() {
+      currentCountdown--;
+      if (currentCountdown < 0) currentCountdown = refreshSeconds;
+      updateCountdown(currentCountdown);
+    }, 1000);
+  }
+
+  // ── Clipboard ──────────────────────────────────────────────────────────────
+  function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() { showToast('Copied to clipboard', 'success'); });
+  }
+
+  function escapeHtml(s) {
+    if (!s) return '';
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── System info ────────────────────────────────────────────────────────────
+  function renderSystemInfo(data) {
+    var rows = [
+      { key: 'Hostname',   val: data.Hostname,                       copy: true },
+      { key: 'IP Address', val: data['IP Address'],                   copy: true },
+      { key: 'Docker',     badge: data['Running in Docker'],          label: 'Docker' },
+      { key: 'Kubernetes', badge: data['Running in Kubernetes'],      label: 'Kubernetes' },
+      { key: 'Version',    val: data['App Version'],                  copy: false }
+    ];
+    var html = '';
+    rows.forEach(function(r) {
+      if (r.badge !== undefined) {
+        var cls = r.badge ? 'badge-yes' : 'badge-no';
+        var txt = r.badge ? 'Running' : 'Not detected';
+        html += '<div class="stat-row"><span class="stat-key">' + r.key + '</span><span class="stat-val"><span class="badge ' + cls + '">' + txt + '</span></span></div>';
+      } else {
+        var copyHtml = r.copy ? '<button class="copy-btn" onclick="copyToClipboard(\'' + escapeHtml(r.val) + '\')" title="Copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>' : '';
+        html += '<div class="stat-row"><span class="stat-key">' + r.key + '</span><span class="stat-val">' + escapeHtml(r.val) + copyHtml + '</span></div>';
+      }
+    });
+    document.getElementById('system-info').innerHTML = html;
+    document.getElementById('app-version').textContent = 'v' + data['App Version'];
+  }
+
+  function fetchSystemInfo() {
+    document.getElementById('sysinfo-loading').style.display = 'block';
+    fetch('/system-info')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        renderSystemInfo(data);
+        document.getElementById('sysinfo-loading').style.display = 'none';
+      })
+      .catch(function() {
+        document.getElementById('sysinfo-loading').style.display = 'none';
+        showToast('Failed to load system info', 'error');
+      });
+    fetch('/version')
+      .then(function(r) { return r.text(); })
+      .then(function(v) { document.getElementById('app-version').textContent = 'v' + v; })
+      .catch(function() {});
+  }
+
+  function fetchDatabaseInfo() {
+    fetch('/database-info')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var connected = data.status === 'Connected';
+        var cls = connected ? 'connected' : 'disconnected';
+        document.getElementById('database-info').innerHTML =
+          '<div class="status-dot-wrap"><div class="status-dot ' + cls + '"></div></div>' +
+          '<div class="status-label ' + cls + '">' + data.status + '</div>' +
+          '<div class="db-type">' + (data.databaseType || 'Unknown') + '</div>';
+      })
+      .catch(function() {
+        document.getElementById('database-info').innerHTML =
+          '<div class="status-dot-wrap"><div class="status-dot disconnected"></div></div>' +
+          '<div class="status-label disconnected">Disconnected</div>' +
+          '<div class="db-type">Unknown</div>';
+      });
+  }
+
+  // ── Todo rendering ─────────────────────────────────────────────────────────
+  function getSortedFiltered() {
+    var filtered = todos.filter(function(t) {
+      if (filter === 'active') return !t.done;
+      if (filter === 'done')   return t.done;
+      return true;
+    });
+    var sort = document.getElementById('todo-sort').value;
+    filtered.sort(function(a, b) {
+      if (sort === 'oldest')   return a.createdAt - b.createdAt;
+      if (sort === 'priority') return PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority];
+      if (sort === 'name')     return (a.name || '').localeCompare(b.name || '');
+      return b.createdAt - a.createdAt; // newest (default)
+    });
+    return filtered;
+  }
+
+  function renderTodos() {
+    var filtered = getSortedFiltered();
+    var list  = document.getElementById('todo-list');
+    var empty = document.getElementById('todo-empty');
+    var count = document.getElementById('todo-count');
+    var active = todos.filter(function(t) { return !t.done; }).length;
+    count.textContent = todos.length + ' task' + (todos.length !== 1 ? 's' : '') + ' · ' + active + ' active';
+
+    if (filtered.length === 0) { list.innerHTML = ''; empty.style.display = 'block'; return; }
+    empty.style.display = 'none';
+
+    list.innerHTML = filtered.map(function(todo) {
+      var nameTag = todo.name
+        ? '<span class="todo-name-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>' + escapeHtml(todo.name) + '</span>'
+        : '';
+      var priTag = '<span class="todo-priority ' + todo.priority + '">' + todo.priority + '</span>';
+      var dateStr = todo.date ? todo.date + ' · ' : '';
+
+      return '<li class="todo-item ' + (todo.done ? 'done' : '') + '" id="todo-' + todo.localId + '">' +
+        '<div class="todo-check" onclick="toggleTodo(' + todo.localId + ')">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>' +
+        '</div>' +
+        '<div class="todo-body">' +
+          '<div class="todo-header-row">' +
+            nameTag +
+            priTag +
+          '</div>' +
+          '<div class="todo-text" onclick="toggleTodo(' + todo.localId + ')">' + escapeHtml(todo.text) + '</div>' +
+          '<div class="todo-footer-row">' +
+            '<span class="todo-timestamp">' + dateStr + todo.time + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="todo-item-actions">' +
+          '<button class="todo-del" onclick="deleteTodo(' + todo.localId + ')" title="Delete">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>' +
+          '</button>' +
+        '</div>' +
+      '</li>';
+    }).join('');
+  }
+
+  // ── Add todo ───────────────────────────────────────────────────────────────
+  function addTodo() {
+    var textInput = document.getElementById('todo-text');
+    var nameInput = document.getElementById('todo-name');
+    var text = textInput.value.trim();
+    var name = nameInput.value.trim();
+    if (!text) { textInput.focus(); showToast('Please enter a task description', 'error'); return; }
+
+    var btn = document.getElementById('add-todo-btn');
+    btn.disabled = true;
+
+    fetch('/todos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name, text: text })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var now = Date.now();
+      todos.push({
+        localId:   localIdCounter++,
+        id:        data.id,
+        name:      data.name || name,
+        text:      data.text,
+        priority:  selectedPriority,
+        done:      false,
+        time:      formatTime(now),
+        date:      formatDate(now),
+        createdAt: now
+      });
+      textInput.value = '';
+      // keep the name for convenience (same assignee for next task)
+      renderTodos();
+      showToast('Task added' + (name ? ' for ' + name : ''), 'success');
+    })
+    .catch(function() { showToast('Failed to add task — is the DB connected?', 'error'); })
+    .finally(function() { btn.disabled = false; textInput.focus(); });
+  }
+
+  // ── Toggle / delete / clear ────────────────────────────────────────────────
+  function toggleTodo(localId) {
+    var t = todos.find(function(x) { return x.localId === localId; });
+    if (t) { t.done = !t.done; renderTodos(); }
+  }
+
+  function deleteTodo(localId) {
+    var el = document.getElementById('todo-' + localId);
+    if (el) el.classList.add('removing');
+    setTimeout(function() {
+      todos = todos.filter(function(x) { return x.localId !== localId; });
+      renderTodos();
+    }, 250);
+  }
+
+  function clearDone() {
+    todos = todos.filter(function(t) { return !t.done; });
+    renderTodos();
+    showToast('Completed tasks cleared', 'info');
+  }
+
+  // ── Load todos from server ─────────────────────────────────────────────────
+  function loadTodos() {
+    fetch('/todos')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var now = Date.now();
+        todos = data.map(function(d) {
+          return {
+            localId:   localIdCounter++,
+            id:        d.id,
+            name:      d.name || '',
+            text:      d.text,
+            priority:  'medium',
+            done:      false,
+            time:      formatTime(now),
+            date:      formatDate(now),
+            createdAt: now
+          };
+        });
+        renderTodos();
+      })
+      .catch(function() { showToast('Could not load tasks from server', 'error'); });
+  }
+
+  // ── Filter buttons ─────────────────────────────────────────────────────────
+  document.querySelectorAll('.filter-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      filter = btn.dataset.filter;
+      renderTodos();
+    });
+  });
+
+  // ── Keyboard shortcut: Enter to add ───────────────────────────────────────
+  document.getElementById('add-todo-btn').addEventListener('click', addTodo);
+  document.getElementById('todo-text').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') addTodo();
+  });
+  document.getElementById('todo-name').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') document.getElementById('todo-text').focus();
+  });
+
+  // ── Refresh all ────────────────────────────────────────────────────────────
+  function refreshAll() {
+    var btn = document.getElementById('refresh-btn');
+    btn.classList.add('spinning');
+    fetchSystemInfo();
+    fetchDatabaseInfo();
+    startCountdown();
+    setTimeout(function() { btn.classList.remove('spinning'); }, 700);
+    showToast('Dashboard refreshed', 'info');
+  }
+
+  function startAutoRefresh() {
+    clearInterval(refreshInterval);
+    refreshInterval = setInterval(function() {
+      fetchSystemInfo();
+      fetchDatabaseInfo();
+      startCountdown();
+    }, refreshSeconds * 1000);
+    startCountdown();
+  }
+
+  // ── Boot ───────────────────────────────────────────────────────────────────
+  document.getElementById('session-start').textContent = formatTime(sessionStart);
+  setInterval(updateClock, 1000);
+  updateClock();
+  fetchSystemInfo();
+  fetchDatabaseInfo();
+  loadTodos();
+  startAutoRefresh();
+</script>
+</body>
+</html>
