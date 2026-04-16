@@ -1,0 +1,68 @@
+# ─────────────────────────────────────────────────────────────────
+# .dockerignore — keeps the build context lean & secrets out
+# ─────────────────────────────────────────────────────────────────
+
+# ── Build output (builder stage copies source, not target) ───────
+target/
+
+# ── IDE / editor files ────────────────────────────────────────────
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+*.code-workspace
+.settings/
+.classpath
+.project
+.factorypath
+
+# ── OS noise ──────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Git metadata ──────────────────────────────────────────────────
+.git/
+.gitignore
+.gitattributes
+
+# ── CI / DevOps artefacts ─────────────────────────────────────────
+Jenkinsfile
+.github/
+.gitlab-ci.yml
+*.jenkinsfile
+
+# ── Docker files themselves ───────────────────────────────────────
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# ── Security & secret scan reports ───────────────────────────────
+gitleaks-report.json
+owasp-reports/
+trivy-reports/
+*.sarif
+
+# ── Test & coverage reports ───────────────────────────────────────
+surefire-reports/
+site/
+*.exec
+
+# ── Local SQLite databases (never bake DB into image) ────────────
+*.db
+*.sqlite
+*.sqlite3
+data/
+
+# ── Log files ─────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Maven wrapper cache ───────────────────────────────────────────
+.mvn/wrapper/maven-wrapper.jar
+
+# ── Docs & markdown ───────────────────────────────────────────────
+README.md
+docs/
+*.md
