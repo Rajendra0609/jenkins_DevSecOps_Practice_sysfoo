@@ -3,7 +3,7 @@
 # ─────────────────────────────────────────────────────────────────
 
 # ── Build output (builder stage copies source, not target) ───────
-target/
+
 
 # ── IDE / editor files ────────────────────────────────────────────
 .idea/
