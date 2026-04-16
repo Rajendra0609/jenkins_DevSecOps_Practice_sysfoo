@@ -110,7 +110,7 @@ export SPRING_DATASOURCE_PASSWORD=secret
 
 java -jar target/sysfoo-0.0.1-SNAPSHOT.jar
 ```
-
+docker run -d   --name sysfoo-app   -p 8080:8080   -v sysfoo_data:/data   daggu1997/jenkins_sysfoo:v0.0.1
 ---
 
 ## DevOps Ideas
