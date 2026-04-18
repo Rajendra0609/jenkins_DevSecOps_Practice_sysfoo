@@ -59,7 +59,10 @@ import java.util.Map;
 @CrossOrigin(origins = "*")
 public class NotificationController {
 
-    @Autowired
+    // ── FIX: required=false allows the application context to start even when
+    // no SMTP configuration is present (e.g. test profile, local dev without mail).
+    // The endpoint returns a 503 instead of crashing at startup.
+    @Autowired(required = false)
     private JavaMailSender mailSender;
 
     @Value("${sysfoo.mail.from:Sysfoo Dashboard <noreply@sysfoo.dev>}")
@@ -68,6 +71,13 @@ public class NotificationController {
     @PostMapping("/notify")
     public ResponseEntity<Map<String, String>> sendNotification(
             @RequestBody Map<String, String> payload) {
+
+        // Guard: mail is not configured in this environment
+        if (mailSender == null) {
+            return ResponseEntity.status(503)
+                    .body(Map.of("status", "error",
+                                 "message", "Mail service is not configured in this environment"));
+        }
 
         String to       = payload.getOrDefault("to", "");
         String subject  = payload.getOrDefault("subject", "[Sysfoo] New Task Notification");
