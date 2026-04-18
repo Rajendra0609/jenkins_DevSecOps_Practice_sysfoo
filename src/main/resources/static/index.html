@@ -15,22 +15,29 @@
       --bg-1:       #0d1117;
       --bg-2:       #111827;
       --bg-3:       #1c2333;
-      --border:     rgba(255,255,255,0.07);
-      --border-hi:  rgba(0,212,170,0.35);
+      --bg-4:       #222d42;
+      --border:     rgba(255,255,255,0.09);
+      --border-hi:  rgba(0,212,170,0.4);
       --teal:       #00d4aa;
       --teal-dim:   rgba(0,212,170,0.12);
+      --teal-mid:   rgba(0,212,170,0.25);
       --cyan:       #38bdf8;
       --red:        #f87171;
+      --red-dim:    rgba(248,113,113,0.12);
       --amber:      #fbbf24;
+      --amber-dim:  rgba(251,191,36,0.12);
       --green:      #4ade80;
+      --green-dim:  rgba(74,222,128,0.12);
       --purple:     #a78bfa;
-      --txt:        #e2e8f0;
+      --purple-dim: rgba(167,139,250,0.12);
+      --txt:        #e8edf5;
       --txt-2:      #94a3b8;
-      --txt-3:      #475569;
+      --txt-3:      #4e637a;
       --mono:       'JetBrains Mono', monospace;
       --sans:       'Syne', sans-serif;
       --radius:     14px;
-      --radius-sm:  8px;
+      --radius-sm:  9px;
+      --radius-xs:  6px;
     }
 
     html { scroll-behavior: smooth; }
@@ -47,21 +54,22 @@
       content: '';
       position: fixed; inset: 0; z-index: 0;
       background-image:
-        linear-gradient(rgba(0,212,170,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,212,170,0.03) 1px, transparent 1px);
-      background-size: 40px 40px;
+        linear-gradient(rgba(0,212,170,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,170,0.025) 1px, transparent 1px);
+      background-size: 44px 44px;
       pointer-events: none;
     }
 
     body::after {
       content: '';
       position: fixed; inset: 0; z-index: 0;
-      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,212,170,0.08) 0%, transparent 70%);
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,212,170,0.07) 0%, transparent 65%);
       pointer-events: none;
     }
 
-    .page { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    .page { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
 
+    /* ── Header ─────────────────────────────────────────────────────────────── */
     .header {
       display: flex; align-items: center; justify-content: space-between;
       padding-bottom: 2rem; margin-bottom: 2rem;
@@ -72,17 +80,17 @@
     .logo { display: flex; align-items: center; gap: 12px; }
 
     .logo-icon {
-      width: 40px; height: 40px; border-radius: 10px;
+      width: 42px; height: 42px; border-radius: 11px;
       background: var(--teal-dim); border: 1px solid var(--border-hi);
       display: flex; align-items: center; justify-content: center;
     }
-    .logo-icon svg { width: 20px; height: 20px; }
+    .logo-icon svg { width: 21px; height: 21px; }
 
-    .logo-text { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+    .logo-text { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; color: var(--txt); }
     .logo-text span { color: var(--teal); }
-    .logo-sub { font-size: 11px; font-family: var(--mono); color: var(--txt-3); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 1px; }
+    .logo-sub { font-size: 11px; font-family: var(--mono); color: var(--txt-3); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 2px; }
 
-    .header-right { display: flex; align-items: center; gap: 16px; }
+    .header-right { display: flex; align-items: center; gap: 14px; }
 
     .live-clock {
       font-family: var(--mono); font-size: 13px; color: var(--txt-2);
@@ -94,13 +102,30 @@
       font-family: var(--sans); font-size: 12px; font-weight: 600;
       color: var(--teal); background: var(--teal-dim);
       border: 1px solid var(--border-hi); border-radius: 999px;
-      padding: 6px 14px; cursor: pointer; display: flex; align-items: center; gap: 6px;
+      padding: 6px 16px; cursor: pointer; display: flex; align-items: center; gap: 7px;
       transition: all 0.2s; letter-spacing: 0.02em;
     }
-    .refresh-btn:hover { background: rgba(0,212,170,0.2); }
+    .refresh-btn:hover { background: var(--teal-mid); }
     .refresh-btn svg { width: 13px; height: 13px; }
     .refresh-btn.spinning svg { animation: spin 0.8s linear infinite; }
 
+    /* ── Uptime bar ──────────────────────────────────────────────────────────── */
+    .uptime-bar {
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--mono); font-size: 11px; color: var(--txt-2);
+      padding: 10px 18px; background: var(--bg-1);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      margin-bottom: 16px; animation: fadeUp 0.5s 0.05s ease both;
+      flex-wrap: wrap;
+    }
+    .uptime-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; animation: pulse 2s ease-in-out infinite; }
+    .uptime-sep { color: var(--border); }
+
+    .countdown-ring { width: 28px; height: 28px; flex-shrink: 0; }
+    .countdown-ring circle { fill: none; stroke: var(--border); stroke-width: 2; r: 11; cx: 14; cy: 14; }
+    .countdown-ring .progress { stroke: var(--teal); stroke-linecap: round; transform-origin: 14px 14px; transform: rotate(-90deg); stroke-dasharray: 69.1; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear; }
+
+    /* ── Grid ────────────────────────────────────────────────────────────────── */
     .grid-2 {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -108,6 +133,7 @@
       margin-bottom: 16px;
     }
 
+    /* ── Cards ───────────────────────────────────────────────────────────────── */
     .card {
       background: var(--bg-1);
       border: 1px solid var(--border);
@@ -119,7 +145,7 @@
     .card::before {
       content: '';
       position: absolute; inset: 0;
-      background: linear-gradient(135deg, rgba(255,255,255,0.02) 0%, transparent 60%);
+      background: linear-gradient(135deg, rgba(255,255,255,0.015) 0%, transparent 60%);
       pointer-events: none;
     }
     .card:nth-child(1) { animation-delay: 0.1s; }
@@ -135,18 +161,19 @@
 
     .card-title {
       display: flex; align-items: center; gap: 8px;
-      font-size: 12px; font-weight: 600; text-transform: uppercase;
-      letter-spacing: 0.1em; color: var(--txt-3);
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.12em; color: var(--txt-2);
     }
     .card-title svg { width: 14px; height: 14px; color: var(--teal); }
 
+    /* ── Stat rows ───────────────────────────────────────────────────────────── */
     .stat-row {
       display: flex; align-items: center; justify-content: space-between;
       padding: 10px 0; border-bottom: 1px solid var(--border);
       font-size: 13px;
     }
     .stat-row:last-child { border-bottom: none; padding-bottom: 0; }
-    .stat-key { color: var(--txt-3); font-family: var(--mono); font-size: 12px; }
+    .stat-key { color: var(--txt-2); font-family: var(--mono); font-size: 11px; }
     .stat-val { font-family: var(--mono); font-size: 12px; color: var(--txt); display: flex; align-items: center; gap: 8px; }
 
     .copy-btn {
@@ -157,13 +184,15 @@
     .copy-btn:hover { color: var(--teal); }
     .copy-btn svg { width: 11px; height: 11px; }
 
+    /* ── Version ─────────────────────────────────────────────────────────────── */
     .version-display {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 6px; height: 100px;
+      gap: 6px; height: 110px;
     }
-    .version-label { font-size: 11px; font-family: var(--mono); color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.1em; }
-    .version-number { font-family: var(--mono); font-size: 40px; font-weight: 700; color: var(--teal); letter-spacing: -1px; }
+    .version-label { font-size: 10px; font-family: var(--mono); color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.12em; }
+    .version-number { font-family: var(--mono); font-size: 42px; font-weight: 700; color: var(--teal); letter-spacing: -2px; }
 
+    /* ── DB Status ───────────────────────────────────────────────────────────── */
     .db-status { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 1.25rem 0; }
     .status-dot-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
     .status-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--txt-3); }
@@ -171,11 +200,11 @@
     .status-dot.disconnected { background: var(--red); }
     .status-dot.connected::before {
       content: ''; position: absolute;
-      width: 30px; height: 30px; border-radius: 50%;
-      background: rgba(74,222,128,0.2);
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(74,222,128,0.18);
       animation: pulse 2s ease-in-out infinite;
     }
-    .status-label { font-size: 15px; font-weight: 600; }
+    .status-label { font-size: 15px; font-weight: 700; }
     .status-label.connected { color: var(--green); }
     .status-label.disconnected { color: var(--red); }
     .db-type {
@@ -184,206 +213,16 @@
       padding: 4px 12px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.08em;
     }
 
+    /* ── Badges ──────────────────────────────────────────────────────────────── */
     .badge {
       font-family: var(--mono); font-size: 10px; font-weight: 500;
       padding: 4px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.08em;
       display: inline-flex; align-items: center; gap: 5px;
     }
-    .badge-yes { background: rgba(74,222,128,0.12); color: var(--green); border: 1px solid rgba(74,222,128,0.25); }
+    .badge-yes { background: rgba(74,222,128,0.12); color: var(--green); border: 1px solid rgba(74,222,128,0.3); }
     .badge-no  { background: var(--bg-3); color: var(--txt-3); border: 1px solid var(--border); }
 
-    /* ── Todo: Input area ─────────────────────────────────────────────────── */
-    .todo-form {
-      background: var(--bg-2);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 14px 16px;
-      margin-bottom: 1.25rem;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      transition: border-color 0.2s;
-    }
-    .todo-form:focus-within { border-color: var(--border-hi); }
-
-    .todo-form-row { display: flex; gap: 10px; align-items: center; }
-
-    .todo-field-wrap {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      flex: 1;
-    }
-    .todo-field-label {
-      font-size: 10px;
-      font-family: var(--mono);
-      color: var(--txt-3);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    .todo-input {
-      width: 100%;
-      background: var(--bg-3);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 9px 12px;
-      font-family: var(--sans); font-size: 14px; color: var(--txt);
-      outline: none; transition: border-color 0.2s;
-    }
-    .todo-input::placeholder { color: var(--txt-3); }
-    .todo-input:focus { border-color: var(--border-hi); }
-
-    .todo-name-input {
-      width: 180px;
-      background: var(--bg-3);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 9px 12px;
-      font-family: var(--mono); font-size: 13px; color: var(--purple);
-      outline: none; transition: border-color 0.2s;
-      flex-shrink: 0;
-    }
-    .todo-name-input::placeholder { color: var(--txt-3); }
-    .todo-name-input:focus { border-color: rgba(167,139,250,0.4); }
-
-    .todo-form-actions { display: flex; align-items: center; justify-content: space-between; }
-
-    .todo-form-hint {
-      font-size: 11px; font-family: var(--mono); color: var(--txt-3);
-    }
-
-    .todo-add-btn {
-      background: var(--teal); color: #000; border: none;
-      border-radius: var(--radius-sm); padding: 10px 20px;
-      font-family: var(--sans); font-size: 13px; font-weight: 700;
-      cursor: pointer; display: flex; align-items: center; gap: 6px;
-      transition: all 0.2s; white-space: nowrap;
-    }
-    .todo-add-btn:hover { background: #00f0c0; transform: translateY(-1px); }
-    .todo-add-btn:active { transform: translateY(0); }
-    .todo-add-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-    .todo-add-btn svg { width: 14px; height: 14px; }
-
-    /* ── Todo: Filters & meta ─────────────────────────────────────────────── */
-    .todo-controls {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 1rem; gap: 10px; flex-wrap: wrap;
-    }
-    .todo-filters { display: flex; gap: 6px; }
-    .filter-btn {
-      font-family: var(--sans); font-size: 11px; font-weight: 600;
-      padding: 4px 12px; border-radius: 999px; cursor: pointer;
-      border: 1px solid var(--border); background: none; color: var(--txt-3);
-      transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.06em;
-    }
-    .filter-btn.active { background: var(--teal-dim); border-color: var(--border-hi); color: var(--teal); }
-
-    .todo-sort {
-      font-family: var(--mono); font-size: 11px; color: var(--txt-3);
-      background: var(--bg-2); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); padding: 4px 10px;
-      cursor: pointer; outline: none; transition: border-color 0.2s;
-    }
-    .todo-sort:focus { border-color: var(--border-hi); }
-
-    .todo-meta {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 12px; font-size: 12px; color: var(--txt-3);
-    }
-    .todo-count { font-family: var(--mono); }
-    .todo-meta-right { display: flex; gap: 10px; align-items: center; }
-    .clear-done-btn {
-      background: none; border: none; cursor: pointer;
-      color: var(--txt-3); font-size: 11px; font-family: var(--sans);
-      text-decoration: underline; transition: color 0.2s;
-    }
-    .clear-done-btn:hover { color: var(--red); }
-
-    /* ── Todo: List items ─────────────────────────────────────────────────── */
-    .todo-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-
-    .todo-item {
-      display: flex; align-items: flex-start; gap: 10px;
-      background: var(--bg-2); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); padding: 12px 14px;
-      transition: all 0.25s; animation: slideIn 0.25s ease both;
-    }
-    .todo-item:hover { border-color: var(--border-hi); background: var(--bg-3); }
-    .todo-item.done { opacity: 0.45; }
-    .todo-item.done .todo-text { text-decoration: line-through; color: var(--txt-3); }
-    .todo-item.removing { animation: slideOut 0.25s ease forwards; }
-
-    .todo-check {
-      width: 18px; height: 18px; border-radius: 5px;
-      border: 1.5px solid var(--txt-3); cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; transition: all 0.2s; margin-top: 2px;
-    }
-    .todo-item.done .todo-check { background: var(--teal); border-color: var(--teal); }
-    .todo-check svg { width: 10px; height: 10px; display: none; }
-    .todo-item.done .todo-check svg { display: block; }
-
-    .todo-body { flex: 1; min-width: 0; }
-
-    .todo-header-row {
-      display: flex; align-items: center; gap: 8px;
-      margin-bottom: 3px; flex-wrap: wrap;
-    }
-
-    .todo-name-tag {
-      font-family: var(--mono); font-size: 10px;
-      color: var(--purple); background: rgba(167,139,250,0.1);
-      border: 1px solid rgba(167,139,250,0.25);
-      padding: 2px 8px; border-radius: 999px;
-      display: inline-flex; align-items: center; gap: 4px;
-      flex-shrink: 0;
-    }
-    .todo-name-tag svg { width: 9px; height: 9px; }
-
-    .todo-text { font-size: 14px; color: var(--txt); line-height: 1.5; word-break: break-word; }
-
-    .todo-footer-row {
-      display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap;
-    }
-
-    .todo-timestamp { font-family: var(--mono); font-size: 10px; color: var(--txt-3); }
-
-    .todo-priority {
-      font-family: var(--mono); font-size: 9px; text-transform: uppercase;
-      letter-spacing: 0.08em; padding: 2px 7px; border-radius: 999px;
-    }
-    .todo-priority.high   { color: var(--red);   background: rgba(248,113,113,0.1);  border: 1px solid rgba(248,113,113,0.25); }
-    .todo-priority.medium { color: var(--amber);  background: rgba(251,191,36,0.1);   border: 1px solid rgba(251,191,36,0.25); }
-    .todo-priority.low    { color: var(--green);  background: rgba(74,222,128,0.1);   border: 1px solid rgba(74,222,128,0.25); }
-
-    .todo-item-actions { display: flex; gap: 4px; flex-shrink: 0; margin-left: auto; }
-
-    .todo-del {
-      background: none; border: none; cursor: pointer;
-      color: var(--txt-3); display: flex; align-items: center;
-      border-radius: 4px; padding: 4px; transition: color 0.2s;
-    }
-    .todo-del:hover { color: var(--red); }
-    .todo-del svg { width: 13px; height: 13px; }
-
-    .todo-empty { text-align: center; padding: 2.5rem 0; color: var(--txt-3); font-size: 13px; font-family: var(--mono); }
-    .todo-empty-icon { font-size: 32px; margin-bottom: 8px; }
-
-    /* ── Priority picker ──────────────────────────────────────────────────── */
-    .priority-row { display: flex; gap: 8px; align-items: center; }
-    .priority-label { font-size: 10px; font-family: var(--mono); color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.08em; }
-    .priority-btn {
-      font-size: 10px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.07em;
-      padding: 3px 10px; border-radius: 999px; cursor: pointer;
-      border: 1px solid var(--border); background: none; color: var(--txt-3);
-      transition: all 0.15s;
-    }
-    .priority-btn.sel-high   { color: var(--red);   background: rgba(248,113,113,0.1);  border-color: rgba(248,113,113,0.35); }
-    .priority-btn.sel-medium { color: var(--amber);  background: rgba(251,191,36,0.1);   border-color: rgba(251,191,36,0.35); }
-    .priority-btn.sel-low    { color: var(--green);  background: rgba(74,222,128,0.1);   border-color: rgba(74,222,128,0.35); }
-
-    /* ── Misc ─────────────────────────────────────────────────────────────── */
+    /* ── Skeleton ────────────────────────────────────────────────────────────── */
     .skeleton {
       background: linear-gradient(90deg, var(--bg-2) 25%, var(--bg-3) 50%, var(--bg-2) 75%);
       background-size: 200% 100%;
@@ -391,12 +230,14 @@
       border-radius: 4px; height: 12px; margin: 6px 0;
     }
 
+    /* ── Toast ───────────────────────────────────────────────────────────────── */
     .toast-container { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 1000; }
     .toast {
-      font-size: 13px; padding: 10px 18px; border-radius: var(--radius-sm);
+      font-size: 13px; font-family: var(--sans); font-weight: 600;
+      padding: 11px 18px; border-radius: var(--radius-sm);
       display: flex; align-items: center; gap: 8px;
       animation: toastIn 0.3s ease both;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
     }
     .toast.success { background: rgba(74,222,128,0.15); border: 1px solid rgba(74,222,128,0.3); color: var(--green); }
     .toast.error   { background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.3); color: var(--red); }
@@ -404,41 +245,462 @@
     .toast.removing { animation: toastOut 0.25s ease forwards; }
     .toast svg { width: 14px; height: 14px; flex-shrink: 0; }
 
-    .uptime-bar {
-      display: flex; align-items: center; gap: 10px;
-      font-family: var(--mono); font-size: 11px; color: var(--txt-3);
-      padding: 10px 16px; background: var(--bg-1);
-      border: 1px solid var(--border); border-radius: var(--radius);
-      margin-bottom: 16px; animation: fadeUp 0.5s 0.05s ease both;
-      flex-wrap: wrap;
+    /* ═══════════════════════════════════════════════════════════════════════════
+       ── TODO SECTION (Fully Revamped) ─────────────────────────────────────── */
+
+    /* ── Progress Overview ───────────────────────────────────────────────────── */
+    .todo-progress-bar-wrap {
+      margin-bottom: 1.25rem;
+      display: flex; flex-direction: column; gap: 8px;
     }
-    .uptime-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; animation: pulse 2s ease-in-out infinite; }
-    .uptime-sep { color: var(--border); }
+    .todo-progress-header {
+      display: flex; align-items: center; justify-content: space-between;
+      font-family: var(--mono); font-size: 11px;
+    }
+    .todo-progress-label { color: var(--txt-2); }
+    .todo-progress-pct { color: var(--teal); font-weight: 700; font-size: 13px; }
+    .progress-track {
+      width: 100%; height: 6px; background: var(--bg-3);
+      border-radius: 999px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; border-radius: 999px;
+      background: linear-gradient(90deg, var(--teal), #00f0c0);
+      transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    }
+    .todo-stat-chips {
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .stat-chip {
+      font-family: var(--mono); font-size: 10px;
+      padding: 3px 10px; border-radius: 999px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .chip-total  { background: var(--bg-3); color: var(--txt-2); border: 1px solid var(--border); }
+    .chip-active { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(251,191,36,0.25); }
+    .chip-done   { background: var(--green-dim); color: var(--green); border: 1px solid rgba(74,222,128,0.25); }
+    .chip-high   { background: var(--red-dim); color: var(--red); border: 1px solid rgba(248,113,113,0.25); }
 
-    .countdown-ring { width: 28px; height: 28px; flex-shrink: 0; }
-    .countdown-ring circle { fill: none; stroke: var(--border); stroke-width: 2; r: 11; cx: 14; cy: 14; }
-    .countdown-ring .progress { stroke: var(--teal); stroke-linecap: round; transform-origin: 14px 14px; transform: rotate(-90deg); stroke-dasharray: 69.1; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear; }
+    /* ── Search bar ─────────────────────────────────────────────────────────── */
+    .todo-search-wrap {
+      position: relative; margin-bottom: 14px;
+    }
+    .todo-search-icon {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      color: var(--txt-3); pointer-events: none;
+    }
+    .todo-search-icon svg { width: 13px; height: 13px; display: block; }
+    .todo-search {
+      width: 100%; background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 9px 12px 9px 36px;
+      font-family: var(--mono); font-size: 13px; color: var(--txt);
+      outline: none; transition: border-color 0.2s;
+    }
+    .todo-search::placeholder { color: var(--txt-3); }
+    .todo-search:focus { border-color: var(--border-hi); }
 
+    /* ── Form ────────────────────────────────────────────────────────────────── */
+    .todo-form {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px 18px;
+      margin-bottom: 1.25rem;
+      display: flex; flex-direction: column; gap: 12px;
+      transition: border-color 0.2s;
+    }
+    .todo-form:focus-within { border-color: var(--border-hi); }
+
+    .todo-form-row { display: flex; gap: 10px; align-items: flex-end; }
+
+    .todo-field-wrap { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+    .todo-field-label {
+      font-size: 10px; font-family: var(--mono); color: var(--txt-3);
+      text-transform: uppercase; letter-spacing: 0.09em;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .todo-field-label svg { width: 9px; height: 9px; }
+
+    .todo-input {
+      width: 100%; background: var(--bg-3); border: 1px solid var(--border);
+      border-radius: var(--radius-xs); padding: 9px 13px;
+      font-family: var(--sans); font-size: 14px; color: var(--txt);
+      outline: none; transition: border-color 0.2s;
+    }
+    .todo-input::placeholder { color: var(--txt-3); }
+    .todo-input:focus { border-color: var(--border-hi); background: var(--bg-4); }
+
+    .todo-name-input {
+      width: 185px; background: var(--bg-3); border: 1px solid var(--border);
+      border-radius: var(--radius-xs); padding: 9px 13px;
+      font-family: var(--mono); font-size: 13px; color: var(--purple);
+      outline: none; transition: border-color 0.2s; flex-shrink: 0;
+    }
+    .todo-name-input::placeholder { color: var(--txt-3); }
+    .todo-name-input:focus { border-color: rgba(167,139,250,0.4); background: var(--bg-4); }
+
+    .todo-form-bottom { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+
+    /* ── Priority picker ─────────────────────────────────────────────────────── */
+    .priority-row { display: flex; gap: 7px; align-items: center; }
+    .priority-label { font-size: 10px; font-family: var(--mono); color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.08em; margin-right: 2px; }
+    .priority-btn {
+      font-size: 10px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.07em;
+      padding: 4px 11px; border-radius: 999px; cursor: pointer;
+      border: 1px solid var(--border); background: none; color: var(--txt-3);
+      transition: all 0.15s; display: flex; align-items: center; gap: 4px;
+    }
+    .priority-btn:hover { border-color: rgba(255,255,255,0.2); color: var(--txt-2); }
+    .priority-btn.sel-high   { color: var(--red);   background: var(--red-dim);   border-color: rgba(248,113,113,0.4); }
+    .priority-btn.sel-medium { color: var(--amber);  background: var(--amber-dim); border-color: rgba(251,191,36,0.4); }
+    .priority-btn.sel-low    { color: var(--green);  background: var(--green-dim); border-color: rgba(74,222,128,0.4); }
+
+    .todo-add-btn {
+      background: var(--teal); color: #000; border: none;
+      border-radius: var(--radius-xs); padding: 10px 22px;
+      font-family: var(--sans); font-size: 13px; font-weight: 800;
+      cursor: pointer; display: flex; align-items: center; gap: 7px;
+      transition: all 0.2s; white-space: nowrap; letter-spacing: 0.02em;
+    }
+    .todo-add-btn:hover { background: #00f0c0; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,212,170,0.3); }
+    .todo-add-btn:active { transform: translateY(0); box-shadow: none; }
+    .todo-add-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+    .todo-add-btn svg { width: 14px; height: 14px; }
+
+    /* ── Controls row ────────────────────────────────────────────────────────── */
+    .todo-controls {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px; gap: 10px; flex-wrap: wrap;
+    }
+    .todo-filters { display: flex; gap: 5px; }
+    .filter-btn {
+      font-family: var(--sans); font-size: 11px; font-weight: 700;
+      padding: 5px 13px; border-radius: 999px; cursor: pointer;
+      border: 1px solid var(--border); background: none; color: var(--txt-3);
+      transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.07em;
+    }
+    .filter-btn:hover { color: var(--txt-2); border-color: rgba(255,255,255,0.18); }
+    .filter-btn.active { background: var(--teal-dim); border-color: var(--border-hi); color: var(--teal); }
+
+    .todo-controls-right { display: flex; align-items: center; gap: 8px; }
+
+    .todo-sort {
+      font-family: var(--mono); font-size: 11px; color: var(--txt-2);
+      background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: var(--radius-xs); padding: 5px 10px;
+      cursor: pointer; outline: none; transition: border-color 0.2s;
+    }
+    .todo-sort:focus { border-color: var(--border-hi); }
+    .todo-sort option { background: var(--bg-2); }
+
+    /* ── Meta row ────────────────────────────────────────────────────────────── */
+    .todo-meta {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px; flex-wrap: wrap; gap: 8px;
+    }
+    .todo-count { font-family: var(--mono); font-size: 12px; color: var(--txt-2); }
+
+    .todo-bulk-actions { display: flex; gap: 8px; align-items: center; }
+
+    .bulk-btn {
+      background: none; border: 1px solid var(--border); cursor: pointer;
+      color: var(--txt-3); font-size: 11px; font-family: var(--mono);
+      padding: 4px 11px; border-radius: var(--radius-xs);
+      transition: all 0.2s; display: flex; align-items: center; gap: 5px;
+    }
+    .bulk-btn svg { width: 11px; height: 11px; }
+    .bulk-btn:hover { border-color: rgba(255,255,255,0.2); color: var(--txt-2); }
+    .bulk-btn.danger:hover { border-color: rgba(248,113,113,0.4); color: var(--red); background: var(--red-dim); }
+    .bulk-btn.success:hover { border-color: rgba(74,222,128,0.4); color: var(--green); background: var(--green-dim); }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       ── TODO ITEMS ────────────────────────────────────────────────────────── */
+    .todo-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+
+    .todo-item {
+      display: flex; align-items: stretch; gap: 0;
+      background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      transition: all 0.25s; animation: slideIn 0.25s ease both;
+      overflow: hidden; position: relative;
+    }
+    .todo-item:hover { border-color: rgba(255,255,255,0.15); background: var(--bg-3); }
+    .todo-item.done {
+      border-color: rgba(74,222,128,0.2);
+      background: rgba(74,222,128,0.03);
+    }
+    .todo-item.done .todo-text {
+      text-decoration: line-through;
+      color: var(--txt-3);
+    }
+    .todo-item.done .todo-item-left::after {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 3px; background: var(--green);
+      border-radius: 3px 0 0 3px;
+    }
+    .todo-item.removing { animation: slideOut 0.25s ease forwards; }
+
+    /* ── Left accent bar + complete btn ─────────────────────────────────────── */
+    .todo-item-left {
+      position: relative; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      width: 56px; padding: 14px 8px;
+      border-right: 1px solid var(--border);
+      background: var(--bg-1);
+      transition: background 0.2s;
+    }
+    .todo-item:hover .todo-item-left { background: var(--bg-2); }
+    .todo-item.done .todo-item-left { background: rgba(74,222,128,0.06); }
+
+    /* ── Complete button ─────────────────────────────────────────────────────── */
+    .complete-btn {
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 2px solid var(--txt-3);
+      background: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; flex-shrink: 0;
+      position: relative; overflow: hidden;
+    }
+    .complete-btn svg { width: 15px; height: 15px; opacity: 0; transition: opacity 0.15s; }
+    .complete-btn:hover {
+      border-color: var(--green);
+      background: rgba(74,222,128,0.1);
+      transform: scale(1.1);
+    }
+    .complete-btn:hover svg { opacity: 0.6; color: var(--green); }
+    .todo-item.done .complete-btn {
+      background: var(--green); border-color: var(--green);
+    }
+    .todo-item.done .complete-btn svg { opacity: 1; color: #000; stroke: #000; }
+    .complete-btn:active { transform: scale(0.95); }
+
+    /* ── Ripple on complete ──────────────────────────────────────────────────── */
+    .complete-btn .ripple {
+      position: absolute; border-radius: 50%;
+      background: rgba(74,222,128,0.4);
+      transform: scale(0); animation: ripple 0.5s ease-out forwards;
+    }
+    @keyframes ripple { to { transform: scale(3); opacity: 0; } }
+
+    /* ── Body ────────────────────────────────────────────────────────────────── */
+    .todo-body { flex: 1; min-width: 0; padding: 13px 14px; }
+
+    .todo-header-row {
+      display: flex; align-items: center; gap: 7px;
+      margin-bottom: 4px; flex-wrap: wrap;
+    }
+
+    .todo-name-tag {
+      font-family: var(--mono); font-size: 10px;
+      color: var(--purple); background: var(--purple-dim);
+      border: 1px solid rgba(167,139,250,0.25);
+      padding: 2px 8px; border-radius: 999px;
+      display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;
+    }
+    .todo-name-tag svg { width: 9px; height: 9px; }
+
+    .todo-priority {
+      font-family: var(--mono); font-size: 9px; text-transform: uppercase;
+      letter-spacing: 0.09em; padding: 2px 8px; border-radius: 999px;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .todo-priority::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .todo-priority.high   { color: var(--red);   background: var(--red-dim);   border: 1px solid rgba(248,113,113,0.3); }
+    .todo-priority.medium { color: var(--amber);  background: var(--amber-dim); border: 1px solid rgba(251,191,36,0.3); }
+    .todo-priority.low    { color: var(--green);  background: var(--green-dim); border: 1px solid rgba(74,222,128,0.3); }
+
+    .todo-text { font-size: 14px; color: var(--txt); line-height: 1.5; word-break: break-word; cursor: default; }
+
+    /* ── Inline edit ─────────────────────────────────────────────────────────── */
+    .todo-edit-input {
+      width: 100%; background: var(--bg-3); border: 1px solid var(--border-hi);
+      border-radius: var(--radius-xs); padding: 5px 9px;
+      font-family: var(--sans); font-size: 14px; color: var(--txt);
+      outline: none;
+    }
+
+    .todo-footer-row {
+      display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap;
+    }
+
+    .todo-timestamp { font-family: var(--mono); font-size: 10px; color: var(--txt-3); }
+
+    .done-badge {
+      font-family: var(--mono); font-size: 9px; color: var(--green);
+      background: var(--green-dim); border: 1px solid rgba(74,222,128,0.25);
+      padding: 1px 7px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.08em;
+      display: none;
+    }
+    .todo-item.done .done-badge { display: inline-flex; align-items: center; gap: 3px; }
+    .done-badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--green); animation: pulse 2s ease-in-out infinite; }
+
+    /* ── Action buttons (right side) ─────────────────────────────────────────── */
+    .todo-item-actions {
+      display: flex; flex-direction: column;
+      border-left: 1px solid var(--border); flex-shrink: 0;
+    }
+
+    .action-btn {
+      flex: 1; background: none; border: none; cursor: pointer;
+      color: var(--txt-3); display: flex; align-items: center; justify-content: center;
+      padding: 0 14px; transition: all 0.18s; gap: 5px;
+      font-family: var(--mono); font-size: 10px; text-transform: uppercase;
+      letter-spacing: 0.06em; min-width: 60px;
+    }
+    .action-btn svg { width: 13px; height: 13px; }
+    .action-btn + .action-btn { border-top: 1px solid var(--border); }
+
+    .action-btn.edit-btn:hover  { color: var(--cyan); background: rgba(56,189,248,0.08); }
+    .action-btn.del-btn:hover   { color: var(--red);  background: var(--red-dim); }
+
+    /* ── Empty state ─────────────────────────────────────────────────────────── */
+    .todo-empty {
+      text-align: center; padding: 3rem 0; color: var(--txt-3);
+      font-size: 13px; font-family: var(--mono);
+    }
+    .todo-empty-icon { font-size: 36px; margin-bottom: 10px; }
+    .todo-empty-sub  { font-size: 11px; color: var(--txt-3); margin-top: 4px; }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       ── Email Notification Styles ──────────────────────────────────────────── */
+
+    /* Settings toggle button in card header */
+    .email-settings-btn {
+      font-family: var(--mono); font-size: 10px; font-weight: 600;
+      color: var(--cyan); background: rgba(56,189,248,0.08);
+      border: 1px solid rgba(56,189,248,0.25); border-radius: 999px;
+      padding: 4px 12px; cursor: pointer;
+      display: flex; align-items: center; gap: 6px;
+      transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.07em;
+    }
+    .email-settings-btn:hover { background: rgba(56,189,248,0.15); border-color: rgba(56,189,248,0.4); }
+    .email-settings-btn svg { width: 12px; height: 12px; }
+
+    /* Settings panel */
+    .email-settings-panel {
+      background: rgba(56,189,248,0.04);
+      border: 1px solid rgba(56,189,248,0.18);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      display: none;
+      flex-direction: column; gap: 12px;
+      animation: fadeUp 0.2s ease both;
+    }
+    .email-settings-panel.open { display: flex; }
+
+    .email-settings-title {
+      font-family: var(--mono); font-size: 11px; font-weight: 700;
+      color: var(--cyan); text-transform: uppercase; letter-spacing: 0.1em;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .email-settings-title svg { width: 13px; height: 13px; }
+
+    .email-settings-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+
+    .email-field-wrap { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 220px; }
+    .email-field-label {
+      font-size: 10px; font-family: var(--mono); color: var(--txt-3);
+      text-transform: uppercase; letter-spacing: 0.09em;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .email-field-label svg { width: 9px; height: 9px; }
+
+    .email-input {
+      width: 100%; background: var(--bg-3); border: 1px solid rgba(56,189,248,0.2);
+      border-radius: var(--radius-xs); padding: 9px 13px;
+      font-family: var(--mono); font-size: 13px; color: var(--cyan);
+      outline: none; transition: border-color 0.2s;
+    }
+    .email-input::placeholder { color: var(--txt-3); }
+    .email-input:focus { border-color: rgba(56,189,248,0.5); background: var(--bg-4); }
+
+    .email-save-btn {
+      background: rgba(56,189,248,0.12); color: var(--cyan);
+      border: 1px solid rgba(56,189,248,0.3); border-radius: var(--radius-xs);
+      padding: 9px 18px; cursor: pointer;
+      font-family: var(--sans); font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; gap: 6px; white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .email-save-btn:hover { background: rgba(56,189,248,0.22); }
+    .email-save-btn svg { width: 13px; height: 13px; }
+
+    .email-test-btn {
+      background: none; color: var(--txt-3);
+      border: 1px solid var(--border); border-radius: var(--radius-xs);
+      padding: 9px 14px; cursor: pointer;
+      font-family: var(--mono); font-size: 11px;
+      display: flex; align-items: center; gap: 6px; white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .email-test-btn:hover { color: var(--cyan); border-color: rgba(56,189,248,0.3); }
+    .email-test-btn svg { width: 12px; height: 12px; }
+
+    .email-settings-hint {
+      font-family: var(--mono); font-size: 10px; color: var(--txt-3);
+      line-height: 1.6; border-top: 1px solid var(--border); padding-top: 10px;
+    }
+    .email-settings-hint code {
+      background: var(--bg-3); border: 1px solid var(--border);
+      padding: 1px 5px; border-radius: 3px; color: var(--teal);
+      font-family: var(--mono);
+    }
+
+    /* Email field inside todo form */
+    .todo-email-input {
+      width: 100%; background: var(--bg-3); border: 1px solid rgba(56,189,248,0.2);
+      border-radius: var(--radius-xs); padding: 9px 13px;
+      font-family: var(--mono); font-size: 13px; color: var(--cyan);
+      outline: none; transition: border-color 0.2s; flex-shrink: 0;
+    }
+    .todo-email-input::placeholder { color: var(--txt-3); }
+    .todo-email-input:focus { border-color: rgba(56,189,248,0.45); background: var(--bg-4); }
+
+    /* Per-task email status badge */
+    .email-badge {
+      font-family: var(--mono); font-size: 9px;
+      padding: 2px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.08em;
+      display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;
+      cursor: default;
+    }
+    .email-badge svg { width: 9px; height: 9px; }
+
+    .email-badge.sending { color: var(--amber); background: var(--amber-dim); border: 1px solid rgba(251,191,36,0.25); }
+    .email-badge.sent    { color: var(--cyan);  background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.25); }
+    .email-badge.failed  { color: var(--red);   background: var(--red-dim); border: 1px solid rgba(248,113,113,0.25); }
+
+    /* Spinning mini icon */
+    .spin-sm { animation: spin 0.8s linear infinite; }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       ── Animations ────────────────────────────────────────────────────────── */
     @keyframes fadeDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
     @keyframes fadeUp   { from { opacity: 0; transform: translateY(16px); }  to { opacity: 1; transform: none; } }
-    @keyframes slideIn  { from { opacity: 0; transform: translateX(-8px); }  to { opacity: 1; transform: none; } }
-    @keyframes slideOut { to   { opacity: 0; transform: translateX(8px); height: 0; padding: 0; margin: 0; } }
+    @keyframes slideIn  { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
+    @keyframes slideOut { to   { opacity: 0; transform: translateX(10px); max-height: 0; padding: 0; margin: 0; overflow: hidden; } }
     @keyframes spin     { to   { transform: rotate(360deg); } }
     @keyframes pulse    { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.4); } }
     @keyframes shimmer  { to { background-position: -200% 0; } }
     @keyframes toastIn  { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
     @keyframes toastOut { to   { opacity: 0; transform: translateX(20px); } }
+    @keyframes completePop { 0% { transform: scale(1); } 40% { transform: scale(1.25); } 100% { transform: scale(1); } }
+    .pop { animation: completePop 0.35s cubic-bezier(0.34,1.56,0.64,1) both; }
 
+    /* ── Responsive ──────────────────────────────────────────────────────────── */
     @media (max-width: 640px) {
       .grid-2 { grid-template-columns: 1fr; }
       .card { grid-row: span 1 !important; }
       .todo-form-row { flex-direction: column; }
       .todo-name-input { width: 100%; }
+      .todo-item-actions { flex-direction: row; }
+      .action-btn + .action-btn { border-top: none; border-left: 1px solid var(--border); }
     }
     @media (max-width: 480px) {
       .header { flex-direction: column; align-items: flex-start; gap: 12px; }
       .header-right { width: 100%; justify-content: space-between; }
-      .version-number { font-size: 28px; }
+      .version-number { font-size: 30px; }
       .todo-add-btn span { display: none; }
       .uptime-bar { gap: 6px; }
     }
@@ -448,6 +710,7 @@
 
 <div class="page">
 
+  <!-- ── Header ──────────────────────────────────────────────────────────────── -->
   <header class="header">
     <div class="logo">
       <div class="logo-icon">
@@ -474,9 +737,10 @@
     </div>
   </header>
 
+  <!-- ── Uptime bar ─────────────────────────────────────────────────────────── -->
   <div class="uptime-bar">
     <div class="uptime-dot"></div>
-    <span>LIVE</span>
+    <span style="color:var(--green);font-weight:700;">LIVE</span>
     <span class="uptime-sep">|</span>
     <span>Next refresh</span>
     <svg class="countdown-ring" id="countdown-ring">
@@ -484,11 +748,12 @@
     </svg>
     <span id="countdown-text">30s</span>
     <span class="uptime-sep">|</span>
-    <span>Session: <span id="session-start">--</span></span>
+    <span>Session: <span id="session-start" style="color:var(--txt);">--</span></span>
     <span class="uptime-sep">|</span>
-    <span>Uptime: <span id="page-uptime">0s</span></span>
+    <span>Uptime: <span id="page-uptime" style="color:var(--teal);">0s</span></span>
   </div>
 
+  <!-- ── Info grid ──────────────────────────────────────────────────────────── -->
   <div class="grid-2">
 
     <div class="card" style="grid-row: span 2;">
@@ -538,45 +803,122 @@
 
   </div>
 
-  <!-- ── Advanced To-Do Section ───────────────────────────────────────────── -->
-  <div class="card card-full">
+  <!-- ═══════════════════════════════════════════════════════════════════════════
+       ── Advanced To-Do Section ─────────────────────────────────────────────── -->
+  <div class="card card-full" style="animation-delay:0.3s;">
     <div class="card-header">
       <div class="card-title">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-        To-Do List
+        Task Manager
       </div>
-      <div style="font-size:11px;font-family:var(--mono);color:var(--txt-3);">
-        press <kbd style="background:var(--bg-3);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:10px;">Enter</kbd> to add
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button class="email-settings-btn" onclick="toggleEmailSettings()" id="email-settings-toggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
+          Email Notify
+        </button>
+        <div style="font-size:10px;font-family:var(--mono);color:var(--txt-3);">
+          <kbd style="background:var(--bg-3);border:1px solid var(--border);border-radius:3px;padding:2px 6px;font-size:10px;">Enter</kbd>
+          &nbsp;add &nbsp;·&nbsp;
+          <kbd style="background:var(--bg-3);border:1px solid var(--border);border-radius:3px;padding:2px 6px;font-size:10px;">Esc</kbd>
+          &nbsp;cancel
+        </div>
       </div>
     </div>
 
-    <!-- Input form -->
+    <!-- ── Progress overview ──────────────────────────────────────────────── -->
+    <div class="todo-progress-bar-wrap">
+      <div class="todo-progress-header">
+        <span class="todo-progress-label">Task Completion</span>
+        <span class="todo-progress-pct" id="progress-pct">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+      <div class="todo-stat-chips">
+        <span class="stat-chip chip-total"><span id="chip-total">0</span> total</span>
+        <span class="stat-chip chip-active"><span id="chip-active">0</span> active</span>
+        <span class="stat-chip chip-done"><span id="chip-done">0</span> done</span>
+        <span class="stat-chip chip-high"><span id="chip-high">0</span> high priority</span>
+      </div>
+    </div>
+
+    <!-- ── Email notification settings panel ─────────────────────────────── -->
+    <div class="email-settings-panel" id="email-settings-panel">
+      <div class="email-settings-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
+        Email Notification Settings
+      </div>
+      <div class="email-settings-row">
+        <div class="email-field-wrap">
+          <label class="email-field-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
+            Default Notification Email
+          </label>
+          <input class="email-input" id="default-email" type="email"
+            placeholder="e.g. team@company.com"
+            oninput="previewDefaultEmail()" />
+        </div>
+        <button class="email-save-btn" onclick="saveDefaultEmail()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save Default
+        </button>
+        <button class="email-test-btn" onclick="sendTestEmail()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+          Send Test
+        </button>
+      </div>
+      <div class="email-settings-hint">
+        Notifications are sent via your Spring Boot backend at <code>POST /api/notify</code>.
+        Set a default email above — it will pre-fill the notify field for every new task.
+        You can override it per task in the form below.
+        Backend requires <code>spring-boot-starter-mail</code> + <code>spring.mail.*</code> config.
+      </div>
+    </div>
+
+    <!-- ── Search ─────────────────────────────────────────────────────────── -->
+    <div class="todo-search-wrap">
+      <div class="todo-search-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      </div>
+      <input class="todo-search" id="todo-search" type="text" placeholder="Search tasks..." oninput="renderTodos()" />
+    </div>
+
+    <!-- ── Input form ─────────────────────────────────────────────────────── -->
     <div class="todo-form" id="todo-form">
-      <!-- Row 1: Name + Task text -->
+      <!-- Row 1: Assignee + Email -->
       <div class="todo-form-row">
-        <div class="todo-field-wrap" style="flex:0 0 auto;width:170px;">
+        <div class="todo-field-wrap" style="flex:0 0 auto;width:175px;">
           <label class="todo-field-label">
-            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="display:inline;vertical-align:middle;margin-right:3px"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             Assigned To
           </label>
-          <input class="todo-name-input" id="todo-name" type="text" placeholder="Your name" maxlength="40" />
+          <input class="todo-name-input" id="todo-name" type="text" placeholder="Assignee name" maxlength="40" />
         </div>
         <div class="todo-field-wrap">
           <label class="todo-field-label">
-            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="display:inline;vertical-align:middle;margin-right:3px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
+            Notify Email
+          </label>
+          <input class="todo-email-input" id="todo-email" type="email" placeholder="email@example.com" maxlength="120" />
+        </div>
+      </div>
+      <!-- Row 2: Task Description -->
+      <div class="todo-form-row">
+        <div class="todo-field-wrap">
+          <label class="todo-field-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             Task Description
           </label>
           <input class="todo-input" id="todo-text" type="text" placeholder="What needs to be done?" maxlength="200" />
         </div>
       </div>
 
-      <!-- Row 2: Priority + Add button -->
-      <div class="todo-form-actions">
+      <div class="todo-form-bottom">
         <div class="priority-row">
           <span class="priority-label">Priority:</span>
-          <button class="priority-btn" data-p="high"   onclick="selectPriority('high')">High</button>
-          <button class="priority-btn sel-medium" data-p="medium" onclick="selectPriority('medium')">Medium</button>
-          <button class="priority-btn" data-p="low"    onclick="selectPriority('low')">Low</button>
+          <button class="priority-btn" data-p="high"   onclick="selectPriority('high')">⬆ High</button>
+          <button class="priority-btn sel-medium" data-p="medium" onclick="selectPriority('medium')">➡ Medium</button>
+          <button class="priority-btn" data-p="low"    onclick="selectPriority('low')">⬇ Low</button>
         </div>
         <button class="todo-add-btn" id="add-todo-btn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
@@ -585,34 +927,50 @@
       </div>
     </div>
 
-    <!-- Controls: filter + sort -->
+    <!-- ── Filter + sort row ──────────────────────────────────────────────── -->
     <div class="todo-controls">
       <div class="todo-filters">
         <button class="filter-btn active" data-filter="all">All</button>
         <button class="filter-btn" data-filter="active">Active</button>
-        <button class="filter-btn" data-filter="done">Done</button>
+        <button class="filter-btn" data-filter="done">Completed</button>
+        <button class="filter-btn" data-filter="high">🔴 High</button>
       </div>
-      <select class="todo-sort" id="todo-sort" onchange="renderTodos()">
-        <option value="newest">Newest first</option>
-        <option value="oldest">Oldest first</option>
-        <option value="priority">By priority</option>
-        <option value="name">By name</option>
-      </select>
+      <div class="todo-controls-right">
+        <select class="todo-sort" id="todo-sort" onchange="renderTodos()">
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="priority">By priority</option>
+          <option value="name">By assignee</option>
+        </select>
+      </div>
     </div>
 
-    <!-- Meta row -->
+    <!-- ── Meta + bulk actions ────────────────────────────────────────────── -->
     <div class="todo-meta">
       <span class="todo-count" id="todo-count">0 tasks</span>
-      <div class="todo-meta-right">
-        <button class="clear-done-btn" onclick="clearDone()">Clear completed</button>
+      <div class="todo-bulk-actions">
+        <button class="bulk-btn success" onclick="markAllDone()" title="Mark all visible as done">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+          Complete All
+        </button>
+        <button class="bulk-btn" onclick="clearDone()" title="Remove completed tasks">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg>
+          Clear Done
+        </button>
+        <button class="bulk-btn danger" onclick="clearAll()" title="Remove all tasks">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+          Clear All
+        </button>
       </div>
     </div>
 
-    <!-- List -->
+    <!-- ── Task list ──────────────────────────────────────────────────────── -->
     <ul class="todo-list" id="todo-list"></ul>
+
     <div class="todo-empty" id="todo-empty" style="display:none;">
-      <div class="todo-empty-icon">✓</div>
-      <div>All clear! Add a task above.</div>
+      <div class="todo-empty-icon">✦</div>
+      <div>No tasks here.</div>
+      <div class="todo-empty-sub">Add one above to get started.</div>
     </div>
   </div>
 
@@ -626,10 +984,95 @@
   var localIdCounter = 0;
   var CIRCUMFERENCE = 2 * Math.PI * 11;
   var selectedPriority = 'medium';
-
+  var searchText = '';
   var PRIORITY_ORDER = { high: 0, medium: 1, low: 2 };
 
-  // ── Priority selector ──────────────────────────────────────────────────────
+  // ── Email settings ────────────────────────────────────────────────────────────
+  var emailSettingsOpen = false;
+
+  function toggleEmailSettings() {
+    emailSettingsOpen = !emailSettingsOpen;
+    var panel = document.getElementById('email-settings-panel');
+    var btn   = document.getElementById('email-settings-toggle');
+    panel.classList.toggle('open', emailSettingsOpen);
+    btn.style.background = emailSettingsOpen ? 'rgba(56,189,248,0.18)' : '';
+    if (emailSettingsOpen) {
+      var saved = localStorage.getItem('sysfoo_default_email') || '';
+      document.getElementById('default-email').value = saved;
+      document.getElementById('default-email').focus();
+    }
+  }
+
+  function previewDefaultEmail() {
+    // live preview — nothing special needed here, just wired for future use
+  }
+
+  function saveDefaultEmail() {
+    var val = document.getElementById('default-email').value.trim();
+    if (val && !isValidEmail(val)) { showToast('Invalid email address', 'error'); return; }
+    localStorage.setItem('sysfoo_default_email', val);
+    // pre-fill the per-task email field
+    document.getElementById('todo-email').value = val;
+    showToast(val ? 'Default email saved · ' + val : 'Default email cleared', 'success');
+  }
+
+  function sendTestEmail() {
+    var email = document.getElementById('default-email').value.trim();
+    if (!email) { showToast('Enter an email address first', 'error'); return; }
+    if (!isValidEmail(email)) { showToast('Invalid email address', 'error'); return; }
+    callNotifyAPI({
+      to:       email,
+      subject:  '[Sysfoo] Test Notification',
+      taskText: 'This is a test notification from your Sysfoo Dashboard.',
+      name:     'Test User',
+      priority: 'low',
+      time:     formatTime(Date.now())
+    })
+    .then(function() { showToast('Test email sent to ' + email, 'success'); })
+    .catch(function() { showToast('Test email failed — check /api/notify backend', 'error'); });
+  }
+
+  function isValidEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+
+  // ── Email notification API call ───────────────────────────────────────────────
+  function callNotifyAPI(payload) {
+    return fetch('/api/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    });
+  }
+
+  function sendEmailNotification(todo) {
+    if (!todo.email || !isValidEmail(todo.email)) return;
+    todo.emailStatus = 'sending';
+    renderTodos();
+
+    callNotifyAPI({
+      to:       todo.email,
+      subject:  '[Sysfoo] New Task Assigned: ' + todo.text,
+      taskText: todo.text,
+      name:     todo.name || 'Team',
+      priority: todo.priority,
+      time:     todo.time,
+      date:     todo.date
+    })
+    .then(function() {
+      todo.emailStatus = 'sent';
+      renderTodos();
+      showToast('📧 Notification sent → ' + todo.email, 'success');
+    })
+    .catch(function() {
+      todo.emailStatus = 'failed';
+      renderTodos();
+      showToast('Mail failed — check backend /api/notify', 'error');
+    });
+  }
+
+  // ── Priority selector ────────────────────────────────────────────────────────
   function selectPriority(p) {
     selectedPriority = p;
     document.querySelectorAll('.priority-btn').forEach(function(btn) {
@@ -638,7 +1081,7 @@
     });
   }
 
-  // ── Toast ──────────────────────────────────────────────────────────────────
+  // ── Toast ────────────────────────────────────────────────────────────────────
   function showToast(msg, type) {
     type = type || 'info';
     var icons = {
@@ -656,7 +1099,7 @@
     }, 2800);
   }
 
-  // ── Clock & uptime ─────────────────────────────────────────────────────────
+  // ── Clock & uptime ───────────────────────────────────────────────────────────
   function updateClock() {
     var now = new Date();
     document.getElementById('clock').textContent = now.toLocaleTimeString('en-GB');
@@ -665,15 +1108,10 @@
     document.getElementById('page-uptime').textContent = h ? h+'h '+m+'m '+s+'s' : m ? m+'m '+s+'s' : s+'s';
   }
 
-  function formatTime(ts) {
-    return new Date(ts).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-  }
+  function formatTime(ts) { return new Date(ts).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }); }
+  function formatDate(ts) { return new Date(ts).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }); }
 
-  function formatDate(ts) {
-    return new Date(ts).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
-  }
-
-  // ── Countdown ring ─────────────────────────────────────────────────────────
+  // ── Countdown ring ───────────────────────────────────────────────────────────
   function updateCountdown(seconds) {
     var frac = seconds / refreshSeconds;
     document.getElementById('countdown-progress').style.strokeDashoffset = CIRCUMFERENCE * (1 - frac);
@@ -691,7 +1129,7 @@
     }, 1000);
   }
 
-  // ── Clipboard ──────────────────────────────────────────────────────────────
+  // ── Clipboard ────────────────────────────────────────────────────────────────
   function copyToClipboard(text) {
     navigator.clipboard.writeText(text).then(function() { showToast('Copied to clipboard', 'success'); });
   }
@@ -701,7 +1139,23 @@
     return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  // ── System info ────────────────────────────────────────────────────────────
+  // ── Progress bar update ──────────────────────────────────────────────────────
+  function updateProgress() {
+    var total  = todos.length;
+    var done   = todos.filter(function(t) { return t.done; }).length;
+    var active = total - done;
+    var high   = todos.filter(function(t) { return t.priority === 'high' && !t.done; }).length;
+    var pct    = total === 0 ? 0 : Math.round(done / total * 100);
+
+    document.getElementById('progress-pct').textContent = pct + '%';
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('chip-total').textContent  = total;
+    document.getElementById('chip-active').textContent = active;
+    document.getElementById('chip-done').textContent   = done;
+    document.getElementById('chip-high').textContent   = high;
+  }
+
+  // ── System info ──────────────────────────────────────────────────────────────
   function renderSystemInfo(data) {
     var rows = [
       { key: 'Hostname',   val: data.Hostname,                       copy: true },
@@ -729,14 +1183,8 @@
     document.getElementById('sysinfo-loading').style.display = 'block';
     fetch('/system-info')
       .then(function(r) { return r.json(); })
-      .then(function(data) {
-        renderSystemInfo(data);
-        document.getElementById('sysinfo-loading').style.display = 'none';
-      })
-      .catch(function() {
-        document.getElementById('sysinfo-loading').style.display = 'none';
-        showToast('Failed to load system info', 'error');
-      });
+      .then(function(data) { renderSystemInfo(data); document.getElementById('sysinfo-loading').style.display = 'none'; })
+      .catch(function() { document.getElementById('sysinfo-loading').style.display = 'none'; showToast('Failed to load system info', 'error'); });
     fetch('/version')
       .then(function(r) { return r.text(); })
       .then(function(v) { document.getElementById('app-version').textContent = 'v' + v; })
@@ -762,19 +1210,25 @@
       });
   }
 
-  // ── Todo rendering ─────────────────────────────────────────────────────────
+  // ── Todo rendering ───────────────────────────────────────────────────────────
   function getSortedFiltered() {
+    var query = (document.getElementById('todo-search').value || '').toLowerCase().trim();
     var filtered = todos.filter(function(t) {
       if (filter === 'active') return !t.done;
       if (filter === 'done')   return t.done;
+      if (filter === 'high')   return t.priority === 'high' && !t.done;
       return true;
+    }).filter(function(t) {
+      if (!query) return true;
+      return t.text.toLowerCase().includes(query) || (t.name || '').toLowerCase().includes(query);
     });
+
     var sort = document.getElementById('todo-sort').value;
     filtered.sort(function(a, b) {
       if (sort === 'oldest')   return a.createdAt - b.createdAt;
       if (sort === 'priority') return PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority];
       if (sort === 'name')     return (a.name || '').localeCompare(b.name || '');
-      return b.createdAt - a.createdAt; // newest (default)
+      return b.createdAt - a.createdAt;
     });
     return filtered;
   }
@@ -787,6 +1241,8 @@
     var active = todos.filter(function(t) { return !t.done; }).length;
     count.textContent = todos.length + ' task' + (todos.length !== 1 ? 's' : '') + ' · ' + active + ' active';
 
+    updateProgress();
+
     if (filtered.length === 0) { list.innerHTML = ''; empty.style.display = 'block'; return; }
     empty.style.display = 'none';
 
@@ -794,39 +1250,166 @@
       var nameTag = todo.name
         ? '<span class="todo-name-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>' + escapeHtml(todo.name) + '</span>'
         : '';
-      var priTag = '<span class="todo-priority ' + todo.priority + '">' + todo.priority + '</span>';
-      var dateStr = todo.date ? todo.date + ' · ' : '';
+      var priTag   = '<span class="todo-priority ' + todo.priority + '">' + todo.priority + '</span>';
+      var doneTag  = '<span class="done-badge">completed</span>';
+      var dateStr  = todo.date ? todo.date + ' · ' : '';
+
+      // Email status badge
+      var emailBadge = '';
+      if (todo.email) {
+        if (todo.emailStatus === 'sending') {
+          emailBadge = '<span class="email-badge sending"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" class="spin-sm"><path d="M21 12a9 9 0 1 1-6.22-8.56"/></svg>Sending…</span>';
+        } else if (todo.emailStatus === 'sent') {
+          emailBadge = '<span class="email-badge sent" title="Notification sent to ' + escapeHtml(todo.email) + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>Notified</span>';
+        } else if (todo.emailStatus === 'failed') {
+          emailBadge = '<span class="email-badge failed" title="Failed to send to ' + escapeHtml(todo.email) + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>Mail failed</span>';
+        }
+      }
 
       return '<li class="todo-item ' + (todo.done ? 'done' : '') + '" id="todo-' + todo.localId + '">' +
-        '<div class="todo-check" onclick="toggleTodo(' + todo.localId + ')">' +
-          '<svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>' +
-        '</div>' +
-        '<div class="todo-body">' +
-          '<div class="todo-header-row">' +
-            nameTag +
-            priTag +
-          '</div>' +
-          '<div class="todo-text" onclick="toggleTodo(' + todo.localId + ')">' + escapeHtml(todo.text) + '</div>' +
-          '<div class="todo-footer-row">' +
-            '<span class="todo-timestamp">' + dateStr + todo.time + '</span>' +
-          '</div>' +
-        '</div>' +
-        '<div class="todo-item-actions">' +
-          '<button class="todo-del" onclick="deleteTodo(' + todo.localId + ')" title="Delete">' +
-            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>' +
+
+        // ── Left: complete button ──
+        '<div class="todo-item-left">' +
+          '<button class="complete-btn" onclick="toggleTodo(' + todo.localId + ', event)" title="' + (todo.done ? 'Mark as active' : 'Mark as complete') + '">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>' +
           '</button>' +
         '</div>' +
+
+        // ── Body ──
+        '<div class="todo-body">' +
+          '<div class="todo-header-row">' + nameTag + priTag + doneTag + '</div>' +
+          (todo.editing
+            ? '<input class="todo-edit-input" id="edit-input-' + todo.localId + '" value="' + escapeHtml(todo.text) + '" onblur="saveEdit(' + todo.localId + ')" onkeydown="handleEditKey(event,' + todo.localId + ')" />'
+            : '<div class="todo-text">' + escapeHtml(todo.text) + '</div>'
+          ) +
+          '<div class="todo-footer-row">' +
+            '<span class="todo-timestamp">' + dateStr + todo.time + '</span>' +
+            emailBadge +
+          '</div>' +
+        '</div>' +
+
+        // ── Right: action buttons ──
+        '<div class="todo-item-actions">' +
+          '<button class="action-btn edit-btn" onclick="startEdit(' + todo.localId + ')" title="Edit task">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
+            '<span>Edit</span>' +
+          '</button>' +
+          '<button class="action-btn del-btn" onclick="deleteTodo(' + todo.localId + ')" title="Delete task">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>' +
+            '<span>Remove</span>' +
+          '</button>' +
+        '</div>' +
+
       '</li>';
     }).join('');
+
+    // Auto-focus edit input if any
+    filtered.forEach(function(todo) {
+      if (todo.editing) {
+        var inp = document.getElementById('edit-input-' + todo.localId);
+        if (inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+      }
+    });
   }
 
-  // ── Add todo ───────────────────────────────────────────────────────────────
+  // ── Ripple effect on complete ────────────────────────────────────────────────
+  function addRipple(btn) {
+    var ripple = document.createElement('span');
+    ripple.className = 'ripple';
+    ripple.style.width = ripple.style.height = '34px';
+    ripple.style.left = ripple.style.top = '0';
+    btn.appendChild(ripple);
+    setTimeout(function() { ripple.remove(); }, 600);
+  }
+
+  // ── Toggle / edit / delete ───────────────────────────────────────────────────
+  function toggleTodo(localId, event) {
+    var t = todos.find(function(x) { return x.localId === localId; });
+    if (!t) return;
+    t.done = !t.done;
+    if (event && event.currentTarget) {
+      addRipple(event.currentTarget);
+      event.currentTarget.classList.add('pop');
+      setTimeout(function() {
+        var b = event.currentTarget;
+        if (b) b.classList.remove('pop');
+      }, 400);
+    }
+    renderTodos();
+    showToast(t.done ? '✓ Task completed' : '↺ Marked as active', t.done ? 'success' : 'info');
+  }
+
+  function startEdit(localId) {
+    todos.forEach(function(t) { t.editing = false; });
+    var t = todos.find(function(x) { return x.localId === localId; });
+    if (t) t.editing = true;
+    renderTodos();
+  }
+
+  function saveEdit(localId) {
+    var t = todos.find(function(x) { return x.localId === localId; });
+    var inp = document.getElementById('edit-input-' + localId);
+    if (t && inp) {
+      var val = inp.value.trim();
+      if (val) { t.text = val; showToast('Task updated', 'success'); }
+    }
+    if (t) t.editing = false;
+    renderTodos();
+  }
+
+  function handleEditKey(e, localId) {
+    if (e.key === 'Enter')  saveEdit(localId);
+    if (e.key === 'Escape') {
+      var t = todos.find(function(x) { return x.localId === localId; });
+      if (t) t.editing = false;
+      renderTodos();
+    }
+  }
+
+  function deleteTodo(localId) {
+    var el = document.getElementById('todo-' + localId);
+    if (el) el.classList.add('removing');
+    setTimeout(function() {
+      todos = todos.filter(function(x) { return x.localId !== localId; });
+      renderTodos();
+      showToast('Task removed', 'info');
+    }, 250);
+  }
+
+  function clearDone() {
+    var count = todos.filter(function(t) { return t.done; }).length;
+    if (count === 0) { showToast('No completed tasks to clear', 'info'); return; }
+    todos = todos.filter(function(t) { return !t.done; });
+    renderTodos();
+    showToast(count + ' completed task' + (count !== 1 ? 's' : '') + ' cleared', 'success');
+  }
+
+  function clearAll() {
+    if (todos.length === 0) { showToast('No tasks to clear', 'info'); return; }
+    var count = todos.length;
+    todos = [];
+    renderTodos();
+    showToast('All ' + count + ' tasks cleared', 'info');
+  }
+
+  function markAllDone() {
+    var visible = getSortedFiltered();
+    visible.forEach(function(t) { t.done = true; });
+    renderTodos();
+    showToast('All visible tasks marked complete', 'success');
+  }
+
+  // ── Add todo ─────────────────────────────────────────────────────────────────
   function addTodo() {
-    var textInput = document.getElementById('todo-text');
-    var nameInput = document.getElementById('todo-name');
-    var text = textInput.value.trim();
-    var name = nameInput.value.trim();
+    var textInput  = document.getElementById('todo-text');
+    var nameInput  = document.getElementById('todo-name');
+    var emailInput = document.getElementById('todo-email');
+    var text  = textInput.value.trim();
+    var name  = nameInput.value.trim();
+    var email = emailInput.value.trim();
+
     if (!text) { textInput.focus(); showToast('Please enter a task description', 'error'); return; }
+    if (email && !isValidEmail(email)) { emailInput.focus(); showToast('Invalid email address', 'error'); return; }
 
     var btn = document.getElementById('add-todo-btn');
     btn.disabled = true;
@@ -839,48 +1422,33 @@
     .then(function(r) { return r.json(); })
     .then(function(data) {
       var now = Date.now();
-      todos.push({
-        localId:   localIdCounter++,
-        id:        data.id,
-        name:      data.name || name,
-        text:      data.text,
-        priority:  selectedPriority,
-        done:      false,
-        time:      formatTime(now),
-        date:      formatDate(now),
-        createdAt: now
-      });
+      var newTodo = {
+        localId:     localIdCounter++,
+        id:          data.id,
+        name:        data.name || name,
+        text:        data.text,
+        email:       email,
+        priority:    selectedPriority,
+        done:        false,
+        editing:     false,
+        emailStatus: email ? null : undefined,
+        time:        formatTime(now),
+        date:        formatDate(now),
+        createdAt:   now
+      };
+      todos.push(newTodo);
       textInput.value = '';
-      // keep the name for convenience (same assignee for next task)
       renderTodos();
       showToast('Task added' + (name ? ' for ' + name : ''), 'success');
+
+      // Send email notification if an address was provided
+      if (email) sendEmailNotification(newTodo);
     })
     .catch(function() { showToast('Failed to add task — is the DB connected?', 'error'); })
     .finally(function() { btn.disabled = false; textInput.focus(); });
   }
 
-  // ── Toggle / delete / clear ────────────────────────────────────────────────
-  function toggleTodo(localId) {
-    var t = todos.find(function(x) { return x.localId === localId; });
-    if (t) { t.done = !t.done; renderTodos(); }
-  }
-
-  function deleteTodo(localId) {
-    var el = document.getElementById('todo-' + localId);
-    if (el) el.classList.add('removing');
-    setTimeout(function() {
-      todos = todos.filter(function(x) { return x.localId !== localId; });
-      renderTodos();
-    }, 250);
-  }
-
-  function clearDone() {
-    todos = todos.filter(function(t) { return !t.done; });
-    renderTodos();
-    showToast('Completed tasks cleared', 'info');
-  }
-
-  // ── Load todos from server ─────────────────────────────────────────────────
+  // ── Load todos from server ───────────────────────────────────────────────────
   function loadTodos() {
     fetch('/todos')
       .then(function(r) { return r.json(); })
@@ -894,6 +1462,7 @@
             text:      d.text,
             priority:  'medium',
             done:      false,
+            editing:   false,
             time:      formatTime(now),
             date:      formatDate(now),
             createdAt: now
@@ -904,7 +1473,7 @@
       .catch(function() { showToast('Could not load tasks from server', 'error'); });
   }
 
-  // ── Filter buttons ─────────────────────────────────────────────────────────
+  // ── Filter buttons ───────────────────────────────────────────────────────────
   document.querySelectorAll('.filter-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
       document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
@@ -914,16 +1483,12 @@
     });
   });
 
-  // ── Keyboard shortcut: Enter to add ───────────────────────────────────────
+  // ── Keyboard shortcuts ───────────────────────────────────────────────────────
   document.getElementById('add-todo-btn').addEventListener('click', addTodo);
-  document.getElementById('todo-text').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') addTodo();
-  });
-  document.getElementById('todo-name').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') document.getElementById('todo-text').focus();
-  });
+  document.getElementById('todo-text').addEventListener('keypress', function(e) { if (e.key === 'Enter') addTodo(); });
+  document.getElementById('todo-name').addEventListener('keypress', function(e) { if (e.key === 'Enter') document.getElementById('todo-text').focus(); });
 
-  // ── Refresh all ────────────────────────────────────────────────────────────
+  // ── Refresh all ──────────────────────────────────────────────────────────────
   function refreshAll() {
     var btn = document.getElementById('refresh-btn');
     btn.classList.add('spinning');
@@ -944,8 +1509,11 @@
     startCountdown();
   }
 
-  // ── Boot ───────────────────────────────────────────────────────────────────
+  // ── Boot ─────────────────────────────────────────────────────────────────────
   document.getElementById('session-start').textContent = formatTime(sessionStart);
+  // Pre-fill notify email from saved default
+  var savedEmail = localStorage.getItem('sysfoo_default_email') || '';
+  if (savedEmail) document.getElementById('todo-email').value = savedEmail;
   setInterval(updateClock, 1000);
   updateClock();
   fetchSystemInfo();
