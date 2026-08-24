@@ -3,33 +3,45 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sysfoo — System Dashboard</title>
+  <title>Sysfoo — Pride Dashboard</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A6%81%3C/text%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:         #07090f;
-      --bg-1:       #0d1117;
-      --bg-2:       #111827;
-      --bg-3:       #1c2333;
-      --border:     rgba(255,255,255,0.07);
-      --border-hi:  rgba(0,212,170,0.35);
-      --teal:       #00d4aa;
-      --teal-dim:   rgba(0,212,170,0.12);
-      --cyan:       #38bdf8;
-      --red:        #f87171;
-      --amber:      #fbbf24;
-      --green:      #4ade80;
-      --txt:        #e2e8f0;
-      --txt-2:      #94a3b8;
-      --txt-3:      #475569;
+      /* ── Savanna-sunset palette ─────────────────────────────────────────── */
+      --bg:         #170e08;
+      --bg-1:       #1f130a;
+      --bg-2:       #29190d;
+      --bg-3:       #382312;
+      --bg-4:       #482d17;
+      --border:     rgba(244,201,93,0.12);
+      --border-hi:  rgba(242,153,74,0.5);
+      --gold:       #f2b705;
+      --gold-dim:   rgba(242,183,5,0.14);
+      --gold-mid:   rgba(242,183,5,0.28);
+      --amber:      #f2994a;
+      --amber-dim:  rgba(242,153,74,0.14);
+      --rust:       #e0632c;
+      --rust-dim:   rgba(224,99,44,0.15);
+      --dusk:       #a67ec7;
+      --dusk-dim:   rgba(166,126,199,0.14);
+      --grass:      #7fb069;
+      --grass-dim:  rgba(127,176,105,0.14);
+      --red:        #e5484d;
+      --red-dim:    rgba(229,72,77,0.14);
+      --txt:        #fbf0dd;
+      --txt-2:      #d3af86;
+      --txt-3:      #8c6b4d;
       --mono:       'JetBrains Mono', monospace;
-      --sans:       'Syne', sans-serif;
-      --radius:     14px;
-      --radius-sm:  8px;
+      --display:    'Fraunces', serif;
+      --sans:       'Inter', sans-serif;
+      --radius:     16px;
+      --radius-sm:  11px;
+      --radius-xs:  7px;
     }
 
     html { scroll-behavior: smooth; }
@@ -40,112 +52,193 @@
       color: var(--txt);
       min-height: 100vh;
       overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
     }
 
-    body::before {
+    a { color: inherit; }
+    button, input, textarea, select { font-family: inherit; }
+    :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+    /* ── Decorative savanna-sunset backdrop (pure CSS/SVG, no external images) ── */
+    .bg-scene {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      overflow: hidden;
+    }
+    .bg-scene svg { position: absolute; bottom: 0; left: 0; width: 100%; height: 62vh; min-height: 420px; }
+    .bg-scene::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 45% at 50% 0%, rgba(242,153,74,0.16) 0%, transparent 60%),
+        linear-gradient(180deg, #170e08 0%, #23140b 55%, #170e08 100%);
+    }
+    .bg-scene::after {
       content: '';
       position: fixed; inset: 0; z-index: 0;
       background-image:
-        linear-gradient(rgba(0,212,170,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,212,170,0.03) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none;
+        linear-gradient(rgba(242,183,5,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(242,183,5,0.02) 1px, transparent 1px);
+      background-size: 46px 46px;
     }
 
-    body::after {
-      content: '';
-      position: fixed; inset: 0; z-index: 0;
-      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,212,170,0.08) 0%, transparent 70%);
-      pointer-events: none;
-    }
+    .page { position: relative; z-index: 1; max-width: 1040px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
 
-    .page { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
-
+    /* ── Header ─────────────────────────────────────────────────────────────── */
     .header {
       display: flex; align-items: center; justify-content: space-between;
-      padding-bottom: 2rem; margin-bottom: 2rem;
+      gap: 16px; flex-wrap: wrap;
+      padding-bottom: 1.75rem; margin-bottom: 1.75rem;
       border-bottom: 1px solid var(--border);
       animation: fadeDown 0.5s ease both;
     }
 
-    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo { display: flex; align-items: center; gap: 13px; }
 
     .logo-icon {
-      width: 40px; height: 40px; border-radius: 10px;
-      background: var(--teal-dim); border: 1px solid var(--border-hi);
+      width: 44px; height: 44px; border-radius: 13px; flex-shrink: 0;
+      background: var(--gold-dim); border: 1px solid var(--border-hi);
       display: flex; align-items: center; justify-content: center;
     }
-    .logo-icon svg { width: 20px; height: 20px; }
+    .logo-icon svg { width: 26px; height: 26px; }
 
-    .logo-text { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
-    .logo-text span { color: var(--teal); }
-    .logo-sub { font-size: 11px; font-family: var(--mono); color: var(--txt-3); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 1px; }
+    .logo-text { font-family: var(--display); font-size: 24px; font-weight: 700; letter-spacing: -0.3px; color: var(--txt); }
+    .logo-text span { color: var(--gold); }
+    .logo-sub { font-size: 11px; font-family: var(--mono); color: var(--txt-3); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 2px; }
 
-    .header-right { display: flex; align-items: center; gap: 16px; }
+    .header-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 
     .live-clock {
       font-family: var(--mono); font-size: 13px; color: var(--txt-2);
       background: var(--bg-2); border: 1px solid var(--border);
-      padding: 6px 14px; border-radius: 999px; letter-spacing: 0.05em;
+      padding: 7px 14px; border-radius: 999px; letter-spacing: 0.05em;
     }
 
     .refresh-btn {
-      font-family: var(--sans); font-size: 12px; font-weight: 600;
-      color: var(--teal); background: var(--teal-dim);
+      font-family: var(--sans); font-size: 12px; font-weight: 700;
+      color: var(--gold); background: var(--gold-dim);
       border: 1px solid var(--border-hi); border-radius: 999px;
-      padding: 6px 14px; cursor: pointer; display: flex; align-items: center; gap: 6px;
+      padding: 7px 16px; cursor: pointer; display: flex; align-items: center; gap: 7px;
       transition: all 0.2s; letter-spacing: 0.02em;
     }
-    .refresh-btn:hover { background: rgba(0,212,170,0.2); }
+    .refresh-btn:hover { background: var(--gold-mid); }
     .refresh-btn svg { width: 13px; height: 13px; }
     .refresh-btn.spinning svg { animation: spin 0.8s linear infinite; }
 
-    .grid-2 {
+    /* ── Auth area ───────────────────────────────────────────────────────────── */
+    .auth-area { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .auth-btn {
+      font-family: var(--sans); font-size: 12px; font-weight: 700;
+      border-radius: 999px; padding: 8px 17px; cursor: pointer;
+      transition: all 0.2s; letter-spacing: 0.01em; white-space: nowrap;
+    }
+    .auth-btn.ghost { background: none; border: 1px solid var(--border); color: var(--txt-2); }
+    .auth-btn.ghost:hover { border-color: var(--border-hi); color: var(--txt); }
+    .auth-btn.primary { background: linear-gradient(135deg, var(--gold), var(--amber)); border: none; color: #1a0f04; }
+    .auth-btn.primary:hover { filter: brightness(1.08); transform: translateY(-1px); }
+
+    .user-chip {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg-2); border: 1px solid var(--border);
+      padding: 5px 14px 5px 6px; border-radius: 999px;
+      font-size: 13px; font-weight: 600; color: var(--txt);
+    }
+    .user-chip-avatar {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--rust));
+      color: #1a0f04; display: flex; align-items: center; justify-content: center;
+      font-family: var(--display); font-weight: 700; font-size: 13px; flex-shrink: 0;
+    }
+
+    /* ── Hero ────────────────────────────────────────────────────────────────── */
+    .hero {
+      display: flex; align-items: center; justify-content: space-between; gap: 24px;
+      margin-bottom: 1.75rem; flex-wrap: wrap;
+      animation: fadeUp 0.5s 0.05s ease both;
+    }
+    .hero-text h1 {
+      font-family: var(--display); font-weight: 700; font-size: clamp(26px, 4vw, 38px);
+      letter-spacing: -0.5px; line-height: 1.15; margin-bottom: 6px;
+      background: linear-gradient(120deg, var(--txt) 40%, var(--gold) 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .hero-text p { color: var(--txt-2); font-size: 14.5px; max-width: 480px; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: var(--mono); font-size: 10.5px; color: var(--gold);
+      background: var(--gold-dim); border: 1px solid var(--border-hi);
+      padding: 5px 12px; border-radius: 999px; text-transform: uppercase;
+      letter-spacing: 0.1em; margin-bottom: 12px;
+    }
+    .hero-badge svg { width: 11px; height: 11px; }
+    .hero-art { width: 108px; height: 108px; flex-shrink: 0; opacity: 0.92; }
+
+    /* ── Uptime bar ──────────────────────────────────────────────────────────── */
+    .uptime-bar {
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--mono); font-size: 11px; color: var(--txt-2);
+      padding: 10px 18px; background: var(--bg-1);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      margin-bottom: 16px; animation: fadeUp 0.5s 0.08s ease both;
+      flex-wrap: wrap;
+    }
+    .uptime-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--grass); flex-shrink: 0; animation: pulse 2s ease-in-out infinite; }
+    .uptime-sep { color: var(--border); }
+
+    .countdown-ring { width: 28px; height: 28px; flex-shrink: 0; }
+    .countdown-ring circle { fill: none; stroke: var(--border); stroke-width: 2; r: 11; cx: 14; cy: 14; }
+    .countdown-ring .progress { stroke: var(--gold); stroke-linecap: round; transform-origin: 14px 14px; transform: rotate(-90deg); stroke-dasharray: 69.1; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear; }
+
+    /* ── Grid ────────────────────────────────────────────────────────────────── */
+    .grid-info {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
       gap: 16px;
       margin-bottom: 16px;
     }
 
+    /* ── Cards ───────────────────────────────────────────────────────────────── */
     .card {
       background: var(--bg-1);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 1.5rem;
+      padding: 1.6rem;
       position: relative; overflow: hidden;
       animation: fadeUp 0.5s ease both;
+      transition: border-color 0.25s;
     }
     .card::before {
       content: '';
       position: absolute; inset: 0;
-      background: linear-gradient(135deg, rgba(255,255,255,0.02) 0%, transparent 60%);
+      background: linear-gradient(135deg, rgba(255,220,150,0.02) 0%, transparent 60%);
       pointer-events: none;
     }
+    .card:hover { border-color: rgba(244,201,93,0.22); }
     .card:nth-child(1) { animation-delay: 0.1s; }
     .card:nth-child(2) { animation-delay: 0.15s; }
     .card:nth-child(3) { animation-delay: 0.2s; }
-    .card:nth-child(4) { animation-delay: 0.25s; }
     .card-full { grid-column: 1 / -1; }
 
     .card-header {
       display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1.3rem; flex-wrap: wrap; gap: 10px;
     }
 
     .card-title {
       display: flex; align-items: center; gap: 8px;
-      font-size: 12px; font-weight: 600; text-transform: uppercase;
-      letter-spacing: 0.1em; color: var(--txt-3);
+      font-family: var(--display); font-size: 15px; font-weight: 700;
+      letter-spacing: 0.01em; color: var(--txt);
     }
-    .card-title svg { width: 14px; height: 14px; color: var(--teal); }
+    .card-title svg { width: 16px; height: 16px; color: var(--gold); flex-shrink: 0; }
+    .card-subtitle { font-size: 12px; color: var(--txt-3); margin-top: 2px; font-family: var(--sans); }
 
+    /* ── Stat rows ───────────────────────────────────────────────────────────── */
     .stat-row {
       display: flex; align-items: center; justify-content: space-between;
       padding: 10px 0; border-bottom: 1px solid var(--border);
       font-size: 13px;
     }
     .stat-row:last-child { border-bottom: none; padding-bottom: 0; }
-    .stat-key { color: var(--txt-3); font-family: var(--mono); font-size: 12px; }
+    .stat-key { color: var(--txt-2); font-family: var(--mono); font-size: 11px; }
     .stat-val { font-family: var(--mono); font-size: 12px; color: var(--txt); display: flex; align-items: center; gap: 8px; }
 
     .copy-btn {
@@ -153,29 +246,31 @@
       color: var(--txt-3); border-radius: 4px; transition: color 0.2s;
       display: flex; align-items: center;
     }
-    .copy-btn:hover { color: var(--teal); }
+    .copy-btn:hover { color: var(--gold); }
     .copy-btn svg { width: 11px; height: 11px; }
 
+    /* ── Version ─────────────────────────────────────────────────────────────── */
     .version-display {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 6px; height: 100px;
+      gap: 6px; height: 110px;
     }
-    .version-label { font-size: 11px; font-family: var(--mono); color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.1em; }
-    .version-number { font-family: var(--mono); font-size: 40px; font-weight: 700; color: var(--teal); letter-spacing: -1px; }
+    .version-label { font-size: 10px; font-family: var(--mono); color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.12em; }
+    .version-number { font-family: var(--display); font-size: 40px; font-weight: 700; color: var(--gold); letter-spacing: -1px; }
 
+    /* ── DB Status ───────────────────────────────────────────────────────────── */
     .db-status { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 1.25rem 0; }
     .status-dot-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
     .status-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--txt-3); }
-    .status-dot.connected { background: var(--green); }
+    .status-dot.connected { background: var(--grass); }
     .status-dot.disconnected { background: var(--red); }
     .status-dot.connected::before {
       content: ''; position: absolute;
-      width: 30px; height: 30px; border-radius: 50%;
-      background: rgba(74,222,128,0.2);
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(127,176,105,0.2);
       animation: pulse 2s ease-in-out infinite;
     }
-    .status-label { font-size: 15px; font-weight: 600; }
-    .status-label.connected { color: var(--green); }
+    .status-label { font-size: 15px; font-weight: 700; font-family: var(--display); }
+    .status-label.connected { color: var(--grass); }
     .status-label.disconnected { color: var(--red); }
     .db-type {
       font-family: var(--mono); font-size: 11px; color: var(--txt-3);
@@ -183,94 +278,16 @@
       padding: 4px 12px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.08em;
     }
 
+    /* ── Badges ──────────────────────────────────────────────────────────────── */
     .badge {
       font-family: var(--mono); font-size: 10px; font-weight: 500;
       padding: 4px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.08em;
       display: inline-flex; align-items: center; gap: 5px;
     }
-    .badge-yes { background: rgba(74,222,128,0.12); color: var(--green); border: 1px solid rgba(74,222,128,0.25); }
+    .badge-yes { background: var(--grass-dim); color: var(--grass); border: 1px solid rgba(127,176,105,0.3); }
     .badge-no  { background: var(--bg-3); color: var(--txt-3); border: 1px solid var(--border); }
 
-    .todo-input-row { display: flex; gap: 10px; margin-bottom: 1.25rem; }
-
-    .todo-input {
-      flex: 1; background: var(--bg-2); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); padding: 10px 14px;
-      font-family: var(--sans); font-size: 14px; color: var(--txt);
-      outline: none; transition: border-color 0.2s;
-    }
-    .todo-input::placeholder { color: var(--txt-3); }
-    .todo-input:focus { border-color: var(--border-hi); }
-
-    .todo-add-btn {
-      background: var(--teal); color: #000; border: none;
-      border-radius: var(--radius-sm); padding: 10px 20px;
-      font-family: var(--sans); font-size: 13px; font-weight: 700;
-      cursor: pointer; display: flex; align-items: center; gap: 6px;
-      transition: all 0.2s; white-space: nowrap;
-    }
-    .todo-add-btn:hover { background: #00f0c0; transform: translateY(-1px); }
-    .todo-add-btn:active { transform: translateY(0); }
-    .todo-add-btn svg { width: 14px; height: 14px; }
-
-    .todo-filters { display: flex; gap: 6px; margin-bottom: 1rem; }
-    .filter-btn {
-      font-family: var(--sans); font-size: 11px; font-weight: 600;
-      padding: 4px 12px; border-radius: 999px; cursor: pointer;
-      border: 1px solid var(--border); background: none; color: var(--txt-3);
-      transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.06em;
-    }
-    .filter-btn.active { background: var(--teal-dim); border-color: var(--border-hi); color: var(--teal); }
-
-    .todo-meta {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 12px; font-size: 12px; color: var(--txt-3);
-    }
-    .todo-count { font-family: var(--mono); }
-    .clear-done-btn {
-      background: none; border: none; cursor: pointer;
-      color: var(--txt-3); font-size: 11px; font-family: var(--sans);
-      text-decoration: underline; transition: color 0.2s;
-    }
-    .clear-done-btn:hover { color: var(--red); }
-
-    .todo-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-
-    .todo-item {
-      display: flex; align-items: center; gap: 10px;
-      background: var(--bg-2); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); padding: 10px 14px;
-      transition: all 0.25s; animation: slideIn 0.25s ease both;
-    }
-    .todo-item:hover { border-color: var(--border-hi); }
-    .todo-item.done { opacity: 0.4; }
-    .todo-item.done .todo-text { text-decoration: line-through; }
-    .todo-item.removing { animation: slideOut 0.25s ease forwards; }
-
-    .todo-check {
-      width: 18px; height: 18px; border-radius: 5px;
-      border: 1.5px solid var(--txt-3); cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; transition: all 0.2s;
-    }
-    .todo-item.done .todo-check { background: var(--teal); border-color: var(--teal); }
-    .todo-check svg { width: 10px; height: 10px; display: none; }
-    .todo-item.done .todo-check svg { display: block; }
-
-    .todo-text { flex: 1; font-size: 14px; color: var(--txt); cursor: pointer; }
-    .todo-timestamp { font-family: var(--mono); font-size: 10px; color: var(--txt-3); flex-shrink: 0; }
-
-    .todo-del {
-      background: none; border: none; cursor: pointer;
-      color: var(--txt-3); display: flex; align-items: center;
-      border-radius: 4px; padding: 3px; transition: color 0.2s;
-    }
-    .todo-del:hover { color: var(--red); }
-    .todo-del svg { width: 13px; height: 13px; }
-
-    .todo-empty { text-align: center; padding: 2.5rem 0; color: var(--txt-3); font-size: 13px; font-family: var(--mono); }
-    .todo-empty-icon { font-size: 32px; margin-bottom: 8px; }
-
+    /* ── Skeleton ────────────────────────────────────────────────────────────── */
     .skeleton {
       background: linear-gradient(90deg, var(--bg-2) 25%, var(--bg-3) 50%, var(--bg-2) 75%);
       background-size: 200% 100%;
@@ -278,52 +295,401 @@
       border-radius: 4px; height: 12px; margin: 6px 0;
     }
 
-    .toast-container { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 1000; }
+    /* ── Toast ───────────────────────────────────────────────────────────────── */
+    .toast-container { position: fixed; bottom: 24px; right: 24px; left: 24px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; z-index: 1000; }
     .toast {
-      font-size: 13px; padding: 10px 18px; border-radius: var(--radius-sm);
+      font-size: 13px; font-family: var(--sans); font-weight: 600;
+      padding: 11px 18px; border-radius: var(--radius-sm);
       display: flex; align-items: center; gap: 8px;
       animation: toastIn 0.3s ease both;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      max-width: 360px;
     }
-    .toast.success { background: rgba(74,222,128,0.15); border: 1px solid rgba(74,222,128,0.3); color: var(--green); }
-    .toast.error   { background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.3); color: var(--red); }
-    .toast.info    { background: rgba(56,189,248,0.15);  border: 1px solid rgba(56,189,248,0.3);  color: var(--cyan); }
+    .toast.success { background: rgba(127,176,105,0.16); border: 1px solid rgba(127,176,105,0.35); color: var(--grass); }
+    .toast.error   { background: rgba(229,72,77,0.16); border: 1px solid rgba(229,72,77,0.35); color: var(--red); }
+    .toast.info    { background: rgba(166,126,199,0.16);  border: 1px solid rgba(166,126,199,0.35);  color: var(--dusk); }
     .toast.removing { animation: toastOut 0.25s ease forwards; }
     .toast svg { width: 14px; height: 14px; flex-shrink: 0; }
 
-    .uptime-bar {
-      display: flex; align-items: center; gap: 10px;
-      font-family: var(--mono); font-size: 11px; color: var(--txt-3);
-      padding: 10px 16px; background: var(--bg-1);
-      border: 1px solid var(--border); border-radius: var(--radius);
-      margin-bottom: 16px; animation: fadeUp 0.5s 0.05s ease both;
-      flex-wrap: wrap;
+    /* ── Auth lock (shown in place of gated forms) ──────────────────────────── */
+    .auth-lock {
+      display: flex; align-items: center; justify-content: space-between; gap: 14px;
+      background: var(--bg-2); border: 1px dashed var(--border-hi);
+      border-radius: var(--radius-sm); padding: 16px 20px;
+      margin-bottom: 1.25rem; flex-wrap: wrap;
     }
-    .uptime-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; animation: pulse 2s ease-in-out infinite; }
-    .uptime-sep { color: var(--border); }
+    .auth-lock p { font-size: 13px; color: var(--txt-2); display: flex; align-items: center; gap: 8px; }
+    .auth-lock svg { width: 15px; height: 15px; color: var(--gold); flex-shrink: 0; }
 
-    .countdown-ring { width: 28px; height: 28px; flex-shrink: 0; }
-    .countdown-ring circle { fill: none; stroke: var(--border); stroke-width: 2; r: 11; cx: 14; cy: 14; }
-    .countdown-ring .progress { stroke: var(--teal); stroke-linecap: round; transform-origin: 14px 14px; transform: rotate(-90deg); stroke-dasharray: 69.1; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear; }
+    /* ═══════════════════════════════════════════════════════════════════════════
+       ── TASK MANAGER ──────────────────────────────────────────────────────── */
 
+    .todo-progress-bar-wrap { margin-bottom: 1.25rem; display: flex; flex-direction: column; gap: 8px; }
+    .todo-progress-header { display: flex; align-items: center; justify-content: space-between; font-family: var(--mono); font-size: 11px; }
+    .todo-progress-label { color: var(--txt-2); }
+    .todo-progress-pct { color: var(--gold); font-weight: 700; font-size: 13px; }
+    .progress-track { width: 100%; height: 6px; background: var(--bg-3); border-radius: 999px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--gold), var(--amber)); transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+    .todo-stat-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .stat-chip { font-family: var(--mono); font-size: 10px; padding: 3px 10px; border-radius: 999px; display: flex; align-items: center; gap: 5px; }
+    .chip-total  { background: var(--bg-3); color: var(--txt-2); border: 1px solid var(--border); }
+    .chip-active { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(242,153,74,0.28); }
+    .chip-done   { background: var(--grass-dim); color: var(--grass); border: 1px solid rgba(127,176,105,0.28); }
+    .chip-high   { background: var(--red-dim); color: var(--red); border: 1px solid rgba(229,72,77,0.28); }
+
+    .todo-search-wrap { position: relative; margin-bottom: 14px; }
+    .todo-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--txt-3); pointer-events: none; }
+    .todo-search-icon svg { width: 13px; height: 13px; display: block; }
+    .todo-search {
+      width: 100%; background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 9px 12px 9px 36px;
+      font-family: var(--mono); font-size: 13px; color: var(--txt);
+      outline: none; transition: border-color 0.2s;
+    }
+    .todo-search::placeholder { color: var(--txt-3); }
+    .todo-search:focus { border-color: var(--border-hi); }
+
+    .todo-form { background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px 18px; margin-bottom: 1.25rem; display: flex; flex-direction: column; gap: 12px; transition: border-color 0.2s; }
+    .todo-form:focus-within { border-color: var(--border-hi); }
+    .todo-form-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+    .todo-field-wrap { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 160px; }
+    .todo-field-label { font-size: 10px; font-family: var(--mono); color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.09em; display: flex; align-items: center; gap: 4px; }
+    .todo-field-label svg { width: 9px; height: 9px; }
+
+    .todo-input, .todo-name-input, .todo-email-input, .post-input, .post-textarea {
+      width: 100%; background: var(--bg-3); border: 1px solid var(--border);
+      border-radius: var(--radius-xs); padding: 9px 13px;
+      font-family: var(--sans); font-size: 14px; color: var(--txt);
+      outline: none; transition: border-color 0.2s;
+    }
+    .todo-input::placeholder, .todo-name-input::placeholder, .todo-email-input::placeholder,
+    .post-input::placeholder, .post-textarea::placeholder { color: var(--txt-3); }
+    .todo-input:focus, .todo-name-input:focus, .todo-email-input:focus,
+    .post-input:focus, .post-textarea:focus { border-color: var(--border-hi); background: var(--bg-4); }
+    .todo-name-input { font-family: var(--mono); font-size: 13px; color: var(--dusk); flex-shrink: 0; width: 185px; }
+    .todo-email-input { font-family: var(--mono); font-size: 13px; color: var(--dusk); border-color: rgba(166,126,199,0.22); }
+    .post-textarea { resize: vertical; min-height: 78px; line-height: 1.5; }
+
+    .todo-form-bottom { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+
+    .priority-row { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; }
+    .priority-label { font-size: 10px; font-family: var(--mono); color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.08em; margin-right: 2px; }
+    .priority-btn {
+      font-size: 10px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.07em;
+      padding: 4px 11px; border-radius: 999px; cursor: pointer;
+      border: 1px solid var(--border); background: none; color: var(--txt-3);
+      transition: all 0.15s; display: flex; align-items: center; gap: 4px;
+    }
+    .priority-btn:hover { border-color: rgba(255,255,255,0.2); color: var(--txt-2); }
+    .priority-btn.sel-high   { color: var(--red);   background: var(--red-dim);   border-color: rgba(229,72,77,0.4); }
+    .priority-btn.sel-medium { color: var(--amber); background: var(--amber-dim); border-color: rgba(242,153,74,0.4); }
+    .priority-btn.sel-low    { color: var(--grass); background: var(--grass-dim); border-color: rgba(127,176,105,0.4); }
+
+    .todo-add-btn {
+      background: linear-gradient(135deg, var(--gold), var(--amber)); color: #1a0f04; border: none;
+      border-radius: var(--radius-xs); padding: 10px 22px;
+      font-family: var(--sans); font-size: 13px; font-weight: 800;
+      cursor: pointer; display: flex; align-items: center; gap: 7px;
+      transition: all 0.2s; white-space: nowrap; letter-spacing: 0.02em;
+    }
+    .todo-add-btn:hover { filter: brightness(1.08); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(242,183,5,0.25); }
+    .todo-add-btn:active { transform: translateY(0); box-shadow: none; }
+    .todo-add-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+    .todo-add-btn svg { width: 14px; height: 14px; }
+
+    .todo-controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
+    .todo-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+    .filter-btn {
+      font-family: var(--mono); font-size: 11px; color: var(--txt-2);
+      background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: var(--radius-xs); padding: 5px 12px; cursor: pointer; transition: all 0.2s;
+    }
+    .filter-btn:hover { border-color: rgba(255,255,255,0.2); }
+    .filter-btn.active { background: var(--gold-dim); border-color: var(--border-hi); color: var(--gold); }
+
+    .todo-sort {
+      font-family: var(--mono); font-size: 11px; color: var(--txt-2);
+      background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: var(--radius-xs); padding: 5px 10px;
+      cursor: pointer; outline: none; transition: border-color 0.2s;
+    }
+    .todo-sort:focus { border-color: var(--border-hi); }
+    .todo-sort option { background: var(--bg-2); }
+
+    .todo-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+    .todo-count { font-family: var(--mono); font-size: 12px; color: var(--txt-2); }
+    .todo-bulk-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .bulk-btn {
+      background: none; border: 1px solid var(--border); cursor: pointer;
+      color: var(--txt-3); font-size: 11px; font-family: var(--mono);
+      padding: 4px 11px; border-radius: var(--radius-xs);
+      transition: all 0.2s; display: flex; align-items: center; gap: 5px;
+    }
+    .bulk-btn svg { width: 11px; height: 11px; }
+    .bulk-btn:hover { border-color: rgba(255,255,255,0.2); color: var(--txt-2); }
+    .bulk-btn.danger:hover { border-color: rgba(229,72,77,0.4); color: var(--red); background: var(--red-dim); }
+    .bulk-btn.success:hover { border-color: rgba(127,176,105,0.4); color: var(--grass); background: var(--grass-dim); }
+
+    .todo-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .todo-item {
+      display: flex; align-items: stretch; gap: 0;
+      background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      transition: all 0.25s; animation: slideIn 0.25s ease both;
+      overflow: hidden; position: relative;
+    }
+    .todo-item:hover { border-color: rgba(255,255,255,0.15); background: var(--bg-3); }
+    .todo-item.done { border-color: rgba(127,176,105,0.25); background: rgba(127,176,105,0.04); }
+    .todo-item.done .todo-text { text-decoration: line-through; color: var(--txt-3); }
+    .todo-item.removing { animation: slideOut 0.25s ease forwards; }
+
+    .todo-item-left {
+      position: relative; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      width: 56px; padding: 14px 8px;
+      border-right: 1px solid var(--border);
+      background: var(--bg-1);
+      transition: background 0.2s;
+    }
+    .todo-item:hover .todo-item-left { background: var(--bg-2); }
+    .todo-item.done .todo-item-left { background: rgba(127,176,105,0.08); }
+
+    .complete-btn {
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 2px solid var(--txt-3);
+      background: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; flex-shrink: 0;
+      position: relative; overflow: hidden;
+    }
+    .complete-btn svg { width: 15px; height: 15px; opacity: 0; transition: opacity 0.15s; }
+    .complete-btn:hover { border-color: var(--grass); background: rgba(127,176,105,0.12); transform: scale(1.1); }
+    .complete-btn:hover svg { opacity: 0.6; color: var(--grass); }
+    .todo-item.done .complete-btn { background: var(--grass); border-color: var(--grass); }
+    .todo-item.done .complete-btn svg { opacity: 1; color: #12200e; stroke: #12200e; }
+    .complete-btn:active { transform: scale(0.95); }
+
+    .complete-btn .ripple { position: absolute; border-radius: 50%; background: rgba(127,176,105,0.4); transform: scale(0); animation: ripple 0.5s ease-out forwards; }
+    @keyframes ripple { to { transform: scale(3); opacity: 0; } }
+
+    .todo-body { flex: 1; min-width: 0; padding: 13px 14px; }
+    .todo-header-row { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; flex-wrap: wrap; }
+    .todo-name-tag {
+      font-family: var(--mono); font-size: 10px; color: var(--dusk); background: var(--dusk-dim);
+      border: 1px solid rgba(166,126,199,0.28); padding: 2px 8px; border-radius: 999px;
+      display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;
+    }
+    .todo-name-tag svg { width: 9px; height: 9px; }
+    .todo-priority {
+      font-family: var(--mono); font-size: 9px; text-transform: uppercase;
+      letter-spacing: 0.09em; padding: 2px 8px; border-radius: 999px;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .todo-priority::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .todo-priority.high   { color: var(--red);   background: var(--red-dim);   border: 1px solid rgba(229,72,77,0.3); }
+    .todo-priority.medium { color: var(--amber); background: var(--amber-dim); border: 1px solid rgba(242,153,74,0.3); }
+    .todo-priority.low    { color: var(--grass); background: var(--grass-dim); border: 1px solid rgba(127,176,105,0.3); }
+    .todo-text { font-size: 14px; color: var(--txt); line-height: 1.5; word-break: break-word; cursor: default; }
+    .todo-edit-input { width: 100%; background: var(--bg-3); border: 1px solid var(--border-hi); border-radius: var(--radius-xs); padding: 5px 9px; font-family: var(--sans); font-size: 14px; color: var(--txt); outline: none; }
+    .todo-footer-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+    .todo-timestamp { font-family: var(--mono); font-size: 10px; color: var(--txt-3); }
+    .done-badge {
+      font-family: var(--mono); font-size: 9px; color: var(--grass); background: var(--grass-dim);
+      border: 1px solid rgba(127,176,105,0.28); padding: 1px 7px; border-radius: 999px;
+      text-transform: uppercase; letter-spacing: 0.08em; display: none;
+    }
+    .todo-item.done .done-badge { display: inline-flex; align-items: center; gap: 3px; }
+    .done-badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--grass); animation: pulse 2s ease-in-out infinite; }
+
+    .todo-item-actions { display: flex; flex-direction: column; border-left: 1px solid var(--border); flex-shrink: 0; }
+    .action-btn {
+      flex: 1; background: none; border: none; cursor: pointer;
+      color: var(--txt-3); display: flex; align-items: center; justify-content: center;
+      padding: 0 14px; transition: all 0.18s; gap: 5px;
+      font-family: var(--mono); font-size: 10px; text-transform: uppercase;
+      letter-spacing: 0.06em; min-width: 60px;
+    }
+    .action-btn + .action-btn { border-top: 1px solid var(--border); }
+    .action-btn svg { width: 12px; height: 12px; }
+    .edit-btn:hover { color: var(--dusk); background: var(--dusk-dim); }
+    .del-btn:hover { color: var(--red); background: var(--red-dim); }
+
+    .todo-empty { text-align: center; padding: 3rem 1rem; color: var(--txt-3); }
+    .todo-empty-icon { font-size: 26px; margin-bottom: 10px; color: var(--gold); }
+    .todo-empty-sub { font-size: 12px; margin-top: 4px; }
+
+    /* ── Email settings ──────────────────────────────────────────────────────── */
+    .email-settings-btn {
+      font-family: var(--mono); font-size: 11px; color: var(--dusk);
+      background: var(--dusk-dim); border: 1px solid rgba(166,126,199,0.3);
+      border-radius: var(--radius-xs); padding: 6px 13px; cursor: pointer;
+      display: flex; align-items: center; gap: 6px; transition: all 0.2s;
+    }
+    .email-settings-btn:hover { background: rgba(166,126,199,0.24); }
+    .email-settings-btn svg { width: 12px; height: 12px; }
+
+    .email-settings-panel {
+      max-height: 0; overflow: hidden; opacity: 0;
+      transition: max-height 0.3s ease, opacity 0.25s ease, margin 0.3s ease;
+      background: var(--bg-2); border: 1px solid rgba(166,126,199,0.2);
+      border-radius: var(--radius-sm);
+    }
+    .email-settings-panel.open { max-height: 260px; opacity: 1; padding: 16px 18px; margin-bottom: 1.25rem; }
+    .email-settings-title { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; color: var(--dusk); margin-bottom: 12px; }
+    .email-settings-title svg { width: 13px; height: 13px; }
+    .email-settings-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+    .email-field-wrap { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 220px; }
+    .email-field-label { font-size: 10px; font-family: var(--mono); color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.09em; display: flex; align-items: center; gap: 4px; }
+    .email-field-label svg { width: 9px; height: 9px; }
+    .email-input {
+      width: 100%; background: var(--bg-3); border: 1px solid rgba(166,126,199,0.22);
+      border-radius: var(--radius-xs); padding: 9px 13px;
+      font-family: var(--mono); font-size: 13px; color: var(--dusk);
+      outline: none; transition: border-color 0.2s;
+    }
+    .email-input::placeholder { color: var(--txt-3); }
+    .email-input:focus { border-color: rgba(166,126,199,0.5); background: var(--bg-4); }
+    .email-save-btn {
+      background: var(--dusk-dim); color: var(--dusk); border: 1px solid rgba(166,126,199,0.3);
+      border-radius: var(--radius-xs); padding: 9px 18px; cursor: pointer;
+      font-family: var(--sans); font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; gap: 6px; white-space: nowrap; transition: all 0.2s;
+    }
+    .email-save-btn:hover { background: rgba(166,126,199,0.24); }
+    .email-save-btn svg { width: 13px; height: 13px; }
+    .email-test-btn {
+      background: none; color: var(--txt-3); border: 1px solid var(--border);
+      border-radius: var(--radius-xs); padding: 9px 14px; cursor: pointer;
+      font-family: var(--mono); font-size: 11px;
+      display: flex; align-items: center; gap: 6px; white-space: nowrap; transition: all 0.2s;
+    }
+    .email-test-btn:hover { color: var(--dusk); border-color: rgba(166,126,199,0.3); }
+    .email-test-btn svg { width: 12px; height: 12px; }
+    .email-settings-hint { font-family: var(--mono); font-size: 10px; color: var(--txt-3); line-height: 1.6; border-top: 1px solid var(--border); padding-top: 10px; margin-top: 12px; }
+    .email-settings-hint code { background: var(--bg-3); border: 1px solid var(--border); padding: 1px 5px; border-radius: 3px; color: var(--gold); font-family: var(--mono); }
+
+    .email-badge {
+      font-family: var(--mono); font-size: 9px; padding: 2px 8px; border-radius: 999px;
+      text-transform: uppercase; letter-spacing: 0.08em; display: inline-flex; align-items: center; gap: 4px;
+      flex-shrink: 0; cursor: default;
+    }
+    .email-badge svg { width: 9px; height: 9px; }
+    .email-badge.sending { color: var(--amber); background: var(--amber-dim); border: 1px solid rgba(242,153,74,0.25); }
+    .email-badge.sent    { color: var(--dusk);  background: var(--dusk-dim); border: 1px solid rgba(166,126,199,0.25); }
+    .email-badge.failed  { color: var(--red);   background: var(--red-dim); border: 1px solid rgba(229,72,77,0.25); }
+    .spin-sm { animation: spin 0.8s linear infinite; }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       ── PRIDE BOARD (posts) ───────────────────────────────────────────────── */
+    .post-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem; }
+    .post-form-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .post-form-row > * { flex: 1; min-width: 200px; }
+    .post-form-actions { display: flex; justify-content: flex-end; }
+
+    .post-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+    .post-card {
+      background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      overflow: hidden; display: flex; flex-direction: column;
+      animation: fadeUp 0.4s ease both; transition: border-color 0.2s, transform 0.2s;
+    }
+    .post-card:hover { border-color: rgba(244,201,93,0.28); transform: translateY(-2px); }
+    .post-img { width: 100%; height: 140px; background-size: cover; background-position: center; background-color: var(--bg-3); }
+    .post-img-placeholder {
+      width: 100%; height: 140px; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, var(--bg-3), var(--bg-4));
+    }
+    .post-img-placeholder svg { width: 34px; height: 34px; color: var(--border-hi); }
+    .post-body { padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .post-title { font-family: var(--display); font-size: 16px; font-weight: 700; color: var(--txt); line-height: 1.3; }
+    .post-content { font-size: 13px; color: var(--txt-2); line-height: 1.6; flex: 1; white-space: pre-wrap; word-break: break-word; }
+    .post-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; padding-top: 10px; border-top: 1px solid var(--border); }
+    .post-author { font-family: var(--mono); font-size: 11px; color: var(--gold); display: flex; align-items: center; gap: 5px; }
+    .post-author svg { width: 11px; height: 11px; }
+    .post-date { font-family: var(--mono); font-size: 10px; color: var(--txt-3); }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       ── AUTH MODAL ─────────────────────────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 2000;
+      background: rgba(10,6,3,0.72); backdrop-filter: blur(3px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: auto; }
+    .modal {
+      background: var(--bg-1); border: 1px solid var(--border-hi);
+      border-radius: var(--radius); padding: 2rem;
+      width: 100%; max-width: 400px; position: relative;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      transform: translateY(10px); transition: transform 0.25s ease;
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal-close {
+      position: absolute; top: 14px; right: 14px;
+      background: none; border: none; color: var(--txt-3); font-size: 22px;
+      cursor: pointer; line-height: 1; padding: 4px; transition: color 0.2s;
+    }
+    .modal-close:hover { color: var(--txt); }
+
+    .auth-tabs { display: flex; gap: 4px; background: var(--bg-3); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 1.4rem; }
+    .auth-tab {
+      flex: 1; background: none; border: none; cursor: pointer;
+      padding: 9px; border-radius: var(--radius-xs); font-size: 12.5px; font-weight: 700;
+      color: var(--txt-3); transition: all 0.2s; font-family: var(--sans);
+    }
+    .auth-tab.active { background: var(--gold-dim); color: var(--gold); }
+
+    .auth-form { display: flex; flex-direction: column; gap: 14px; }
+    .auth-form label { display: flex; flex-direction: column; gap: 6px; font-size: 11px; font-family: var(--mono); color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.08em; }
+    .auth-form input {
+      background: var(--bg-3); border: 1px solid var(--border); border-radius: var(--radius-xs);
+      padding: 10px 13px; font-family: var(--sans); font-size: 14px; color: var(--txt);
+      outline: none; transition: border-color 0.2s; text-transform: none; letter-spacing: normal;
+    }
+    .auth-form input:focus { border-color: var(--border-hi); background: var(--bg-4); }
+    .auth-error { font-size: 12px; color: var(--red); min-height: 16px; }
+    .auth-submit-btn {
+      background: linear-gradient(135deg, var(--gold), var(--amber)); color: #1a0f04; border: none;
+      border-radius: var(--radius-xs); padding: 12px; font-size: 14px; font-weight: 800;
+      cursor: pointer; transition: all 0.2s; letter-spacing: 0.01em;
+    }
+    .auth-submit-btn:hover { filter: brightness(1.08); }
+    .auth-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .auth-hint { font-size: 11px; color: var(--txt-3); text-align: center; margin-top: 2px; }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       ── Animations ────────────────────────────────────────────────────────── */
     @keyframes fadeDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
     @keyframes fadeUp   { from { opacity: 0; transform: translateY(16px); }  to { opacity: 1; transform: none; } }
-    @keyframes slideIn  { from { opacity: 0; transform: translateX(-8px); }  to { opacity: 1; transform: none; } }
-    @keyframes slideOut { to   { opacity: 0; transform: translateX(8px); height: 0; padding: 0; margin: 0; } }
+    @keyframes slideIn  { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
+    @keyframes slideOut { to   { opacity: 0; transform: translateX(10px); max-height: 0; padding: 0; margin: 0; overflow: hidden; } }
     @keyframes spin     { to   { transform: rotate(360deg); } }
     @keyframes pulse    { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.4); } }
     @keyframes shimmer  { to { background-position: -200% 0; } }
     @keyframes toastIn  { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
     @keyframes toastOut { to   { opacity: 0; transform: translateX(20px); } }
+    @keyframes completePop { 0% { transform: scale(1); } 40% { transform: scale(1.25); } 100% { transform: scale(1); } }
+    .pop { animation: completePop 0.35s cubic-bezier(0.34,1.56,0.64,1) both; }
 
+    /* ── Responsive ──────────────────────────────────────────────────────────── */
     @media (max-width: 640px) {
-      .grid-2 { grid-template-columns: 1fr; }
-      .card { grid-row: span 1 !important; }
+      .grid-info { grid-template-columns: 1fr; }
+      .todo-form-row { flex-direction: column; align-items: stretch; }
+      .todo-name-input { width: 100%; }
+      .todo-item-actions { flex-direction: row; }
+      .action-btn + .action-btn { border-top: none; border-left: 1px solid var(--border); }
+      .hero { flex-direction: column; align-items: flex-start; }
+      .hero-art { display: none; }
+      .toast-container { left: 12px; right: 12px; align-items: stretch; }
+      .toast { max-width: none; }
     }
     @media (max-width: 480px) {
       .header { flex-direction: column; align-items: flex-start; gap: 12px; }
       .header-right { width: 100%; justify-content: space-between; }
-      .version-number { font-size: 28px; }
+      .auth-area { width: 100%; justify-content: flex-end; }
+      .version-number { font-size: 30px; }
       .todo-add-btn span { display: none; }
       .uptime-bar { gap: 6px; }
     }
@@ -331,19 +697,42 @@
 </head>
 <body>
 
+<div class="bg-scene" aria-hidden="true">
+  <svg viewBox="0 0 1600 500" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,500 L0,340 Q250,290 500,330 T1000,320 T1600,350 L1600,500 Z" fill="#100a05" opacity="0.65"/>
+    <path d="M0,500 L0,400 Q300,370 600,400 T1200,395 T1600,410 L1600,500 Z" fill="#0b0704" opacity="0.75"/>
+    <g opacity="0.42" fill="#0b0704">
+      <rect x="130" y="230" width="9" height="110"/>
+      <ellipse cx="134" cy="215" rx="85" ry="20"/>
+      <ellipse cx="70" cy="228" rx="42" ry="12"/>
+      <ellipse cx="198" cy="226" rx="42" ry="12"/>
+    </g>
+    <g opacity="0.32" fill="#0b0704">
+      <rect x="1390" y="260" width="7" height="90"/>
+      <ellipse cx="1393" cy="248" rx="62" ry="15"/>
+    </g>
+  </svg>
+</div>
+
 <div class="page">
 
+  <!-- ── Header ──────────────────────────────────────────────────────────────── -->
   <header class="header">
     <div class="logo">
       <div class="logo-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#00d4aa" stroke-width="2" stroke-linecap="round">
-          <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
-          <path d="M7 8h.01M11 8h6M7 12h10"/>
+        <svg viewBox="0 0 44 44" fill="none">
+          <circle cx="22" cy="22" r="9" fill="#f2b705"/>
+          <g stroke="#f2994a" stroke-width="3" stroke-linecap="round">
+            <line x1="22" y1="2" x2="22" y2="9"/><line x1="22" y1="35" x2="22" y2="42"/>
+            <line x1="2" y1="22" x2="9" y2="22"/><line x1="35" y1="22" x2="42" y2="22"/>
+            <line x1="8" y1="8" x2="13" y2="13"/><line x1="31" y1="31" x2="36" y2="36"/>
+            <line x1="36" y1="8" x2="31" y2="13"/><line x1="13" y1="31" x2="8" y2="36"/>
+          </g>
         </svg>
       </div>
       <div>
         <div class="logo-text">Sys<span>foo</span></div>
-        <div class="logo-sub">System Dashboard</div>
+        <div class="logo-sub">Pride Dashboard</div>
       </div>
     </div>
     <div class="header-right">
@@ -356,12 +745,39 @@
         </svg>
         Refresh
       </button>
+      <div class="auth-area" id="auth-area">
+        <button class="auth-btn ghost" onclick="openAuthModal('login')">Sign In</button>
+        <button class="auth-btn primary" onclick="openAuthModal('register')">Join the Pride</button>
+      </div>
     </div>
   </header>
 
+  <!-- ── Hero ────────────────────────────────────────────────────────────────── -->
+  <div class="hero">
+    <div class="hero-text">
+      <div class="hero-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Live system dashboard
+      </div>
+      <h1>Command your pride.</h1>
+      <p>Watch over your infrastructure, manage the team's tasks, and share updates — all from one watering hole.</p>
+    </div>
+    <svg class="hero-art" viewBox="0 0 120 120" fill="none">
+      <circle cx="60" cy="46" r="30" fill="#f2b705" opacity="0.85"/>
+      <g stroke="#e0632c" stroke-width="6" stroke-linecap="round" opacity="0.8">
+        <line x1="60" y1="2" x2="60" y2="16"/><line x1="60" y1="76" x2="60" y2="90"/>
+        <line x1="16" y1="46" x2="30" y2="46"/><line x1="90" y1="46" x2="104" y2="46"/>
+        <line x1="28" y1="14" x2="38" y2="24"/><line x1="82" y1="68" x2="92" y2="78"/>
+        <line x1="92" y1="14" x2="82" y2="24"/><line x1="38" y1="68" x2="28" y2="78"/>
+      </g>
+      <ellipse cx="60" cy="112" rx="46" ry="6" fill="#0b0704" opacity="0.4"/>
+    </svg>
+  </div>
+
+  <!-- ── Uptime bar ─────────────────────────────────────────────────────────── -->
   <div class="uptime-bar">
     <div class="uptime-dot"></div>
-    <span>LIVE</span>
+    <span style="color:var(--grass);font-weight:700;">LIVE</span>
     <span class="uptime-sep">|</span>
     <span>Next refresh</span>
     <svg class="countdown-ring" id="countdown-ring">
@@ -369,43 +785,39 @@
     </svg>
     <span id="countdown-text">30s</span>
     <span class="uptime-sep">|</span>
-    <span>Session: <span id="session-start">--</span></span>
+    <span>Session: <span id="session-start" style="color:var(--txt);">--</span></span>
     <span class="uptime-sep">|</span>
-    <span>Uptime: <span id="page-uptime">0s</span></span>
+    <span>Uptime: <span id="page-uptime" style="color:var(--gold);">0s</span></span>
   </div>
 
-  <div class="grid-2">
+  <!-- ── Info grid ──────────────────────────────────────────────────────────── -->
+  <div class="grid-info">
 
-    <div class="card" style="grid-row: span 2;">
+    <div class="card">
       <div class="card-header">
         <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M7 8h.01M11 8h6M7 12h10"/></svg>
           System Info
-        </div>
-        <div id="sysinfo-loading" style="display:none;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00d4aa" stroke-width="2.5" stroke-linecap="round" style="animation:spin 0.8s linear infinite"><path d="M21 12a9 9 0 1 1-6.22-8.56"/></svg>
         </div>
       </div>
       <div id="system-info">
         <div class="skeleton" style="width:80%"></div>
         <div class="skeleton" style="width:60%"></div>
         <div class="skeleton" style="width:70%"></div>
-        <div class="skeleton" style="width:55%"></div>
-        <div class="skeleton" style="width:65%"></div>
+        <div class="skeleton" style="width:50%"></div>
       </div>
     </div>
 
     <div class="card">
       <div class="card-header">
         <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          App Version
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          Version
         </div>
       </div>
       <div class="version-display">
-        <div class="version-label">Current Release</div>
-        <div class="version-number" id="app-version">—</div>
-        <div style="font-size:11px;color:var(--txt-3);font-family:var(--mono);">sysfoo-app</div>
+        <div class="version-label">Deployed build</div>
+        <div class="version-number" id="app-version">v--</div>
       </div>
     </div>
 
@@ -423,40 +835,194 @@
 
   </div>
 
-  <div class="card card-full">
+  <!-- ═══════════════════════════════════════════════════════════════════════════
+       ── Task Manager ───────────────────────────────────────────────────────── -->
+  <div class="card card-full" style="animation-delay:0.3s;">
     <div class="card-header">
       <div class="card-title">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-        To-Do List
+        Task Manager
       </div>
-      <div style="font-size:11px;font-family:var(--mono);color:var(--txt-3);">
-        press <kbd style="background:var(--bg-3);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:10px;">Enter</kbd> to add
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <button class="email-settings-btn" onclick="toggleEmailSettings()" id="email-settings-toggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
+          Email Notify
+        </button>
       </div>
     </div>
 
-    <div class="todo-input-row">
-      <input class="todo-input" id="todo-text" type="text" placeholder="What needs to be done?" maxlength="120" />
-      <button class="todo-add-btn" id="add-todo-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-        <span>Add Task</span>
-      </button>
+    <div class="todo-progress-bar-wrap">
+      <div class="todo-progress-header">
+        <span class="todo-progress-label">Task Completion</span>
+        <span class="todo-progress-pct" id="progress-pct">0%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <div class="todo-stat-chips">
+        <span class="stat-chip chip-total"><span id="chip-total">0</span> total</span>
+        <span class="stat-chip chip-active"><span id="chip-active">0</span> active</span>
+        <span class="stat-chip chip-done"><span id="chip-done">0</span> done</span>
+        <span class="stat-chip chip-high"><span id="chip-high">0</span> high priority</span>
+      </div>
     </div>
 
-    <div class="todo-filters">
-      <button class="filter-btn active" data-filter="all">All</button>
-      <button class="filter-btn" data-filter="active">Active</button>
-      <button class="filter-btn" data-filter="done">Done</button>
+    <div class="email-settings-panel" id="email-settings-panel">
+      <div class="email-settings-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
+        Email Notification Settings
+      </div>
+      <div class="email-settings-row">
+        <div class="email-field-wrap">
+          <label class="email-field-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
+            Default Notification Email
+          </label>
+          <input class="email-input" id="default-email" type="email" placeholder="e.g. team@company.com" />
+        </div>
+        <button class="email-save-btn" onclick="saveDefaultEmail()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save Default
+        </button>
+        <button class="email-test-btn" onclick="sendTestEmail()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+          Send Test
+        </button>
+      </div>
+      <div class="email-settings-hint">
+        Notifications are sent via your Spring Boot backend at <code>POST /api/notify</code> and require you to be signed in.
+        Set a default email above — it will pre-fill the notify field for every new task.
+      </div>
+    </div>
+
+    <div class="todo-search-wrap">
+      <div class="todo-search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></div>
+      <input class="todo-search" id="todo-search" type="text" placeholder="Search tasks..." oninput="renderTodos()" />
+    </div>
+
+    <div class="auth-lock" id="todo-auth-lock">
+      <p><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Sign in to add and manage tasks.</p>
+      <button class="auth-btn primary" onclick="openAuthModal('login')">Sign In</button>
+    </div>
+
+    <div class="todo-form" id="todo-form" style="display:none;">
+      <div class="todo-form-row">
+        <div class="todo-field-wrap" style="flex:0 0 auto;width:175px;">
+          <label class="todo-field-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Assigned To
+          </label>
+          <input class="todo-name-input" id="todo-name" type="text" placeholder="Assignee name" maxlength="40" />
+        </div>
+        <div class="todo-field-wrap">
+          <label class="todo-field-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
+            Notify Email
+          </label>
+          <input class="todo-email-input" id="todo-email" type="email" placeholder="email@example.com" maxlength="120" />
+        </div>
+      </div>
+      <div class="todo-form-row">
+        <div class="todo-field-wrap">
+          <label class="todo-field-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Task Description
+          </label>
+          <input class="todo-input" id="todo-text" type="text" placeholder="What needs to be done?" maxlength="200" />
+        </div>
+      </div>
+      <div class="todo-form-bottom">
+        <div class="priority-row">
+          <span class="priority-label">Priority:</span>
+          <button class="priority-btn" data-p="high" onclick="selectPriority('high')">⬆ High</button>
+          <button class="priority-btn sel-medium" data-p="medium" onclick="selectPriority('medium')">➡ Medium</button>
+          <button class="priority-btn" data-p="low" onclick="selectPriority('low')">⬇ Low</button>
+        </div>
+        <button class="todo-add-btn" id="add-todo-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          <span>Add Task</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="todo-controls">
+      <div class="todo-filters">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="active">Active</button>
+        <button class="filter-btn" data-filter="done">Completed</button>
+        <button class="filter-btn" data-filter="high">🔴 High</button>
+      </div>
+      <div class="todo-controls-right">
+        <select class="todo-sort" id="todo-sort" onchange="renderTodos()">
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="priority">By priority</option>
+          <option value="name">By assignee</option>
+        </select>
+      </div>
     </div>
 
     <div class="todo-meta">
       <span class="todo-count" id="todo-count">0 tasks</span>
-      <button class="clear-done-btn" onclick="clearDone()">Clear completed</button>
+      <div class="todo-bulk-actions">
+        <button class="bulk-btn success" onclick="markAllDone()" title="Mark all visible as done">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+          Complete All
+        </button>
+        <button class="bulk-btn" onclick="clearDone()" title="Remove completed tasks">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg>
+          Clear Done
+        </button>
+        <button class="bulk-btn danger" onclick="clearAll()" title="Remove all tasks">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+          Clear All
+        </button>
+      </div>
     </div>
 
     <ul class="todo-list" id="todo-list"></ul>
     <div class="todo-empty" id="todo-empty" style="display:none;">
-      <div class="todo-empty-icon">✓</div>
-      <div>All clear! Add a task above.</div>
+      <div class="todo-empty-icon">✦</div>
+      <div>No tasks here.</div>
+      <div class="todo-empty-sub">Sign in and add one above to get started.</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════
+       ── The Watering Hole (community posts) ───────────────────────────────── -->
+  <div class="card card-full" style="animation-delay:0.35s;">
+    <div class="card-header">
+      <div>
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          The Watering Hole
+        </div>
+        <div class="card-subtitle">Share updates with the rest of the pride.</div>
+      </div>
+    </div>
+
+    <div class="auth-lock" id="post-auth-lock">
+      <p><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Sign in to post to the board.</p>
+      <button class="auth-btn primary" onclick="openAuthModal('login')">Sign In</button>
+    </div>
+
+    <form class="post-form" id="post-form" style="display:none;" onsubmit="submitPost(event)">
+      <input class="post-input" id="post-title" type="text" placeholder="Title" maxlength="140" required />
+      <textarea class="post-textarea" id="post-content" placeholder="What's happening at the watering hole?" maxlength="4000" required></textarea>
+      <div class="post-form-row">
+        <input class="post-input" id="post-image" type="url" placeholder="Image URL (optional)" />
+      </div>
+      <div class="post-form-actions">
+        <button type="submit" class="todo-add-btn" id="add-post-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          <span>Post</span>
+        </button>
+      </div>
+    </form>
+
+    <div class="post-grid" id="post-grid"></div>
+    <div class="todo-empty" id="post-empty" style="display:none;">
+      <div class="todo-empty-icon">✦</div>
+      <div>No posts yet.</div>
+      <div class="todo-empty-sub">Be the first to share something with the pride.</div>
     </div>
   </div>
 
@@ -464,12 +1030,303 @@
 
 <div class="toast-container" id="toast-container"></div>
 
+<!-- ── Auth modal ────────────────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="auth-overlay" onclick="if(event.target===this) closeAuthModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAuthModal()" aria-label="Close">&times;</button>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Sign In</button>
+      <button class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">Join the Pride</button>
+    </div>
+
+    <form class="auth-form" id="login-form" onsubmit="submitLogin(event)">
+      <label>Username
+        <input id="login-username" type="text" required maxlength="40" autocomplete="username" />
+      </label>
+      <label>Password
+        <input id="login-password" type="password" required autocomplete="current-password" />
+      </label>
+      <div class="auth-error" id="login-error"></div>
+      <button type="submit" class="auth-submit-btn" id="login-submit-btn">Sign In</button>
+    </form>
+
+    <form class="auth-form" id="register-form" style="display:none;" onsubmit="submitRegister(event)">
+      <label>Display Name
+        <input id="register-displayname" type="text" maxlength="60" placeholder="e.g. Nala" />
+      </label>
+      <label>Username
+        <input id="register-username" type="text" required maxlength="40" autocomplete="username" />
+      </label>
+      <label>Email <span style="text-transform:none;">(optional)</span>
+        <input id="register-email" type="email" maxlength="120" />
+      </label>
+      <label>Password
+        <input id="register-password" type="password" required minlength="6" autocomplete="new-password" />
+      </label>
+      <div class="auth-error" id="register-error"></div>
+      <button type="submit" class="auth-submit-btn" id="register-submit-btn">Create Account</button>
+      <div class="auth-hint">Password must be at least 6 characters.</div>
+    </form>
+  </div>
+</div>
+
 <script>
-  var todos = [], filter = 'all', refreshInterval, countdownInterval;
+  // ── State ──────────────────────────────────────────────────────────────────
+  var todos = [], posts = [], filter = 'all', refreshInterval, countdownInterval;
   var sessionStart = Date.now(), refreshSeconds = 30, currentCountdown = 30;
   var localIdCounter = 0;
   var CIRCUMFERENCE = 2 * Math.PI * 11;
+  var selectedPriority = 'medium';
+  var PRIORITY_ORDER = { high: 0, medium: 1, low: 2 };
+  var auth = { loggedIn: false, username: null, displayName: null };
 
+  // ── Auth ───────────────────────────────────────────────────────────────────
+  function checkAuth() {
+    fetch('/api/auth/me')
+      .then(function(r) { if (!r.ok) throw new Error(); return r.json(); })
+      .then(function(d) { auth = { loggedIn: true, username: d.username, displayName: d.displayName }; updateAuthUI(); })
+      .catch(function() { auth = { loggedIn: false, username: null, displayName: null }; updateAuthUI(); });
+  }
+
+  function updateAuthUI() {
+    var area = document.getElementById('auth-area');
+    if (auth.loggedIn) {
+      var label = auth.displayName || auth.username;
+      area.innerHTML =
+        '<div class="user-chip"><span class="user-chip-avatar">' + escapeHtml(label.charAt(0).toUpperCase()) + '</span><span>' + escapeHtml(label) + '</span></div>' +
+        '<button class="auth-btn ghost" onclick="logout()">Sign Out</button>';
+    } else {
+      area.innerHTML =
+        '<button class="auth-btn ghost" onclick="openAuthModal(\'login\')">Sign In</button>' +
+        '<button class="auth-btn primary" onclick="openAuthModal(\'register\')">Join the Pride</button>';
+    }
+    document.getElementById('todo-form').style.display = auth.loggedIn ? 'flex' : 'none';
+    document.getElementById('todo-auth-lock').style.display = auth.loggedIn ? 'none' : 'flex';
+    document.getElementById('post-form').style.display = auth.loggedIn ? 'flex' : 'none';
+    document.getElementById('post-auth-lock').style.display = auth.loggedIn ? 'none' : 'flex';
+  }
+
+  function openAuthModal(tab) {
+    document.getElementById('auth-overlay').classList.add('open');
+    switchAuthTab(tab || 'login');
+  }
+  function closeAuthModal() {
+    document.getElementById('auth-overlay').classList.remove('open');
+    document.getElementById('login-error').textContent = '';
+    document.getElementById('register-error').textContent = '';
+  }
+  function switchAuthTab(tab) {
+    var isLogin = tab === 'login';
+    document.getElementById('tab-login').classList.toggle('active', isLogin);
+    document.getElementById('tab-register').classList.toggle('active', !isLogin);
+    document.getElementById('login-form').style.display = isLogin ? 'flex' : 'none';
+    document.getElementById('register-form').style.display = isLogin ? 'none' : 'flex';
+  }
+
+  function submitLogin(e) {
+    e.preventDefault();
+    var username = document.getElementById('login-username').value.trim();
+    var password = document.getElementById('login-password').value;
+    var errEl = document.getElementById('login-error');
+    var btn = document.getElementById('login-submit-btn');
+    errEl.textContent = '';
+    btn.disabled = true;
+
+    fetch('/api/auth/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: username, password: password })
+    })
+      .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+      .then(function(res) {
+        if (!res.ok) { errEl.textContent = res.data.message || 'Sign in failed'; return; }
+        auth = { loggedIn: true, username: res.data.username, displayName: res.data.displayName };
+        updateAuthUI();
+        closeAuthModal();
+        document.getElementById('login-form').reset();
+        showToast('Welcome back, ' + (auth.displayName || auth.username), 'success');
+      })
+      .catch(function() { errEl.textContent = 'Network error — please try again'; })
+      .finally(function() { btn.disabled = false; });
+  }
+
+  function submitRegister(e) {
+    e.preventDefault();
+    var displayName = document.getElementById('register-displayname').value.trim();
+    var username = document.getElementById('register-username').value.trim();
+    var email = document.getElementById('register-email').value.trim();
+    var password = document.getElementById('register-password').value;
+    var errEl = document.getElementById('register-error');
+    var btn = document.getElementById('register-submit-btn');
+    errEl.textContent = '';
+
+    if (username.length < 3) { errEl.textContent = 'Username must be at least 3 characters'; return; }
+    if (password.length < 6) { errEl.textContent = 'Password must be at least 6 characters'; return; }
+    if (email && !isValidEmail(email)) { errEl.textContent = 'Invalid email address'; return; }
+
+    btn.disabled = true;
+    fetch('/api/auth/register', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ displayName: displayName, username: username, email: email, password: password })
+    })
+      .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+      .then(function(res) {
+        if (!res.ok) { errEl.textContent = res.data.message || 'Registration failed'; return; }
+        auth = { loggedIn: true, username: res.data.username, displayName: res.data.displayName };
+        updateAuthUI();
+        closeAuthModal();
+        document.getElementById('register-form').reset();
+        showToast('Welcome to the pride, ' + (auth.displayName || auth.username) + '!', 'success');
+      })
+      .catch(function() { errEl.textContent = 'Network error — please try again'; })
+      .finally(function() { btn.disabled = false; });
+  }
+
+  function logout() {
+    fetch('/api/auth/logout', { method: 'POST' })
+      .then(function() {
+        auth = { loggedIn: false, username: null, displayName: null };
+        updateAuthUI();
+        showToast('Signed out', 'info');
+      })
+      .catch(function() { showToast('Sign out failed', 'error'); });
+  }
+
+  // ── Posts ──────────────────────────────────────────────────────────────────
+  function loadPosts() {
+    fetch('/api/posts')
+      .then(function(r) { return r.json(); })
+      .then(function(data) { posts = data; renderPosts(); })
+      .catch(function() { showToast('Could not load the watering hole board', 'error'); });
+  }
+
+  function renderPosts() {
+    var grid = document.getElementById('post-grid');
+    var empty = document.getElementById('post-empty');
+    if (posts.length === 0) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
+    empty.style.display = 'none';
+    grid.innerHTML = posts.map(function(p) {
+      var img = p.imageUrl
+        ? '<div class="post-img" style="background-image:url(\'' + escapeAttr(p.imageUrl) + '\')"></div>'
+        : '<div class="post-img-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>';
+      var dateStr = p.createdAt ? formatDate(new Date(p.createdAt).getTime()) : '';
+      return '<article class="post-card">' + img +
+        '<div class="post-body">' +
+          '<h3 class="post-title">' + escapeHtml(p.title) + '</h3>' +
+          '<p class="post-content">' + escapeHtml(p.content) + '</p>' +
+          '<div class="post-meta">' +
+            '<span class="post-author"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>' + escapeHtml(p.author) + '</span>' +
+            '<span class="post-date">' + dateStr + '</span>' +
+          '</div>' +
+        '</div>' +
+      '</article>';
+    }).join('');
+  }
+
+  function submitPost(e) {
+    e.preventDefault();
+    if (!auth.loggedIn) { openAuthModal('login'); return; }
+
+    var titleInput = document.getElementById('post-title');
+    var contentInput = document.getElementById('post-content');
+    var imageInput = document.getElementById('post-image');
+    var title = titleInput.value.trim();
+    var content = contentInput.value.trim();
+    var imageUrl = imageInput.value.trim();
+
+    if (!title || !content) { showToast('Title and content are required', 'error'); return; }
+
+    var btn = document.getElementById('add-post-btn');
+    btn.disabled = true;
+
+    fetch('/api/posts', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: title, content: content, imageUrl: imageUrl })
+    })
+      .then(function(r) {
+        if (r.status === 401) { openAuthModal('login'); throw new Error('auth'); }
+        return r.json().then(function(d) { return { ok: r.ok, data: d }; });
+      })
+      .then(function(res) {
+        if (!res.ok) { showToast(res.data.message || 'Failed to post', 'error'); return; }
+        posts.unshift(res.data);
+        renderPosts();
+        document.getElementById('post-form').reset();
+        showToast('Posted to the watering hole', 'success');
+      })
+      .catch(function(err) { if (err.message !== 'auth') showToast('Failed to post — is the DB connected?', 'error'); })
+      .finally(function() { btn.disabled = false; });
+  }
+
+  // ── Email settings ────────────────────────────────────────────────────────────
+  var emailSettingsOpen = false;
+
+  function toggleEmailSettings() {
+    emailSettingsOpen = !emailSettingsOpen;
+    var panel = document.getElementById('email-settings-panel');
+    panel.classList.toggle('open', emailSettingsOpen);
+    if (emailSettingsOpen) {
+      var saved = localStorage.getItem('sysfoo_default_email') || '';
+      document.getElementById('default-email').value = saved;
+      document.getElementById('default-email').focus();
+    }
+  }
+
+  function saveDefaultEmail() {
+    var val = document.getElementById('default-email').value.trim();
+    if (val && !isValidEmail(val)) { showToast('Invalid email address', 'error'); return; }
+    localStorage.setItem('sysfoo_default_email', val);
+    document.getElementById('todo-email').value = val;
+    showToast(val ? 'Default email saved · ' + val : 'Default email cleared', 'success');
+  }
+
+  function sendTestEmail() {
+    if (!auth.loggedIn) { openAuthModal('login'); return; }
+    var email = document.getElementById('default-email').value.trim();
+    if (!email) { showToast('Enter an email address first', 'error'); return; }
+    if (!isValidEmail(email)) { showToast('Invalid email address', 'error'); return; }
+    callNotifyAPI({
+      to: email, subject: '[Sysfoo] Test Notification',
+      taskText: 'This is a test notification from your Sysfoo Dashboard.',
+      name: 'Test User', priority: 'low', time: formatTime(Date.now())
+    })
+      .then(function() { showToast('Test email sent to ' + email, 'success'); })
+      .catch(function() { showToast('Test email failed — check /api/notify backend', 'error'); });
+  }
+
+  function isValidEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+
+  function callNotifyAPI(payload) {
+    return fetch('/api/notify', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+    }).then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    });
+  }
+
+  function sendEmailNotification(todo) {
+    if (!todo.email || !isValidEmail(todo.email)) return;
+    todo.emailStatus = 'sending';
+    renderTodos();
+    callNotifyAPI({
+      to: todo.email, subject: '[Sysfoo] New Task Assigned: ' + todo.text,
+      taskText: todo.text, name: todo.name || 'Team', priority: todo.priority,
+      time: todo.time, date: todo.date
+    })
+      .then(function() { todo.emailStatus = 'sent'; renderTodos(); showToast('📧 Notification sent → ' + todo.email, 'success'); })
+      .catch(function() { todo.emailStatus = 'failed'; renderTodos(); showToast('Mail failed — check backend /api/notify', 'error'); });
+  }
+
+  // ── Priority selector ────────────────────────────────────────────────────────
+  function selectPriority(p) {
+    selectedPriority = p;
+    document.querySelectorAll('.priority-btn').forEach(function(btn) {
+      btn.className = 'priority-btn';
+      if (btn.dataset.p === p) btn.classList.add('sel-' + p);
+    });
+  }
+
+  // ── Toast ────────────────────────────────────────────────────────────────────
   function showToast(msg, type) {
     type = type || 'info';
     var icons = {
@@ -479,7 +1336,7 @@
     };
     var el = document.createElement('div');
     el.className = 'toast ' + type;
-    el.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">' + icons[type] + '</svg>' + msg;
+    el.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">' + icons[type] + '</svg>' + escapeHtml(msg);
     document.getElementById('toast-container').appendChild(el);
     setTimeout(function() {
       el.classList.add('removing');
@@ -487,18 +1344,19 @@
     }, 2800);
   }
 
+  // ── Clock & uptime ───────────────────────────────────────────────────────────
   function updateClock() {
     var now = new Date();
     document.getElementById('clock').textContent = now.toLocaleTimeString('en-GB');
     var sec = Math.floor((Date.now() - sessionStart) / 1000);
     var h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
-    document.getElementById('page-uptime').textContent = h ? h+'h '+m+'m '+s+'s' : m ? m+'m '+s+'s' : s+'s';
+    document.getElementById('page-uptime').textContent = h ? h + 'h ' + m + 'm ' + s + 's' : m ? m + 'm ' + s + 's' : s + 's';
   }
 
-  function formatTime(ts) {
-    return new Date(ts).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-  }
+  function formatTime(ts) { return new Date(ts).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }); }
+  function formatDate(ts) { return new Date(ts).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }); }
 
+  // ── Countdown ring ───────────────────────────────────────────────────────────
   function updateCountdown(seconds) {
     var frac = seconds / refreshSeconds;
     document.getElementById('countdown-progress').style.strokeDashoffset = CIRCUMFERENCE * (1 - frac);
@@ -516,21 +1374,44 @@
     }, 1000);
   }
 
+  // ── Clipboard & escaping ─────────────────────────────────────────────────────
   function copyToClipboard(text) {
     navigator.clipboard.writeText(text).then(function() { showToast('Copied to clipboard', 'success'); });
   }
 
   function escapeHtml(s) {
-    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    if (!s) return '';
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function escapeAttr(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g, '&amp;').replace(/'/g, '&#39;').replace(/"/g, '&quot;');
   }
 
+  // ── Progress bar update ──────────────────────────────────────────────────────
+  function updateProgress() {
+    var total = todos.length;
+    var done = todos.filter(function(t) { return t.done; }).length;
+    var active = total - done;
+    var high = todos.filter(function(t) { return t.priority === 'high' && !t.done; }).length;
+    var pct = total === 0 ? 0 : Math.round(done / total * 100);
+
+    document.getElementById('progress-pct').textContent = pct + '%';
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('chip-total').textContent = total;
+    document.getElementById('chip-active').textContent = active;
+    document.getElementById('chip-done').textContent = done;
+    document.getElementById('chip-high').textContent = high;
+  }
+
+  // ── System info ──────────────────────────────────────────────────────────────
   function renderSystemInfo(data) {
     var rows = [
-      { key: 'Hostname',   val: data.Hostname,                       copy: true },
-      { key: 'IP Address', val: data['IP Address'],                   copy: true },
-      { key: 'Docker',     badge: data['Running in Docker'],          label: 'Docker' },
-      { key: 'Kubernetes', badge: data['Running in Kubernetes'],      label: 'Kubernetes' },
-      { key: 'Version',    val: data['App Version'],                  copy: false }
+      { key: 'Hostname', val: data.Hostname, copy: true },
+      { key: 'IP Address', val: data['IP Address'], copy: true },
+      { key: 'Docker', badge: data['Running in Docker'] },
+      { key: 'Kubernetes', badge: data['Running in Kubernetes'] },
+      { key: 'Version', val: data['App Version'], copy: false }
     ];
     var html = '';
     rows.forEach(function(r) {
@@ -539,7 +1420,7 @@
         var txt = r.badge ? 'Running' : 'Not detected';
         html += '<div class="stat-row"><span class="stat-key">' + r.key + '</span><span class="stat-val"><span class="badge ' + cls + '">' + txt + '</span></span></div>';
       } else {
-        var copyHtml = r.copy ? '<button class="copy-btn" onclick="copyToClipboard(\'' + escapeHtml(r.val) + '\')" title="Copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>' : '';
+        var copyHtml = r.copy ? '<button class="copy-btn" onclick="copyToClipboard(\'' + escapeAttr(r.val) + '\')" title="Copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>' : '';
         html += '<div class="stat-row"><span class="stat-key">' + r.key + '</span><span class="stat-val">' + escapeHtml(r.val) + copyHtml + '</span></div>';
       }
     });
@@ -548,17 +1429,10 @@
   }
 
   function fetchSystemInfo() {
-    document.getElementById('sysinfo-loading').style.display = 'block';
     fetch('/system-info')
       .then(function(r) { return r.json(); })
-      .then(function(data) {
-        renderSystemInfo(data);
-        document.getElementById('sysinfo-loading').style.display = 'none';
-      })
-      .catch(function() {
-        document.getElementById('sysinfo-loading').style.display = 'none';
-        showToast('Failed to load system info', 'error');
-      });
+      .then(function(data) { renderSystemInfo(data); })
+      .catch(function() { showToast('Failed to load system info', 'error'); });
     fetch('/version')
       .then(function(r) { return r.text(); })
       .then(function(v) { document.getElementById('app-version').textContent = 'v' + v; })
@@ -584,58 +1458,143 @@
       });
   }
 
-  function renderTodos() {
+  // ── Todo rendering ───────────────────────────────────────────────────────────
+  function getSortedFiltered() {
+    var query = (document.getElementById('todo-search').value || '').toLowerCase().trim();
     var filtered = todos.filter(function(t) {
       if (filter === 'active') return !t.done;
-      if (filter === 'done')   return t.done;
+      if (filter === 'done') return t.done;
+      if (filter === 'high') return t.priority === 'high' && !t.done;
       return true;
+    }).filter(function(t) {
+      if (!query) return true;
+      return t.text.toLowerCase().includes(query) || (t.name || '').toLowerCase().includes(query);
     });
-    var list  = document.getElementById('todo-list');
+
+    var sort = document.getElementById('todo-sort').value;
+    filtered.sort(function(a, b) {
+      if (sort === 'oldest') return a.createdAt - b.createdAt;
+      if (sort === 'priority') return PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority];
+      if (sort === 'name') return (a.name || '').localeCompare(b.name || '');
+      return b.createdAt - a.createdAt;
+    });
+    return filtered;
+  }
+
+  function renderTodos() {
+    var filtered = getSortedFiltered();
+    var list = document.getElementById('todo-list');
     var empty = document.getElementById('todo-empty');
     var count = document.getElementById('todo-count');
     var active = todos.filter(function(t) { return !t.done; }).length;
     count.textContent = todos.length + ' task' + (todos.length !== 1 ? 's' : '') + ' · ' + active + ' active';
+
+    updateProgress();
+
     if (filtered.length === 0) { list.innerHTML = ''; empty.style.display = 'block'; return; }
     empty.style.display = 'none';
+
     list.innerHTML = filtered.map(function(todo) {
+      var nameTag = todo.name
+        ? '<span class="todo-name-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>' + escapeHtml(todo.name) + '</span>'
+        : '';
+      var priTag = '<span class="todo-priority ' + todo.priority + '">' + todo.priority + '</span>';
+      var doneTag = '<span class="done-badge">completed</span>';
+      var dateStr = todo.date ? todo.date + ' · ' : '';
+
+      var emailBadge = '';
+      if (todo.email) {
+        if (todo.emailStatus === 'sending') {
+          emailBadge = '<span class="email-badge sending"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" class="spin-sm"><path d="M21 12a9 9 0 1 1-6.22-8.56"/></svg>Sending…</span>';
+        } else if (todo.emailStatus === 'sent') {
+          emailBadge = '<span class="email-badge sent" title="Notification sent to ' + escapeAttr(todo.email) + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>Notified</span>';
+        } else if (todo.emailStatus === 'failed') {
+          emailBadge = '<span class="email-badge failed" title="Failed to send to ' + escapeAttr(todo.email) + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>Mail failed</span>';
+        }
+      }
+
       return '<li class="todo-item ' + (todo.done ? 'done' : '') + '" id="todo-' + todo.localId + '">' +
-        '<div class="todo-check" onclick="toggleTodo(' + todo.localId + ')">' +
-          '<svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>' +
+        '<div class="todo-item-left">' +
+          '<button class="complete-btn" onclick="toggleTodo(' + todo.localId + ', event)" title="' + (todo.done ? 'Mark as active' : 'Mark as complete') + '">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>' +
+          '</button>' +
         '</div>' +
-        '<span class="todo-text" onclick="toggleTodo(' + todo.localId + ')">' + escapeHtml(todo.text) + '</span>' +
-        '<span class="todo-timestamp">' + todo.time + '</span>' +
-        '<button class="todo-del" onclick="deleteTodo(' + todo.localId + ')" title="Delete">' +
-          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>' +
-        '</button>' +
+        '<div class="todo-body">' +
+          '<div class="todo-header-row">' + nameTag + priTag + doneTag + '</div>' +
+          (todo.editing
+            ? '<input class="todo-edit-input" id="edit-input-' + todo.localId + '" value="' + escapeAttr(todo.text) + '" onblur="saveEdit(' + todo.localId + ')" onkeydown="handleEditKey(event,' + todo.localId + ')" />'
+            : '<div class="todo-text">' + escapeHtml(todo.text) + '</div>'
+          ) +
+          '<div class="todo-footer-row"><span class="todo-timestamp">' + dateStr + todo.time + '</span>' + emailBadge + '</div>' +
+        '</div>' +
+        '<div class="todo-item-actions">' +
+          '<button class="action-btn edit-btn" onclick="startEdit(' + todo.localId + ')" title="Edit task">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg><span>Edit</span>' +
+          '</button>' +
+          '<button class="action-btn del-btn" onclick="deleteTodo(' + todo.localId + ')" title="Delete task">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg><span>Remove</span>' +
+          '</button>' +
+        '</div>' +
       '</li>';
     }).join('');
+
+    filtered.forEach(function(todo) {
+      if (todo.editing) {
+        var inp = document.getElementById('edit-input-' + todo.localId);
+        if (inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+      }
+    });
   }
 
-  function addTodo() {
-    var input = document.getElementById('todo-text');
-    var text = input.value.trim();
-    if (!text) { input.focus(); return; }
-    var btn = document.getElementById('add-todo-btn');
-    btn.disabled = true;
-    fetch('/todos', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: text })
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      todos.push({ localId: localIdCounter++, id: data.id, text: data.text, done: false, time: formatTime(Date.now()) });
-      input.value = '';
-      renderTodos();
-      showToast('Task added', 'success');
-    })
-    .catch(function() { showToast('Failed to add task', 'error'); })
-    .finally(function() { btn.disabled = false; input.focus(); });
+  // ── Ripple effect on complete ────────────────────────────────────────────────
+  function addRipple(btn) {
+    var ripple = document.createElement('span');
+    ripple.className = 'ripple';
+    ripple.style.width = ripple.style.height = '34px';
+    ripple.style.left = ripple.style.top = '0';
+    btn.appendChild(ripple);
+    setTimeout(function() { ripple.remove(); }, 600);
   }
 
-  function toggleTodo(localId) {
+  // ── Toggle / edit / delete ───────────────────────────────────────────────────
+  function toggleTodo(localId, event) {
     var t = todos.find(function(x) { return x.localId === localId; });
-    if (t) { t.done = !t.done; renderTodos(); }
+    if (!t) return;
+    t.done = !t.done;
+    if (event && event.currentTarget) {
+      addRipple(event.currentTarget);
+      event.currentTarget.classList.add('pop');
+      setTimeout(function() { var b = event.currentTarget; if (b) b.classList.remove('pop'); }, 400);
+    }
+    renderTodos();
+    showToast(t.done ? '✓ Task completed' : '↺ Marked as active', t.done ? 'success' : 'info');
+  }
+
+  function startEdit(localId) {
+    todos.forEach(function(t) { t.editing = false; });
+    var t = todos.find(function(x) { return x.localId === localId; });
+    if (t) t.editing = true;
+    renderTodos();
+  }
+
+  function saveEdit(localId) {
+    var t = todos.find(function(x) { return x.localId === localId; });
+    var inp = document.getElementById('edit-input-' + localId);
+    if (t && inp) {
+      var val = inp.value.trim();
+      if (val) { t.text = val; showToast('Task updated', 'success'); }
+    }
+    if (t) t.editing = false;
+    renderTodos();
+  }
+
+  function handleEditKey(e, localId) {
+    if (e.key === 'Enter') saveEdit(localId);
+    if (e.key === 'Escape') {
+      var t = todos.find(function(x) { return x.localId === localId; });
+      if (t) t.editing = false;
+      renderTodos();
+    }
   }
 
   function deleteTodo(localId) {
@@ -644,27 +1603,95 @@
     setTimeout(function() {
       todos = todos.filter(function(x) { return x.localId !== localId; });
       renderTodos();
+      showToast('Task removed', 'info');
     }, 250);
   }
 
   function clearDone() {
+    var count = todos.filter(function(t) { return t.done; }).length;
+    if (count === 0) { showToast('No completed tasks to clear', 'info'); return; }
     todos = todos.filter(function(t) { return !t.done; });
     renderTodos();
-    showToast('Completed tasks cleared', 'info');
+    showToast(count + ' completed task' + (count !== 1 ? 's' : '') + ' cleared', 'success');
   }
 
+  function clearAll() {
+    if (todos.length === 0) { showToast('No tasks to clear', 'info'); return; }
+    var count = todos.length;
+    todos = [];
+    renderTodos();
+    showToast('All ' + count + ' tasks cleared', 'info');
+  }
+
+  function markAllDone() {
+    var visible = getSortedFiltered();
+    visible.forEach(function(t) { t.done = true; });
+    renderTodos();
+    showToast('All visible tasks marked complete', 'success');
+  }
+
+  // ── Add todo ─────────────────────────────────────────────────────────────────
+  function addTodo() {
+    if (!auth.loggedIn) { openAuthModal('login'); return; }
+    var textInput = document.getElementById('todo-text');
+    var nameInput = document.getElementById('todo-name');
+    var emailInput = document.getElementById('todo-email');
+    var text = textInput.value.trim();
+    var name = nameInput.value.trim();
+    var email = emailInput.value.trim();
+
+    if (!text) { textInput.focus(); showToast('Please enter a task description', 'error'); return; }
+    if (email && !isValidEmail(email)) { emailInput.focus(); showToast('Invalid email address', 'error'); return; }
+
+    var btn = document.getElementById('add-todo-btn');
+    btn.disabled = true;
+
+    fetch('/todos', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name, text: text })
+    })
+      .then(function(r) {
+        if (r.status === 401) { openAuthModal('login'); throw new Error('auth'); }
+        return r.json().then(function(d) { return { ok: r.ok, data: d }; });
+      })
+      .then(function(res) {
+        if (!res.ok) { showToast(res.data.message || 'Failed to add task', 'error'); return; }
+        var data = res.data;
+        var now = Date.now();
+        var newTodo = {
+          localId: localIdCounter++, id: data.id, name: data.name || name, text: data.text,
+          email: email, priority: selectedPriority, done: false, editing: false,
+          emailStatus: email ? null : undefined, time: formatTime(now), date: formatDate(now), createdAt: now
+        };
+        todos.push(newTodo);
+        textInput.value = '';
+        renderTodos();
+        showToast('Task added' + (name ? ' for ' + name : ''), 'success');
+        if (email) sendEmailNotification(newTodo);
+      })
+      .catch(function(err) { if (err.message !== 'auth') showToast('Failed to add task — is the DB connected?', 'error'); })
+      .finally(function() { btn.disabled = false; textInput.focus(); });
+  }
+
+  // ── Load todos from server ───────────────────────────────────────────────────
   function loadTodos() {
     fetch('/todos')
       .then(function(r) { return r.json(); })
       .then(function(data) {
+        var now = Date.now();
         todos = data.map(function(d) {
-          return { localId: localIdCounter++, id: d.id, text: d.text, done: false, time: formatTime(Date.now()) };
+          return {
+            localId: localIdCounter++, id: d.id, name: d.name || '', text: d.text,
+            priority: 'medium', done: false, editing: false,
+            time: formatTime(now), date: formatDate(now), createdAt: now
+          };
         });
         renderTodos();
       })
-      .catch(function() {});
+      .catch(function() { showToast('Could not load tasks from server', 'error'); });
   }
 
+  // ── Filter buttons ───────────────────────────────────────────────────────────
   document.querySelectorAll('.filter-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
       document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
@@ -674,11 +1701,12 @@
     });
   });
 
+  // ── Keyboard shortcuts ───────────────────────────────────────────────────────
   document.getElementById('add-todo-btn').addEventListener('click', addTodo);
-  document.getElementById('todo-text').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') addTodo();
-  });
+  document.getElementById('todo-text').addEventListener('keypress', function(e) { if (e.key === 'Enter') addTodo(); });
+  document.getElementById('todo-name').addEventListener('keypress', function(e) { if (e.key === 'Enter') document.getElementById('todo-text').focus(); });
 
+  // ── Refresh all ──────────────────────────────────────────────────────────────
   function refreshAll() {
     var btn = document.getElementById('refresh-btn');
     btn.classList.add('spinning');
@@ -699,12 +1727,17 @@
     startCountdown();
   }
 
+  // ── Boot ─────────────────────────────────────────────────────────────────────
   document.getElementById('session-start').textContent = formatTime(sessionStart);
+  var savedEmail = localStorage.getItem('sysfoo_default_email') || '';
+  if (savedEmail) document.getElementById('todo-email').value = savedEmail;
   setInterval(updateClock, 1000);
   updateClock();
+  checkAuth();
   fetchSystemInfo();
   fetchDatabaseInfo();
   loadTodos();
+  loadPosts();
   startAutoRefresh();
 </script>
 </body>

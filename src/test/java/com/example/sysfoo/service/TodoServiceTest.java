@@ -23,6 +23,16 @@ public class TodoServiceTest {
 
     @Test
     public void saveTodoTest() {
+        Todo todo = new Todo("Alice", "Test Todo");
+        when(todoRepository.save(todo)).thenReturn(todo);
+
+        Todo savedTodo = todoService.save(todo);
+        assertEquals("Test Todo", savedTodo.getText());
+        assertEquals("Alice", savedTodo.getName());
+    }
+
+    @Test
+    public void saveTodoWithoutNameTest() {
         Todo todo = new Todo("Test Todo");
         when(todoRepository.save(todo)).thenReturn(todo);
 

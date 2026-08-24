@@ -12,12 +12,21 @@ public class Todo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** The person / owner name for this task (e.g. "Alice") */
+    private String name;
+
+    /** The task description */
     private String text;
 
     public Todo() {
     }
 
     public Todo(String text) {
+        this.text = text;
+    }
+
+    public Todo(String name, String text) {
+        this.name = name;
         this.text = text;
     }
 
@@ -29,6 +38,14 @@ public class Todo {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getText() {
