@@ -149,28 +149,39 @@
       font-family: var(--display); font-weight: 700; font-size: 13px; flex-shrink: 0;
     }
 
-    /* ── Hero ────────────────────────────────────────────────────────────────── */
+    /* ── Hero (real photography banner) ─────────────────────────────────────── */
     .hero {
-      display: flex; align-items: center; justify-content: space-between; gap: 24px;
-      margin-bottom: 1.75rem; flex-wrap: wrap;
+      position: relative; overflow: hidden;
+      display: flex; align-items: flex-end;
+      min-height: 260px; padding: 28px 32px;
+      border-radius: var(--radius); border: 1px solid var(--border);
+      margin-bottom: 1.75rem;
+      background-image:
+        linear-gradient(100deg, rgba(11,7,4,0.92) 0%, rgba(11,7,4,0.55) 45%, rgba(11,7,4,0.15) 100%),
+        url('https://cdn.pixabay.com/photo/2020/02/22/23/03/lion-4871786_1280.jpg');
+      background-size: cover; background-position: center 35%;
       animation: fadeUp 0.5s 0.05s ease both;
     }
+    .hero-text { max-width: 560px; }
     .hero-text h1 {
-      font-family: var(--display); font-weight: 700; font-size: clamp(26px, 4vw, 38px);
-      letter-spacing: -0.5px; line-height: 1.15; margin-bottom: 6px;
-      background: linear-gradient(120deg, var(--txt) 40%, var(--gold) 100%);
-      -webkit-background-clip: text; background-clip: text; color: transparent;
+      font-family: var(--display); font-weight: 700; font-size: clamp(26px, 4vw, 40px);
+      letter-spacing: -0.5px; line-height: 1.15; margin-bottom: 8px;
+      color: var(--txt); text-shadow: 0 2px 16px rgba(0,0,0,0.5);
     }
-    .hero-text p { color: var(--txt-2); font-size: 14.5px; max-width: 480px; }
+    .hero-text p { color: var(--txt-2); font-size: 14.5px; max-width: 480px; text-shadow: 0 1px 8px rgba(0,0,0,0.5); }
     .hero-badge {
       display: inline-flex; align-items: center; gap: 6px;
       font-family: var(--mono); font-size: 10.5px; color: var(--gold);
-      background: var(--gold-dim); border: 1px solid var(--border-hi);
+      background: rgba(23,14,8,0.65); backdrop-filter: blur(2px);
+      border: 1px solid var(--border-hi);
       padding: 5px 12px; border-radius: 999px; text-transform: uppercase;
       letter-spacing: 0.1em; margin-bottom: 12px;
     }
     .hero-badge svg { width: 11px; height: 11px; }
-    .hero-art { width: 108px; height: 108px; flex-shrink: 0; opacity: 0.92; }
+    .hero-photo-credit {
+      position: absolute; bottom: 8px; right: 12px;
+      font-family: var(--mono); font-size: 9px; color: rgba(251,240,221,0.45);
+    }
 
     /* ── Uptime bar ──────────────────────────────────────────────────────────── */
     .uptime-bar {
@@ -230,6 +241,23 @@
     }
     .card-title svg { width: 16px; height: 16px; color: var(--gold); flex-shrink: 0; }
     .card-subtitle { font-size: 12px; color: var(--txt-3); margin-top: 2px; font-family: var(--sans); }
+
+    /* ── Photo banner used inside a card (e.g. The Watering Hole) ─────────────── */
+    .card-banner {
+      margin: -1.6rem -1.6rem 1.4rem -1.6rem;
+      height: 148px; position: relative;
+      background-size: cover; background-position: center 60%;
+      border-radius: var(--radius) var(--radius) 0 0;
+      display: flex; align-items: flex-end;
+    }
+    .card-banner::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(11,7,4,0.15) 0%, rgba(11,7,4,0.92) 100%);
+      border-radius: inherit;
+    }
+    .card-banner-content { position: relative; z-index: 1; padding: 0 1.6rem 1.1rem; }
+    .card-banner-content .card-title, .card-banner-content .card-subtitle { text-shadow: 0 2px 10px rgba(0,0,0,0.7); }
 
     /* ── Stat rows ───────────────────────────────────────────────────────────── */
     .stat-row {
@@ -310,16 +338,6 @@
     .toast.info    { background: rgba(166,126,199,0.16);  border: 1px solid rgba(166,126,199,0.35);  color: var(--dusk); }
     .toast.removing { animation: toastOut 0.25s ease forwards; }
     .toast svg { width: 14px; height: 14px; flex-shrink: 0; }
-
-    /* ── Auth lock (shown in place of gated forms) ──────────────────────────── */
-    .auth-lock {
-      display: flex; align-items: center; justify-content: space-between; gap: 14px;
-      background: var(--bg-2); border: 1px dashed var(--border-hi);
-      border-radius: var(--radius-sm); padding: 16px 20px;
-      margin-bottom: 1.25rem; flex-wrap: wrap;
-    }
-    .auth-lock p { font-size: 13px; color: var(--txt-2); display: flex; align-items: center; gap: 8px; }
-    .auth-lock svg { width: 15px; height: 15px; color: var(--gold); flex-shrink: 0; }
 
     /* ═══════════════════════════════════════════════════════════════════════════
        ── TASK MANAGER ──────────────────────────────────────────────────────── */
@@ -514,7 +532,14 @@
     .edit-btn:hover { color: var(--dusk); background: var(--dusk-dim); }
     .del-btn:hover { color: var(--red); background: var(--red-dim); }
 
-    .todo-empty { text-align: center; padding: 3rem 1rem; color: var(--txt-3); }
+    .todo-empty {
+      text-align: center; padding: 3rem 1rem; color: var(--txt-3);
+      position: relative; border-radius: var(--radius-sm); overflow: hidden;
+      background-image:
+        linear-gradient(rgba(23,14,8,0.88), rgba(23,14,8,0.88)),
+        url('https://cdn.pixabay.com/photo/2017/10/21/10/09/tree-2874194_1280.jpg');
+      background-size: cover; background-position: center 70%;
+    }
     .todo-empty-icon { font-size: 26px; margin-bottom: 10px; color: var(--gold); }
     .todo-empty-sub { font-size: 12px; margin-top: 4px; }
 
@@ -607,57 +632,19 @@
     .post-author svg { width: 11px; height: 11px; }
     .post-date { font-family: var(--mono); font-size: 10px; color: var(--txt-3); }
 
-    /* ═══════════════════════════════════════════════════════════════════════════
-       ── AUTH MODAL ─────────────────────────────────────────────────────────── */
-    .modal-overlay {
-      position: fixed; inset: 0; z-index: 2000;
-      background: rgba(10,6,3,0.72); backdrop-filter: blur(3px);
-      display: flex; align-items: center; justify-content: center;
-      padding: 20px;
-      opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+    /* ── Auth gate (shown while verifying session, before redirect/render) ───── */
+    .auth-gate {
+      position: fixed; inset: 0; z-index: 3000; background: var(--bg);
+      display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 14px;
     }
-    .modal-overlay.open { opacity: 1; pointer-events: auto; }
-    .modal {
-      background: var(--bg-1); border: 1px solid var(--border-hi);
-      border-radius: var(--radius); padding: 2rem;
-      width: 100%; max-width: 400px; position: relative;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-      transform: translateY(10px); transition: transform 0.25s ease;
-      max-height: 90vh; overflow-y: auto;
+    .auth-gate.hidden { display: none; }
+    .auth-gate-spinner {
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 3px solid var(--border); border-top-color: var(--gold);
+      animation: spin 0.8s linear infinite;
     }
-    .modal-overlay.open .modal { transform: translateY(0); }
-    .modal-close {
-      position: absolute; top: 14px; right: 14px;
-      background: none; border: none; color: var(--txt-3); font-size: 22px;
-      cursor: pointer; line-height: 1; padding: 4px; transition: color 0.2s;
-    }
-    .modal-close:hover { color: var(--txt); }
-
-    .auth-tabs { display: flex; gap: 4px; background: var(--bg-3); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 1.4rem; }
-    .auth-tab {
-      flex: 1; background: none; border: none; cursor: pointer;
-      padding: 9px; border-radius: var(--radius-xs); font-size: 12.5px; font-weight: 700;
-      color: var(--txt-3); transition: all 0.2s; font-family: var(--sans);
-    }
-    .auth-tab.active { background: var(--gold-dim); color: var(--gold); }
-
-    .auth-form { display: flex; flex-direction: column; gap: 14px; }
-    .auth-form label { display: flex; flex-direction: column; gap: 6px; font-size: 11px; font-family: var(--mono); color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.08em; }
-    .auth-form input {
-      background: var(--bg-3); border: 1px solid var(--border); border-radius: var(--radius-xs);
-      padding: 10px 13px; font-family: var(--sans); font-size: 14px; color: var(--txt);
-      outline: none; transition: border-color 0.2s; text-transform: none; letter-spacing: normal;
-    }
-    .auth-form input:focus { border-color: var(--border-hi); background: var(--bg-4); }
-    .auth-error { font-size: 12px; color: var(--red); min-height: 16px; }
-    .auth-submit-btn {
-      background: linear-gradient(135deg, var(--gold), var(--amber)); color: #1a0f04; border: none;
-      border-radius: var(--radius-xs); padding: 12px; font-size: 14px; font-weight: 800;
-      cursor: pointer; transition: all 0.2s; letter-spacing: 0.01em;
-    }
-    .auth-submit-btn:hover { filter: brightness(1.08); }
-    .auth-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-    .auth-hint { font-size: 11px; color: var(--txt-3); text-align: center; margin-top: 2px; }
+    .auth-gate-text { font-family: var(--mono); font-size: 12px; color: var(--txt-3); letter-spacing: 0.05em; }
+    body.auth-pending .page { display: none; }
 
     /* ═══════════════════════════════════════════════════════════════════════════
        ── Animations ────────────────────────────────────────────────────────── */
@@ -680,8 +667,8 @@
       .todo-name-input { width: 100%; }
       .todo-item-actions { flex-direction: row; }
       .action-btn + .action-btn { border-top: none; border-left: 1px solid var(--border); }
-      .hero { flex-direction: column; align-items: flex-start; }
-      .hero-art { display: none; }
+      .hero { min-height: 200px; padding: 20px; background-position: center 25%; }
+      .hero-photo-credit { display: none; }
       .toast-container { left: 12px; right: 12px; align-items: stretch; }
       .toast { max-width: none; }
     }
@@ -695,7 +682,12 @@
     }
   </style>
 </head>
-<body>
+<body class="auth-pending">
+
+<div class="auth-gate" id="auth-gate">
+  <div class="auth-gate-spinner"></div>
+  <div class="auth-gate-text">Checking your session…</div>
+</div>
 
 <div class="bg-scene" aria-hidden="true">
   <svg viewBox="0 0 1600 500" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
@@ -745,10 +737,7 @@
         </svg>
         Refresh
       </button>
-      <div class="auth-area" id="auth-area">
-        <button class="auth-btn ghost" onclick="openAuthModal('login')">Sign In</button>
-        <button class="auth-btn primary" onclick="openAuthModal('register')">Join the Pride</button>
-      </div>
+      <div class="auth-area" id="auth-area"></div>
     </div>
   </header>
 
@@ -762,16 +751,7 @@
       <h1>Command your pride.</h1>
       <p>Watch over your infrastructure, manage the team's tasks, and share updates — all from one watering hole.</p>
     </div>
-    <svg class="hero-art" viewBox="0 0 120 120" fill="none">
-      <circle cx="60" cy="46" r="30" fill="#f2b705" opacity="0.85"/>
-      <g stroke="#e0632c" stroke-width="6" stroke-linecap="round" opacity="0.8">
-        <line x1="60" y1="2" x2="60" y2="16"/><line x1="60" y1="76" x2="60" y2="90"/>
-        <line x1="16" y1="46" x2="30" y2="46"/><line x1="90" y1="46" x2="104" y2="46"/>
-        <line x1="28" y1="14" x2="38" y2="24"/><line x1="82" y1="68" x2="92" y2="78"/>
-        <line x1="92" y1="14" x2="82" y2="24"/><line x1="38" y1="68" x2="28" y2="78"/>
-      </g>
-      <ellipse cx="60" cy="112" rx="46" ry="6" fill="#0b0704" opacity="0.4"/>
-    </svg>
+    <span class="hero-photo-credit">Photo via Pixabay</span>
   </div>
 
   <!-- ── Uptime bar ─────────────────────────────────────────────────────────── -->
@@ -898,12 +878,7 @@
       <input class="todo-search" id="todo-search" type="text" placeholder="Search tasks..." oninput="renderTodos()" />
     </div>
 
-    <div class="auth-lock" id="todo-auth-lock">
-      <p><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Sign in to add and manage tasks.</p>
-      <button class="auth-btn primary" onclick="openAuthModal('login')">Sign In</button>
-    </div>
-
-    <div class="todo-form" id="todo-form" style="display:none;">
+    <div class="todo-form" id="todo-form">
       <div class="todo-form-row">
         <div class="todo-field-wrap" style="flex:0 0 auto;width:175px;">
           <label class="todo-field-label">
@@ -989,8 +964,8 @@
   <!-- ═══════════════════════════════════════════════════════════════════════════
        ── The Watering Hole (community posts) ───────────────────────────────── -->
   <div class="card card-full" style="animation-delay:0.35s;">
-    <div class="card-header">
-      <div>
+    <div class="card-banner" style="background-image:url('https://cdn.pixabay.com/photo/2015/11/27/14/37/elephant-1065632_1280.jpg')">
+      <div class="card-banner-content">
         <div class="card-title">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           The Watering Hole
@@ -999,12 +974,7 @@
       </div>
     </div>
 
-    <div class="auth-lock" id="post-auth-lock">
-      <p><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Sign in to post to the board.</p>
-      <button class="auth-btn primary" onclick="openAuthModal('login')">Sign In</button>
-    </div>
-
-    <form class="post-form" id="post-form" style="display:none;" onsubmit="submitPost(event)">
+    <form class="post-form" id="post-form" onsubmit="submitPost(event)">
       <input class="post-input" id="post-title" type="text" placeholder="Title" maxlength="140" required />
       <textarea class="post-textarea" id="post-content" placeholder="What's happening at the watering hole?" maxlength="4000" required></textarea>
       <div class="post-form-row">
@@ -1030,46 +1000,6 @@
 
 <div class="toast-container" id="toast-container"></div>
 
-<!-- ── Auth modal ────────────────────────────────────────────────────────────── -->
-<div class="modal-overlay" id="auth-overlay" onclick="if(event.target===this) closeAuthModal()">
-  <div class="modal">
-    <button class="modal-close" onclick="closeAuthModal()" aria-label="Close">&times;</button>
-    <div class="auth-tabs">
-      <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Sign In</button>
-      <button class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">Join the Pride</button>
-    </div>
-
-    <form class="auth-form" id="login-form" onsubmit="submitLogin(event)">
-      <label>Username
-        <input id="login-username" type="text" required maxlength="40" autocomplete="username" />
-      </label>
-      <label>Password
-        <input id="login-password" type="password" required autocomplete="current-password" />
-      </label>
-      <div class="auth-error" id="login-error"></div>
-      <button type="submit" class="auth-submit-btn" id="login-submit-btn">Sign In</button>
-    </form>
-
-    <form class="auth-form" id="register-form" style="display:none;" onsubmit="submitRegister(event)">
-      <label>Display Name
-        <input id="register-displayname" type="text" maxlength="60" placeholder="e.g. Nala" />
-      </label>
-      <label>Username
-        <input id="register-username" type="text" required maxlength="40" autocomplete="username" />
-      </label>
-      <label>Email <span style="text-transform:none;">(optional)</span>
-        <input id="register-email" type="email" maxlength="120" />
-      </label>
-      <label>Password
-        <input id="register-password" type="password" required minlength="6" autocomplete="new-password" />
-      </label>
-      <div class="auth-error" id="register-error"></div>
-      <button type="submit" class="auth-submit-btn" id="register-submit-btn">Create Account</button>
-      <div class="auth-hint">Password must be at least 6 characters.</div>
-    </form>
-  </div>
-</div>
-
 <script>
   // ── State ──────────────────────────────────────────────────────────────────
   var todos = [], posts = [], filter = 'all', refreshInterval, countdownInterval;
@@ -1081,114 +1011,39 @@
   var auth = { loggedIn: false, username: null, displayName: null };
 
   // ── Auth ───────────────────────────────────────────────────────────────────
+  // This page requires a signed-in session. checkAuth() resolves before anything
+  // else runs (see boot, at the bottom): if there's no valid session it sends the
+  // user to the dedicated login page instead of rendering the dashboard.
+  function goToLogin() {
+    var here = encodeURIComponent(window.location.pathname + window.location.search);
+    window.location.href = 'login.html?redirect=' + here;
+  }
+
   function checkAuth() {
-    fetch('/api/auth/me')
-      .then(function(r) { if (!r.ok) throw new Error(); return r.json(); })
-      .then(function(d) { auth = { loggedIn: true, username: d.username, displayName: d.displayName }; updateAuthUI(); })
-      .catch(function() { auth = { loggedIn: false, username: null, displayName: null }; updateAuthUI(); });
+    return fetch('/api/auth/me')
+      .then(function(r) { if (!r.ok) throw new Error('unauthenticated'); return r.json(); })
+      .then(function(d) {
+        auth = { loggedIn: true, username: d.username, displayName: d.displayName };
+        updateAuthUI();
+      })
+      .catch(function() {
+        goToLogin();
+        return Promise.reject(new Error('redirecting'));
+      });
   }
 
   function updateAuthUI() {
     var area = document.getElementById('auth-area');
-    if (auth.loggedIn) {
-      var label = auth.displayName || auth.username;
-      area.innerHTML =
-        '<div class="user-chip"><span class="user-chip-avatar">' + escapeHtml(label.charAt(0).toUpperCase()) + '</span><span>' + escapeHtml(label) + '</span></div>' +
-        '<button class="auth-btn ghost" onclick="logout()">Sign Out</button>';
-    } else {
-      area.innerHTML =
-        '<button class="auth-btn ghost" onclick="openAuthModal(\'login\')">Sign In</button>' +
-        '<button class="auth-btn primary" onclick="openAuthModal(\'register\')">Join the Pride</button>';
-    }
-    document.getElementById('todo-form').style.display = auth.loggedIn ? 'flex' : 'none';
-    document.getElementById('todo-auth-lock').style.display = auth.loggedIn ? 'none' : 'flex';
-    document.getElementById('post-form').style.display = auth.loggedIn ? 'flex' : 'none';
-    document.getElementById('post-auth-lock').style.display = auth.loggedIn ? 'none' : 'flex';
-  }
-
-  function openAuthModal(tab) {
-    document.getElementById('auth-overlay').classList.add('open');
-    switchAuthTab(tab || 'login');
-  }
-  function closeAuthModal() {
-    document.getElementById('auth-overlay').classList.remove('open');
-    document.getElementById('login-error').textContent = '';
-    document.getElementById('register-error').textContent = '';
-  }
-  function switchAuthTab(tab) {
-    var isLogin = tab === 'login';
-    document.getElementById('tab-login').classList.toggle('active', isLogin);
-    document.getElementById('tab-register').classList.toggle('active', !isLogin);
-    document.getElementById('login-form').style.display = isLogin ? 'flex' : 'none';
-    document.getElementById('register-form').style.display = isLogin ? 'none' : 'flex';
-  }
-
-  function submitLogin(e) {
-    e.preventDefault();
-    var username = document.getElementById('login-username').value.trim();
-    var password = document.getElementById('login-password').value;
-    var errEl = document.getElementById('login-error');
-    var btn = document.getElementById('login-submit-btn');
-    errEl.textContent = '';
-    btn.disabled = true;
-
-    fetch('/api/auth/login', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: username, password: password })
-    })
-      .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
-      .then(function(res) {
-        if (!res.ok) { errEl.textContent = res.data.message || 'Sign in failed'; return; }
-        auth = { loggedIn: true, username: res.data.username, displayName: res.data.displayName };
-        updateAuthUI();
-        closeAuthModal();
-        document.getElementById('login-form').reset();
-        showToast('Welcome back, ' + (auth.displayName || auth.username), 'success');
-      })
-      .catch(function() { errEl.textContent = 'Network error — please try again'; })
-      .finally(function() { btn.disabled = false; });
-  }
-
-  function submitRegister(e) {
-    e.preventDefault();
-    var displayName = document.getElementById('register-displayname').value.trim();
-    var username = document.getElementById('register-username').value.trim();
-    var email = document.getElementById('register-email').value.trim();
-    var password = document.getElementById('register-password').value;
-    var errEl = document.getElementById('register-error');
-    var btn = document.getElementById('register-submit-btn');
-    errEl.textContent = '';
-
-    if (username.length < 3) { errEl.textContent = 'Username must be at least 3 characters'; return; }
-    if (password.length < 6) { errEl.textContent = 'Password must be at least 6 characters'; return; }
-    if (email && !isValidEmail(email)) { errEl.textContent = 'Invalid email address'; return; }
-
-    btn.disabled = true;
-    fetch('/api/auth/register', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ displayName: displayName, username: username, email: email, password: password })
-    })
-      .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
-      .then(function(res) {
-        if (!res.ok) { errEl.textContent = res.data.message || 'Registration failed'; return; }
-        auth = { loggedIn: true, username: res.data.username, displayName: res.data.displayName };
-        updateAuthUI();
-        closeAuthModal();
-        document.getElementById('register-form').reset();
-        showToast('Welcome to the pride, ' + (auth.displayName || auth.username) + '!', 'success');
-      })
-      .catch(function() { errEl.textContent = 'Network error — please try again'; })
-      .finally(function() { btn.disabled = false; });
+    var label = auth.displayName || auth.username;
+    area.innerHTML =
+      '<div class="user-chip"><span class="user-chip-avatar">' + escapeHtml(label.charAt(0).toUpperCase()) + '</span><span>' + escapeHtml(label) + '</span></div>' +
+      '<button class="auth-btn ghost" onclick="logout()">Sign Out</button>';
   }
 
   function logout() {
     fetch('/api/auth/logout', { method: 'POST' })
-      .then(function() {
-        auth = { loggedIn: false, username: null, displayName: null };
-        updateAuthUI();
-        showToast('Signed out', 'info');
-      })
-      .catch(function() { showToast('Sign out failed', 'error'); });
+      .then(function() { window.location.href = 'login.html'; })
+      .catch(function() { window.location.href = 'login.html'; });
   }
 
   // ── Posts ──────────────────────────────────────────────────────────────────
@@ -1224,7 +1079,7 @@
 
   function submitPost(e) {
     e.preventDefault();
-    if (!auth.loggedIn) { openAuthModal('login'); return; }
+    if (!auth.loggedIn) { goToLogin(); return; }
 
     var titleInput = document.getElementById('post-title');
     var contentInput = document.getElementById('post-content');
@@ -1243,7 +1098,7 @@
       body: JSON.stringify({ title: title, content: content, imageUrl: imageUrl })
     })
       .then(function(r) {
-        if (r.status === 401) { openAuthModal('login'); throw new Error('auth'); }
+        if (r.status === 401) { goToLogin(); throw new Error('auth'); }
         return r.json().then(function(d) { return { ok: r.ok, data: d }; });
       })
       .then(function(res) {
@@ -1280,7 +1135,7 @@
   }
 
   function sendTestEmail() {
-    if (!auth.loggedIn) { openAuthModal('login'); return; }
+    if (!auth.loggedIn) { goToLogin(); return; }
     var email = document.getElementById('default-email').value.trim();
     if (!email) { showToast('Enter an email address first', 'error'); return; }
     if (!isValidEmail(email)) { showToast('Invalid email address', 'error'); return; }
@@ -1632,7 +1487,7 @@
 
   // ── Add todo ─────────────────────────────────────────────────────────────────
   function addTodo() {
-    if (!auth.loggedIn) { openAuthModal('login'); return; }
+    if (!auth.loggedIn) { goToLogin(); return; }
     var textInput = document.getElementById('todo-text');
     var nameInput = document.getElementById('todo-name');
     var emailInput = document.getElementById('todo-email');
@@ -1651,7 +1506,7 @@
       body: JSON.stringify({ name: name, text: text })
     })
       .then(function(r) {
-        if (r.status === 401) { openAuthModal('login'); throw new Error('auth'); }
+        if (r.status === 401) { goToLogin(); throw new Error('auth'); }
         return r.json().then(function(d) { return { ok: r.ok, data: d }; });
       })
       .then(function(res) {
@@ -1728,17 +1583,26 @@
   }
 
   // ── Boot ─────────────────────────────────────────────────────────────────────
-  document.getElementById('session-start').textContent = formatTime(sessionStart);
-  var savedEmail = localStorage.getItem('sysfoo_default_email') || '';
-  if (savedEmail) document.getElementById('todo-email').value = savedEmail;
-  setInterval(updateClock, 1000);
-  updateClock();
-  checkAuth();
-  fetchSystemInfo();
-  fetchDatabaseInfo();
-  loadTodos();
-  loadPosts();
-  startAutoRefresh();
+  // Gate everything behind a valid session: checkAuth() either resolves (session
+  // confirmed, safe to render the dashboard) or redirects to login.html — in
+  // which case the rest of this chain deliberately never runs.
+  checkAuth().then(function() {
+    document.body.classList.remove('auth-pending');
+    document.getElementById('auth-gate').classList.add('hidden');
+
+    document.getElementById('session-start').textContent = formatTime(sessionStart);
+    var savedEmail = localStorage.getItem('sysfoo_default_email') || '';
+    if (savedEmail) document.getElementById('todo-email').value = savedEmail;
+    setInterval(updateClock, 1000);
+    updateClock();
+    fetchSystemInfo();
+    fetchDatabaseInfo();
+    loadTodos();
+    loadPosts();
+    startAutoRefresh();
+  }).catch(function() {
+    // checkAuth() already triggered a redirect to login.html; nothing else to do.
+  });
 </script>
 </body>
 </html>

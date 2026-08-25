@@ -18,12 +18,21 @@ import org.springframework.security.web.context.SecurityContextRepository;
  * Session-cookie based security configuration for the Sysfoo dashboard.
  *
  * Login/registration/logout are handled by {@code AuthController} (not Spring
- * Security's built-in form-login filter) so that the single-page frontend can
- * call plain JSON endpoints and get JSON responses instead of redirects.
+ * Security's built-in form-login filter) so that {@code login.html} — a
+ * dedicated login page, separate from the dashboard — can call plain JSON
+ * endpoints and get JSON responses instead of redirects.
  *
  * ── Access rules ─────────────────────────────────────────────────────────
- *   • Dashboard shell, static assets, and read-only system/DB info: public.
- *   • GET /todos and GET /api/posts (viewing tasks/posts): public.
+ *   • index.html, login.html, static assets, and read-only system/DB info: public
+ *     at the HTTP layer. index.html itself is gated client-side: it calls
+ *     GET /api/auth/me on load and redirects to login.html if there's no
+ *     session, so in practice the dashboard is only ever seen by signed-in
+ *     users, while login.html does the reverse (redirects straight to
+ *     index.html if a session already exists).
+ *   • GET /todos and GET /api/posts (viewing tasks/posts): public at the API
+ *     level — this keeps the data endpoints simple/reusable — but the only
+ *     page that calls them (index.html) is itself behind the client-side
+ *     login gate described above.
  *   • POST /todos, POST /api/posts, POST /api/notify: require a signed-in user.
  *   • /api/auth/register and /api/auth/login: public (that's the point).
  *   • /api/auth/logout: requires a signed-in user.
@@ -35,6 +44,10 @@ import org.springframework.security.web.context.SecurityContextRepository;
  *   re-enable CSRF and expose the token to the frontend (e.g. a `/api/csrf`
  *   endpoint that hands back the token for subsequent POSTs), or switch to
  *   stateless bearer-token (JWT) authentication instead of session cookies.
+ *   Likewise, the login gate on index.html is a client-side UX redirect, not
+ *   a server-side access boundary — a determined caller can still hit the
+ *   GET endpoints directly. That's an accepted trade-off for this project;
+ *   a stricter deployment would also gate GET /todos and GET /api/posts.
  */
 @Configuration
 @EnableWebSecurity
@@ -62,7 +75,7 @@ public class SecurityConfig {
             .securityContext(sc -> sc.securityContextRepository(securityContextRepository))
             .authorizeHttpRequests(auth -> auth
                 // Dashboard shell & static assets
-                .requestMatchers("/", "/index.html", "/css/**", "/js/**", "/favicon.ico").permitAll()
+                .requestMatchers("/", "/index.html", "/login.html", "/css/**", "/js/**", "/favicon.ico").permitAll()
                 // Public read-only system / database info
                 .requestMatchers(HttpMethod.GET, "/system-info", "/version", "/database-info").permitAll()
                 // Public auth endpoints
