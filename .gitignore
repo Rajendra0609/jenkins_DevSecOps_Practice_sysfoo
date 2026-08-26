@@ -1,0 +1,30 @@
+# BUG FIX: no .gitignore existed at all — Maven build output, local SQLite
+# database files (which contain hashed passwords once you register a user),
+# and IDE metadata could all end up committed by accident.
+
+# Maven
+target/
+*.class
+
+# Local SQLite data (see application-default.properties: ./data/sysfoo.db)
+data/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env files that might carry real secrets locally
+.env
+.env.*

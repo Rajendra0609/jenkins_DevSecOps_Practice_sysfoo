@@ -9,7 +9,7 @@ WORKDIR /build
 COPY pom.xml .
 RUN mvn dependency:go-offline -B --quiet
 
-# Copy source and build the fat JAR (skip tests — already run in CI)
+# Copy source and build the deployable artifact (skip tests — already run in CI)
 COPY src ./src
 RUN mvn package -DskipTests -B --quiet
 
@@ -35,9 +35,14 @@ RUN mkdir -p /app /data && chown -R sysfoo:sysfoo /app /data
 
 WORKDIR /app
 
-# ── Copy the fat JAR from builder ─────────────────────────────────
-COPY --from=builder /build/target/sysfoo-*.jar app.jar
-RUN chown sysfoo:sysfoo app.jar
+# ── Copy the executable WAR from builder ──────────────────────────
+# UPDATE: pom.xml now builds a WAR (see pom.xml / SysfooApplication.java for
+# the dual jar/war packaging change). Spring Boot's repackaged WAR is still a
+# self-contained executable — `java -jar app.war` runs it exactly the way
+# `java -jar app.jar` did before. This image always runs standalone; it never
+# deploys into an external Tomcat.
+COPY --from=builder /build/target/sysfoo-*.war app.war
+RUN chown sysfoo:sysfoo app.war
 
 # ── Switch to non-root ─────────────────────────────────────────────
 USER sysfoo
@@ -57,4 +62,4 @@ ENV JAVA_OPTS="-Xms128m -Xmx256m -XX:+UseContainerSupport -XX:MaxRAMPercentage=7
     SPRING_PROFILES_ACTIVE=default \
     SPRING_DATASOURCE_URL=jdbc:sqlite:/data/sysfoo.db
 
-ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar app.jar"]
+ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar app.war"]

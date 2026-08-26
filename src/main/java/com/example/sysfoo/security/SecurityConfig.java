@@ -34,8 +34,13 @@ import org.springframework.security.web.context.SecurityContextRepository;
  *     page that calls them (index.html) is itself behind the client-side
  *     login gate described above.
  *   • POST /todos, POST /api/posts, POST /api/notify: require a signed-in user.
+ *   • PATCH /todos/{id} and DELETE /todos/{id} (editing/completing/removing
+ *     a task): require a signed-in user, same as creating one.
  *   • /api/auth/register and /api/auth/login: public (that's the point).
  *   • /api/auth/logout: requires a signed-in user.
+ *   • GET /actuator/health: public — the container/orchestrator health probe
+ *     calls this unauthenticated. Only "health" is exposed (see
+ *     application.properties) and it never returns dependency details.
  *
  * ── Known simplification ────────────────────────────────────────────────
  *   CSRF protection is disabled here. This is an accepted trade-off for a
@@ -76,6 +81,13 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Dashboard shell & static assets
                 .requestMatchers("/", "/index.html", "/login.html", "/css/**", "/js/**", "/favicon.ico").permitAll()
+                // BUG FIX: the container HEALTHCHECK / a Kubernetes liveness probe hits
+                // this endpoint unauthenticated — without this rule it fell through to
+                // .anyRequest().authenticated() and every health check got a 401, which
+                // orchestrators treat exactly the same as a failing health check.
+                // Only the "health" endpoint is exposed at all (see application.properties),
+                // and show-details=never means it leaks nothing beyond UP/DOWN.
+                .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
                 // Public read-only system / database info
                 .requestMatchers(HttpMethod.GET, "/system-info", "/version", "/database-info").permitAll()
                 // Public auth endpoints
@@ -84,6 +96,10 @@ public class SecurityConfig {
                 // Public read access; writes require a signed-in user
                 .requestMatchers(HttpMethod.GET, "/todos", "/api/posts").permitAll()
                 .requestMatchers(HttpMethod.POST, "/todos", "/api/posts", "/api/notify", "/api/auth/logout").authenticated()
+                // Editing/completing/deleting a task now persists to the DB (see
+                // TodoController) — those calls need the same auth as creating one.
+                .requestMatchers(HttpMethod.PATCH, "/todos/**").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/todos/**").authenticated()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form.disable())

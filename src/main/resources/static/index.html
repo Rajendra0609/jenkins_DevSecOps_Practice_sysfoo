@@ -1411,18 +1411,47 @@
     setTimeout(function() { ripple.remove(); }, 600);
   }
 
+  // ── Backend sync helpers ─────────────────────────────────────────────────────
+  // BUG FIX: these didn't exist before. Toggling complete, editing text,
+  // deleting, and the bulk actions below only ever touched the `todos` array
+  // in memory — nothing was sent back to the server, so a page reload (or
+  // another teammate loading the dashboard) undid every one of those actions.
+  function apiPatchTodo(id, changes) {
+    return fetch('/todos/' + id, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(changes)
+    }).then(function(r) {
+      if (r.status === 401) { goToLogin(); throw new Error('auth'); }
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    });
+  }
+
+  function apiDeleteTodo(id) {
+    return fetch('/todos/' + id, { method: 'DELETE' }).then(function(r) {
+      if (r.status === 401) { goToLogin(); throw new Error('auth'); }
+      if (!r.ok && r.status !== 404) throw new Error('HTTP ' + r.status);
+    });
+  }
+
   // ── Toggle / edit / delete ───────────────────────────────────────────────────
   function toggleTodo(localId, event) {
     var t = todos.find(function(x) { return x.localId === localId; });
     if (!t) return;
-    t.done = !t.done;
+    var next = !t.done;
+    t.done = next; // optimistic UI update
     if (event && event.currentTarget) {
       addRipple(event.currentTarget);
       event.currentTarget.classList.add('pop');
       setTimeout(function() { var b = event.currentTarget; if (b) b.classList.remove('pop'); }, 400);
     }
     renderTodos();
-    showToast(t.done ? '✓ Task completed' : '↺ Marked as active', t.done ? 'success' : 'info');
+    apiPatchTodo(t.id, { done: next })
+      .then(function() { showToast(next ? '✓ Task completed' : '↺ Marked as active', next ? 'success' : 'info'); })
+      .catch(function(err) {
+        t.done = !next; // revert — the server didn't accept the change
+        renderTodos();
+        if (err.message !== 'auth') showToast('Could not save that change — try again', 'error');
+      });
   }
 
   function startEdit(localId) {
@@ -1435,12 +1464,20 @@
   function saveEdit(localId) {
     var t = todos.find(function(x) { return x.localId === localId; });
     var inp = document.getElementById('edit-input-' + localId);
-    if (t && inp) {
-      var val = inp.value.trim();
-      if (val) { t.text = val; showToast('Task updated', 'success'); }
-    }
-    if (t) t.editing = false;
+    if (!t || !inp) return;
+    var val = inp.value.trim();
+    var original = t.text;
+    t.editing = false;
+    if (!val || val === original) { renderTodos(); return; }
+    t.text = val; // optimistic UI update
     renderTodos();
+    apiPatchTodo(t.id, { text: val })
+      .then(function() { showToast('Task updated', 'success'); })
+      .catch(function(err) {
+        t.text = original; // revert — the server didn't accept the change
+        renderTodos();
+        if (err.message !== 'auth') showToast('Could not save that change — try again', 'error');
+      });
   }
 
   function handleEditKey(e, localId) {
@@ -1453,36 +1490,79 @@
   }
 
   function deleteTodo(localId) {
+    var t = todos.find(function(x) { return x.localId === localId; });
+    if (!t) return;
     var el = document.getElementById('todo-' + localId);
     if (el) el.classList.add('removing');
-    setTimeout(function() {
-      todos = todos.filter(function(x) { return x.localId !== localId; });
-      renderTodos();
-      showToast('Task removed', 'info');
-    }, 250);
+    apiDeleteTodo(t.id)
+      .then(function() {
+        setTimeout(function() {
+          todos = todos.filter(function(x) { return x.localId !== localId; });
+          renderTodos();
+          showToast('Task removed', 'info');
+        }, 250);
+      })
+      .catch(function(err) {
+        if (el) el.classList.remove('removing');
+        if (err.message !== 'auth') showToast('Could not delete that task — try again', 'error');
+      });
   }
 
   function clearDone() {
-    var count = todos.filter(function(t) { return t.done; }).length;
-    if (count === 0) { showToast('No completed tasks to clear', 'info'); return; }
-    todos = todos.filter(function(t) { return !t.done; });
-    renderTodos();
-    showToast(count + ' completed task' + (count !== 1 ? 's' : '') + ' cleared', 'success');
+    var done = todos.filter(function(t) { return t.done; });
+    if (done.length === 0) { showToast('No completed tasks to clear', 'info'); return; }
+    Promise.all(done.map(function(t) {
+      return apiDeleteTodo(t.id).then(function() { return t.localId; }).catch(function() { return null; });
+    })).then(function(results) {
+      var removedIds = results.filter(function(id) { return id !== null; });
+      todos = todos.filter(function(t) { return removedIds.indexOf(t.localId) === -1; });
+      renderTodos();
+      if (removedIds.length === 0) { showToast('Could not clear tasks — try again', 'error'); return; }
+      showToast(removedIds.length + ' completed task' + (removedIds.length !== 1 ? 's' : '') + ' cleared', 'success');
+    });
   }
 
   function clearAll() {
     if (todos.length === 0) { showToast('No tasks to clear', 'info'); return; }
-    var count = todos.length;
-    todos = [];
-    renderTodos();
-    showToast('All ' + count + ' tasks cleared', 'info');
+    var all = todos.slice();
+    Promise.all(all.map(function(t) {
+      return apiDeleteTodo(t.id).then(function() { return t.localId; }).catch(function() { return null; });
+    })).then(function(results) {
+      var removedIds = results.filter(function(id) { return id !== null; });
+      todos = todos.filter(function(t) { return removedIds.indexOf(t.localId) === -1; });
+      renderTodos();
+      if (removedIds.length === 0) { showToast('Could not clear tasks — try again', 'error'); return; }
+      showToast(removedIds.length + ' task' + (removedIds.length !== 1 ? 's' : '') + ' cleared', 'info');
+    });
   }
 
   function markAllDone() {
-    var visible = getSortedFiltered();
+    var visible = getSortedFiltered().filter(function(t) { return !t.done; });
+    if (visible.length === 0) { showToast('Nothing to mark complete', 'info'); return; }
     visible.forEach(function(t) { t.done = true; });
     renderTodos();
-    showToast('All visible tasks marked complete', 'success');
+    Promise.all(visible.map(function(t) {
+      return apiPatchTodo(t.id, { done: true }).catch(function() { t.done = false; return null; });
+    })).then(function() {
+      renderTodos();
+      showToast('All visible tasks marked complete', 'success');
+    });
+  }
+
+  // ── Server <-> client task mapping ───────────────────────────────────────────
+  // BUG FIX: previously inlined in both addTodo() and loadTodos(), each hardcoding
+  // priority: 'medium' and done: false regardless of what was actually saved.
+  // Now that the server persists priority/done/createdAt (see Todo.java), both
+  // callers just read them back from the response.
+  function todoFromServer(d, overrides) {
+    var createdMs = d.createdAt ? new Date(d.createdAt).getTime() : Date.now();
+    if (isNaN(createdMs)) createdMs = Date.now();
+    var t = {
+      localId: localIdCounter++, id: d.id, name: d.name || '', text: d.text,
+      priority: d.priority || 'medium', done: !!d.done, editing: false,
+      time: formatTime(createdMs), date: formatDate(createdMs), createdAt: createdMs
+    };
+    return Object.assign(t, overrides || {});
   }
 
   // ── Add todo ─────────────────────────────────────────────────────────────────
@@ -1503,7 +1583,10 @@
 
     fetch('/todos', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: name, text: text })
+      // BUG FIX: priority was picked in the UI but never sent to the server —
+      // it was silently discarded and every task came back as "medium" on
+      // the next load. Now it's part of the payload and actually persists.
+      body: JSON.stringify({ name: name, text: text, priority: selectedPriority })
     })
       .then(function(r) {
         if (r.status === 401) { goToLogin(); throw new Error('auth'); }
@@ -1511,13 +1594,7 @@
       })
       .then(function(res) {
         if (!res.ok) { showToast(res.data.message || 'Failed to add task', 'error'); return; }
-        var data = res.data;
-        var now = Date.now();
-        var newTodo = {
-          localId: localIdCounter++, id: data.id, name: data.name || name, text: data.text,
-          email: email, priority: selectedPriority, done: false, editing: false,
-          emailStatus: email ? null : undefined, time: formatTime(now), date: formatDate(now), createdAt: now
-        };
+        var newTodo = todoFromServer(res.data, { email: email, emailStatus: email ? null : undefined });
         todos.push(newTodo);
         textInput.value = '';
         renderTodos();
@@ -1533,14 +1610,12 @@
     fetch('/todos')
       .then(function(r) { return r.json(); })
       .then(function(data) {
-        var now = Date.now();
-        todos = data.map(function(d) {
-          return {
-            localId: localIdCounter++, id: d.id, name: d.name || '', text: d.text,
-            priority: 'medium', done: false, editing: false,
-            time: formatTime(now), date: formatDate(now), createdAt: now
-          };
-        });
+        // BUG FIX: this used to stamp every single task with the same
+        // Date.now() captured once for the whole batch, and hardcoded
+        // priority: 'medium' / done: false for every row — so a reload wiped
+        // out completion state, priority, and made "Newest/Oldest first"
+        // sorting meaningless. Now each task keeps its own real values.
+        todos = data.map(function(d) { return todoFromServer(d); });
         renderTodos();
       })
       .catch(function() { showToast('Could not load tasks from server', 'error'); });

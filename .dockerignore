@@ -1,0 +1,17 @@
+# BUG FIX: no .dockerignore existed — the entire build context (.git history,
+# target/, local data/*.db files, IDE folders) was being sent to the Docker
+# daemon on every build, which slows builds down and needlessly exposes
+# repo history and local artifacts to the build process.
+
+.git/
+.gitignore
+target/
+data/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+.idea/
+*.iml
+.vscode/
+README.md

@@ -16,6 +16,20 @@
     <groupId>com.example</groupId>
     <artifactId>sysfoo</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <!--
+        UPDATE: packaging is now "war" instead of the implicit default "jar".
+        This is Spring Boot's own documented pattern for producing a SINGLE
+        artifact that works two ways:
+          1) java -jar target/sysfoo-0.0.1-SNAPSHOT.war  — runs standalone with
+             an embedded Tomcat, exactly like the old executable jar did.
+          2) Deploy the same .war into an external/standalone Tomcat server's
+             webapps/ directory.
+        See SysfooApplication.java (SpringBootServletInitializer) and the
+        spring-boot-starter-tomcat dependency below (scope=provided) — those
+        two changes are what make this work. Nothing else about how the app
+        runs, or which environment variables it reads, changes.
+    -->
+    <packaging>war</packaging>
     <name>sysfoo</name>
     <description>A web application to display system and environment info.</description>
 
@@ -34,9 +48,37 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+        <!--
+            UPDATE: needed for the dual jar/war packaging above. scope=provided
+            means "an external Tomcat already provides this — don't bundle it
+            when deployed there." It does NOT break standalone execution:
+            Spring Boot's repackaged executable WAR still includes provided-
+            scope jars in its own internal lib folder for `java -jar ...war`,
+            and `mvn spring-boot:run` always includes provided-scope
+            dependencies on its dev-time classpath by design, specifically for
+            this scenario. Without this, deploying the war to a real Tomcat
+            would ship a second, conflicting embedded Tomcat inside it.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <!--
+            BUG FIX: Dockerfile's HEALTHCHECK calls GET /actuator/health, but this
+            dependency was missing — that endpoint never existed, so the container
+            health check failed 100% of the time (every check got a 404), and any
+            orchestrator (Docker, Kubernetes, ECS, etc.) that watches container
+            health would see it as permanently "unhealthy" and restart/kill it in
+            a loop, even though the app itself was running fine.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
         <!-- ── JPA API ───────────────────────────────────────────────────── -->

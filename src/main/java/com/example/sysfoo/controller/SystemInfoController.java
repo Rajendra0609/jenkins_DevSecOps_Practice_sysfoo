@@ -2,7 +2,6 @@ package com.example.sysfoo.controller;
 
 import com.example.sysfoo.service.SystemInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,9 +16,6 @@ public class SystemInfoController {
     @Autowired
     private SystemInfoService systemInfoService;
 
-    @Value("${app.version}")
-    private String appVersion;
-
     @GetMapping("/system-info")
     public Map<String, Object> getSystemInfo() throws UnknownHostException {
         Map<String, Object> info = new HashMap<>();
@@ -31,9 +27,16 @@ public class SystemInfoController {
         return info;
     }
 
+    // BUG FIX: this used to read its own separate @Value("${app.version}") field
+    // instead of calling the service. SystemInfoControllerTest mocks
+    // SystemInfoService.getAppVersion() and expects GET /version to reflect it —
+    // that test only "passed" before because application.properties happened to
+    // have the same value as the mock, not because the code path was actually
+    // exercised. Routing through the service makes /system-info and /version
+    // impossible to accidentally diverge, and makes the existing test meaningful.
     @GetMapping("/version")
     public ResponseEntity<String> getVersion() {
-        return ResponseEntity.ok(appVersion);
+        return ResponseEntity.ok(systemInfoService.getAppVersion());
     }
 
     @GetMapping("/database-info")
