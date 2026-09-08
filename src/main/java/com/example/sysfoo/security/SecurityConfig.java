@@ -29,13 +29,18 @@ import org.springframework.security.web.context.SecurityContextRepository;
  *     session, so in practice the dashboard is only ever seen by signed-in
  *     users, while login.html does the reverse (redirects straight to
  *     index.html if a session already exists).
- *   • GET /todos and GET /api/posts (viewing tasks/posts): public at the API
- *     level — this keeps the data endpoints simple/reusable — but the only
- *     page that calls them (index.html) is itself behind the client-side
- *     login gate described above.
+ *   • GET /todos: requires a signed-in user (see TodoController) — it now
+ *     filters to only the tasks that user created or is assigned to, so it
+ *     needs to know who's asking. GET /api/posts (the public Watering Hole
+ *     board) has no such per-row rule and stays public at the API level.
  *   • POST /todos, POST /api/posts, POST /api/notify: require a signed-in user.
- *   • PATCH /todos/{id} and DELETE /todos/{id} (editing/completing/removing
- *     a task): require a signed-in user, same as creating one.
+ *   • Everything else under /todos/** (PATCH/DELETE on a task, its comments,
+ *     its attachments) requires a signed-in user at this layer; TodoController
+ *     itself enforces the actual creator-or-assignee check per task.
+ *   • GET /api/users and /api/users/me/profile: require a signed-in user.
+ *   • GET /api/files/{id}: public at this layer — FileController decides per
+ *     download (public for a post's image/file, creator-or-assignee only
+ *     for a task's attachment).
  *   • /api/auth/register and /api/auth/login: public (that's the point).
  *   • /api/auth/logout: requires a signed-in user.
  *   • GET /actuator/health: public — the container/orchestrator health probe
@@ -93,13 +98,27 @@ public class SecurityConfig {
                 // Public auth endpoints
                 .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/auth/me").permitAll()
-                // Public read access; writes require a signed-in user
-                .requestMatchers(HttpMethod.GET, "/todos", "/api/posts").permitAll()
+                // ENHANCEMENT ("assignee can only see the task, rest can't view
+                // it"): GET /todos used to be public (see the old comment this
+                // replaced) — it now needs to know WHO is asking so it can
+                // filter to just that person's created/assigned tasks (see
+                // TodoController.getAllTodos()), so it requires authentication.
+                // The Watering Hole board has no such per-row visibility rule
+                // and stays public.
+                .requestMatchers(HttpMethod.GET, "/todos").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/posts").permitAll()
                 .requestMatchers(HttpMethod.POST, "/todos", "/api/posts", "/api/notify", "/api/auth/logout").authenticated()
-                // Editing/completing/deleting a task now persists to the DB (see
-                // TodoController) — those calls need the same auth as creating one.
-                .requestMatchers(HttpMethod.PATCH, "/todos/**").authenticated()
-                .requestMatchers(HttpMethod.DELETE, "/todos/**").authenticated()
+                // Comments/attachments sub-resources, and PATCH/DELETE on a
+                // specific task, all need a signed-in user — TodoController's
+                // own creator-or-assignee check narrows it further per task.
+                .requestMatchers("/todos/**").authenticated()
+                // ENHANCEMENT: user directory (assignee picker) and the
+                // profile endpoint both require a signed-in user.
+                .requestMatchers(HttpMethod.GET, "/api/users", "/api/users/**").authenticated()
+                // ENHANCEMENT: file downloads — permitAll at this layer because
+                // FileController itself decides per-attachment (public for a
+                // post's image/file, creator-or-assignee only for a task's).
+                .requestMatchers(HttpMethod.GET, "/api/files/**").permitAll()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form.disable())

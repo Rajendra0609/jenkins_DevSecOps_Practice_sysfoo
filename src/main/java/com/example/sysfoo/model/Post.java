@@ -6,8 +6,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /** A community post created by an authenticated user (e.g. an update or announcement). */
 @Entity
@@ -34,6 +37,25 @@ public class Post {
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    /**
+     * ENHANCEMENT: uploaded image/file(s) for this post, e.g. an uploaded
+     * image (instead of, or alongside, imageUrl) and/or a separately
+     * attached file — both go through FileStorageService/Attachment, same
+     * as task attachments. @Transient because Attachment rows reference
+     * this post by postId rather than through a JPA relation; PostService
+     * populates this list when building the response.
+     */
+    @Transient
+    private List<Attachment> attachments = new ArrayList<>();
+
+    public List<Attachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(List<Attachment> attachments) {
+        this.attachments = attachments;
+    }
 
     public Post() {
     }

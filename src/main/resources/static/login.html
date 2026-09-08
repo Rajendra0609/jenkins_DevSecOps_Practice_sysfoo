@@ -38,6 +38,18 @@
       --radius-xs:  7px;
     }
 
+    /* Accent themes — mirrors the picker on the dashboard (index.html) */
+    body[data-accent="violet"] {
+      --gold: #a67ec7; --gold-dim: rgba(166,126,199,0.14);
+      --amber: #c9a0e0; --amber-dim: rgba(201,160,224,0.14);
+      --border-hi: rgba(166,126,199,0.5);
+    }
+    body[data-accent="jungle"] {
+      --gold: #00d4aa; --gold-dim: rgba(0,212,170,0.14);
+      --amber: #34e0b8; --amber-dim: rgba(52,224,184,0.14);
+      --border-hi: rgba(0,212,170,0.5);
+    }
+
     body {
       font-family: var(--sans);
       background: var(--bg);
@@ -172,7 +184,8 @@
     .auth-card { animation: fadeUp 0.4s ease both; }
   </style>
 </head>
-<body>
+<body data-accent="">
+<script>document.body.setAttribute('data-accent', localStorage.getItem('sysfoo_accent') || 'gold');</script>
 
 <div class="auth-gate-check" id="auth-gate-check">
   <div class="auth-gate-spinner"></div>

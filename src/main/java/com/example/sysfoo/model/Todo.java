@@ -15,8 +15,40 @@ public class Todo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** The person / owner name for this task (e.g. "Alice") */
+    /**
+     * The person this task is assigned to, referenced by username (see
+     * User.username) — not free text. Nullable: a task can be unassigned.
+     * ENHANCEMENT: this used to be a free-text "name" the creator typed by
+     * hand, with a separately-typed, unvalidated notification email — so
+     * anyone could send a task-notification email to any address at all
+     * (an open-relay-style abuse vector) and there was no way to look a
+     * task up by "tasks assigned to me". Tying it to a real username fixes
+     * both: the assignee's email is now looked up from their account
+     * (TodoController/TodoService), never typed by the creator, and task
+     * visibility (see below) can be enforced server-side.
+     */
+    @Column(length = 40)
+    private String assigneeUsername;
+
+    /**
+     * Denormalized display name of the assignee, captured at assignment time
+     * so the task list doesn't need a join just to render a name — same
+     * pattern as Post.author. Kept in sync with assigneeUsername by
+     * TodoService.
+     */
+    @Column(length = 60)
     private String name;
+
+    /**
+     * ENHANCEMENT: username of whoever created this task (the "assigner").
+     * Non-null for every task created going forward — needed for the new
+     * visibility rule: only the creator and the assignee can see a task
+     * (see TodoController.getAllTodos()). Nullable at the JPA level only to
+     * tolerate any pre-existing rows from before this column existed; the
+     * application always sets it for new tasks.
+     */
+    @Column(length = 40)
+    private String createdByUsername;
 
     /** The task description */
     private String text;
@@ -106,5 +138,21 @@ public class Todo {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getAssigneeUsername() {
+        return assigneeUsername;
+    }
+
+    public void setAssigneeUsername(String assigneeUsername) {
+        this.assigneeUsername = assigneeUsername;
+    }
+
+    public String getCreatedByUsername() {
+        return createdByUsername;
+    }
+
+    public void setCreatedByUsername(String createdByUsername) {
+        this.createdByUsername = createdByUsername;
     }
 }
