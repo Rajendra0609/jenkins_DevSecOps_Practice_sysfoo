@@ -1,6 +1,9 @@
-# ─────────────────────────────────────────────────────────────────
-# .dockerignore — keeps the build context lean & secrets out
-# ─────────────────────────────────────────────────────────────────
+# BUG FIX: this file is the real .dockerignore Docker actually reads. A more
+# thorough version of it existed in the repo, but saved under the filename
+# "dockerignore" (missing the leading dot) — Docker never reads that name, so
+# it was completely inert and this shorter list was the one silently in
+# effect the whole time. Replaced with the more complete version below and
+# removed the dead misnamed file.
 
 # ── Build output (builder stage copies source, not target) ───────
 target/
@@ -51,6 +54,9 @@ site/
 
 # ── Local SQLite databases (never bake DB into image) ────────────
 *.db
+*.db-journal
+*.db-wal
+*.db-shm
 *.sqlite
 *.sqlite3
 data/

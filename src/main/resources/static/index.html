@@ -3,33 +3,61 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sysfoo — System Dashboard</title>
+  <title>Sysfoo — Pride Dashboard</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A6%81%3C/text%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:         #07090f;
-      --bg-1:       #0d1117;
-      --bg-2:       #111827;
-      --bg-3:       #1c2333;
-      --border:     rgba(255,255,255,0.07);
-      --border-hi:  rgba(0,212,170,0.35);
-      --teal:       #00d4aa;
-      --teal-dim:   rgba(0,212,170,0.12);
-      --cyan:       #38bdf8;
-      --red:        #f87171;
-      --amber:      #fbbf24;
-      --green:      #4ade80;
-      --txt:        #e2e8f0;
-      --txt-2:      #94a3b8;
-      --txt-3:      #475569;
+      /* ── Savanna-sunset palette ─────────────────────────────────────────── */
+      --bg:         #170e08;
+      --bg-1:       #1f130a;
+      --bg-2:       #29190d;
+      --bg-3:       #382312;
+      --bg-4:       #482d17;
+      --border:     rgba(244,201,93,0.12);
+      --border-hi:  rgba(242,153,74,0.5);
+      --gold:       #f2b705;
+      --gold-dim:   rgba(242,183,5,0.14);
+      --gold-mid:   rgba(242,183,5,0.28);
+      --amber:      #f2994a;
+      --amber-dim:  rgba(242,153,74,0.14);
+      --rust:       #e0632c;
+      --rust-dim:   rgba(224,99,44,0.15);
+      --dusk:       #a67ec7;
+      --dusk-dim:   rgba(166,126,199,0.14);
+      --grass:      #7fb069;
+      --grass-dim:  rgba(127,176,105,0.14);
+      --red:        #e5484d;
+      --red-dim:    rgba(229,72,77,0.14);
+      --txt:        #fbf0dd;
+      --txt-2:      #d3af86;
+      --txt-3:      #8c6b4d;
       --mono:       'JetBrains Mono', monospace;
-      --sans:       'Syne', sans-serif;
-      --radius:     14px;
-      --radius-sm:  8px;
+      --display:    'Fraunces', serif;
+      --sans:       'Inter', sans-serif;
+      --radius:     16px;
+      --radius-sm:  11px;
+      --radius-xs:  7px;
+    }
+
+    /* ── Accent themes ──────────────────────────────────────────────────────────
+       Swaps only the brand-accent variables (gold/amber/rust family) — the base
+       background/text palette stays constant so contrast never regresses. */
+    body[data-accent="violet"] {
+      --gold: #a67ec7; --gold-dim: rgba(166,126,199,0.14); --gold-mid: rgba(166,126,199,0.28);
+      --amber: #c9a0e0; --amber-dim: rgba(201,160,224,0.14);
+      --rust: #7c4fa0; --rust-dim: rgba(124,79,160,0.15);
+      --border-hi: rgba(166,126,199,0.5);
+    }
+    body[data-accent="jungle"] {
+      --gold: #00d4aa; --gold-dim: rgba(0,212,170,0.14); --gold-mid: rgba(0,212,170,0.26);
+      --amber: #34e0b8; --amber-dim: rgba(52,224,184,0.14);
+      --rust: #059c7d; --rust-dim: rgba(5,156,125,0.16);
+      --border-hi: rgba(0,212,170,0.5);
     }
 
     html { scroll-behavior: smooth; }
@@ -40,112 +68,254 @@
       color: var(--txt);
       min-height: 100vh;
       overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
     }
 
-    body::before {
+    a { color: inherit; }
+    button, input, textarea, select { font-family: inherit; }
+    :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+    /* ── Decorative savanna-sunset backdrop (pure CSS/SVG, no external images) ── */
+    .bg-scene {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      overflow: hidden;
+    }
+    .bg-scene svg { position: absolute; bottom: 0; left: 0; width: 100%; height: 62vh; min-height: 420px; }
+    .bg-scene::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 45% at 50% 0%, rgba(242,153,74,0.16) 0%, transparent 60%),
+        linear-gradient(180deg, #170e08 0%, #23140b 55%, #170e08 100%);
+    }
+    .bg-scene::after {
       content: '';
       position: fixed; inset: 0; z-index: 0;
       background-image:
-        linear-gradient(rgba(0,212,170,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,212,170,0.03) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none;
+        linear-gradient(rgba(242,183,5,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(242,183,5,0.02) 1px, transparent 1px);
+      background-size: 46px 46px;
     }
 
-    body::after {
-      content: '';
-      position: fixed; inset: 0; z-index: 0;
-      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,212,170,0.08) 0%, transparent 70%);
-      pointer-events: none;
-    }
+    .page { position: relative; z-index: 1; max-width: 1040px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
 
-    .page { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
-
+    /* ── Header ─────────────────────────────────────────────────────────────── */
     .header {
       display: flex; align-items: center; justify-content: space-between;
-      padding-bottom: 2rem; margin-bottom: 2rem;
+      gap: 16px; flex-wrap: wrap;
+      padding-bottom: 1.75rem; margin-bottom: 1.75rem;
       border-bottom: 1px solid var(--border);
       animation: fadeDown 0.5s ease both;
     }
 
-    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo { display: flex; align-items: center; gap: 13px; }
 
     .logo-icon {
-      width: 40px; height: 40px; border-radius: 10px;
-      background: var(--teal-dim); border: 1px solid var(--border-hi);
+      width: 44px; height: 44px; border-radius: 13px; flex-shrink: 0;
+      background: var(--gold-dim); border: 1px solid var(--border-hi);
       display: flex; align-items: center; justify-content: center;
     }
-    .logo-icon svg { width: 20px; height: 20px; }
+    .logo-icon svg { width: 26px; height: 26px; }
 
-    .logo-text { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
-    .logo-text span { color: var(--teal); }
-    .logo-sub { font-size: 11px; font-family: var(--mono); color: var(--txt-3); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 1px; }
+    .logo-text { font-family: var(--display); font-size: 24px; font-weight: 700; letter-spacing: -0.3px; color: var(--txt); }
+    .logo-text span { color: var(--gold); }
+    .logo-sub { font-size: 11px; font-family: var(--mono); color: var(--txt-3); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 2px; }
 
-    .header-right { display: flex; align-items: center; gap: 16px; }
+    .header-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 
     .live-clock {
       font-family: var(--mono); font-size: 13px; color: var(--txt-2);
       background: var(--bg-2); border: 1px solid var(--border);
-      padding: 6px 14px; border-radius: 999px; letter-spacing: 0.05em;
+      padding: 7px 14px; border-radius: 999px; letter-spacing: 0.05em;
     }
 
     .refresh-btn {
-      font-family: var(--sans); font-size: 12px; font-weight: 600;
-      color: var(--teal); background: var(--teal-dim);
+      font-family: var(--sans); font-size: 12px; font-weight: 700;
+      color: var(--gold); background: var(--gold-dim);
       border: 1px solid var(--border-hi); border-radius: 999px;
-      padding: 6px 14px; cursor: pointer; display: flex; align-items: center; gap: 6px;
+      padding: 7px 16px; cursor: pointer; display: flex; align-items: center; gap: 7px;
       transition: all 0.2s; letter-spacing: 0.02em;
     }
-    .refresh-btn:hover { background: rgba(0,212,170,0.2); }
+    .refresh-btn:hover { background: var(--gold-mid); }
     .refresh-btn svg { width: 13px; height: 13px; }
     .refresh-btn.spinning svg { animation: spin 0.8s linear infinite; }
 
-    .grid-2 {
+    .theme-btn {
+      font-family: var(--sans); font-size: 12px; font-weight: 700;
+      color: var(--txt-2); background: var(--bg-2);
+      border: 1px solid var(--border); border-radius: 999px;
+      padding: 7px 10px; cursor: pointer; display: flex; align-items: center; gap: 7px;
+      transition: all 0.2s;
+    }
+    .theme-btn:hover { border-color: var(--border-hi); color: var(--txt); }
+    .theme-btn svg { width: 14px; height: 14px; }
+
+    /* ── Auth area ───────────────────────────────────────────────────────────── */
+    .auth-area { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .auth-btn {
+      font-family: var(--sans); font-size: 12px; font-weight: 700;
+      border-radius: 999px; padding: 8px 17px; cursor: pointer;
+      transition: all 0.2s; letter-spacing: 0.01em; white-space: nowrap;
+    }
+    .auth-btn.ghost { background: none; border: 1px solid var(--border); color: var(--txt-2); }
+    .auth-btn.ghost:hover { border-color: var(--border-hi); color: var(--txt); }
+    .auth-btn.primary { background: linear-gradient(135deg, var(--gold), var(--amber)); border: none; color: #1a0f04; }
+    .auth-btn.primary:hover { filter: brightness(1.08); transform: translateY(-1px); }
+
+    .user-chip {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg-2); border: 1px solid var(--border);
+      padding: 5px 14px 5px 6px; border-radius: 999px;
+      font-size: 13px; font-weight: 600; color: var(--txt);
+    }
+    .user-chip-avatar {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--rust));
+      color: #1a0f04; display: flex; align-items: center; justify-content: center;
+      font-family: var(--display); font-weight: 700; font-size: 13px; flex-shrink: 0;
+    }
+
+    /* ── Top navigation ──────────────────────────────────────────────────────── */
+    .topnav {
+      position: sticky; top: 0; z-index: 4;
+      display: flex; gap: 4px; overflow-x: auto;
+      background: rgba(23,14,8,0.85); backdrop-filter: blur(10px);
+      border: 1px solid var(--border); border-radius: 999px;
+      padding: 6px; margin-bottom: 1.75rem;
+      animation: fadeDown 0.5s 0.05s ease both;
+    }
+    .nav-link {
+      flex: 1 0 auto; display: flex; align-items: center; justify-content: center; gap: 7px;
+      background: none; border: none; border-radius: 999px;
+      font-family: var(--sans); font-size: 13px; font-weight: 700; color: var(--txt-2);
+      padding: 10px 18px; cursor: pointer; white-space: nowrap; transition: all 0.2s;
+    }
+    .nav-link svg { width: 15px; height: 15px; flex-shrink: 0; }
+    .nav-link:hover { color: var(--txt); background: var(--bg-2); }
+    .nav-link.active { color: #1a0f04; background: linear-gradient(135deg, var(--gold), var(--amber)); }
+
+    /* ── Views (one top-nav section shown at a time) ──────────────────────────── */
+    .view { display: none; }
+    .view.active { display: block; animation: fadeUp 0.4s ease both; }
+
+    /* ── Hero (real photography banner) ─────────────────────────────────────── */
+    .hero {
+      position: relative; overflow: hidden;
+      display: flex; align-items: flex-end;
+      min-height: 260px; padding: 28px 32px;
+      border-radius: var(--radius); border: 1px solid var(--border);
+      margin-bottom: 1.75rem;
+      background-image:
+        linear-gradient(100deg, rgba(11,7,4,0.92) 0%, rgba(11,7,4,0.55) 45%, rgba(11,7,4,0.15) 100%),
+        url('https://cdn.pixabay.com/photo/2020/02/22/23/03/lion-4871786_1280.jpg');
+      background-size: cover; background-position: center 35%;
+      animation: fadeUp 0.5s 0.05s ease both;
+    }
+    .hero-text { max-width: 560px; }
+    .hero-text h1 {
+      font-family: var(--display); font-weight: 700; font-size: clamp(26px, 4vw, 40px);
+      letter-spacing: -0.5px; line-height: 1.15; margin-bottom: 8px;
+      color: var(--txt); text-shadow: 0 2px 16px rgba(0,0,0,0.5);
+    }
+    .hero-text p { color: var(--txt-2); font-size: 14.5px; max-width: 480px; text-shadow: 0 1px 8px rgba(0,0,0,0.5); }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: var(--mono); font-size: 10.5px; color: var(--gold);
+      background: rgba(23,14,8,0.65); backdrop-filter: blur(2px);
+      border: 1px solid var(--border-hi);
+      padding: 5px 12px; border-radius: 999px; text-transform: uppercase;
+      letter-spacing: 0.1em; margin-bottom: 12px;
+    }
+    .hero-badge svg { width: 11px; height: 11px; }
+    .hero-photo-credit {
+      position: absolute; bottom: 8px; right: 12px;
+      font-family: var(--mono); font-size: 9px; color: rgba(251,240,221,0.45);
+    }
+
+    /* ── Uptime bar ──────────────────────────────────────────────────────────── */
+    .uptime-bar {
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--mono); font-size: 11px; color: var(--txt-2);
+      padding: 10px 18px; background: var(--bg-1);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      margin-bottom: 16px; animation: fadeUp 0.5s 0.08s ease both;
+      flex-wrap: wrap;
+    }
+    .uptime-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--grass); flex-shrink: 0; animation: pulse 2s ease-in-out infinite; }
+    .uptime-sep { color: var(--border); }
+
+    .countdown-ring { width: 28px; height: 28px; flex-shrink: 0; }
+    .countdown-ring circle { fill: none; stroke: var(--border); stroke-width: 2; r: 11; cx: 14; cy: 14; }
+    .countdown-ring .progress { stroke: var(--gold); stroke-linecap: round; transform-origin: 14px 14px; transform: rotate(-90deg); stroke-dasharray: 69.1; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear; }
+
+    /* ── Grid ────────────────────────────────────────────────────────────────── */
+    .grid-info {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
       gap: 16px;
       margin-bottom: 16px;
     }
 
+    /* ── Cards ───────────────────────────────────────────────────────────────── */
     .card {
       background: var(--bg-1);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 1.5rem;
+      padding: 1.6rem;
       position: relative; overflow: hidden;
       animation: fadeUp 0.5s ease both;
+      transition: border-color 0.25s;
     }
     .card::before {
       content: '';
       position: absolute; inset: 0;
-      background: linear-gradient(135deg, rgba(255,255,255,0.02) 0%, transparent 60%);
+      background: linear-gradient(135deg, rgba(255,220,150,0.02) 0%, transparent 60%);
       pointer-events: none;
     }
+    .card:hover { border-color: rgba(244,201,93,0.22); }
     .card:nth-child(1) { animation-delay: 0.1s; }
     .card:nth-child(2) { animation-delay: 0.15s; }
     .card:nth-child(3) { animation-delay: 0.2s; }
-    .card:nth-child(4) { animation-delay: 0.25s; }
     .card-full { grid-column: 1 / -1; }
 
     .card-header {
       display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1.3rem; flex-wrap: wrap; gap: 10px;
     }
 
     .card-title {
       display: flex; align-items: center; gap: 8px;
-      font-size: 12px; font-weight: 600; text-transform: uppercase;
-      letter-spacing: 0.1em; color: var(--txt-3);
+      font-family: var(--display); font-size: 15px; font-weight: 700;
+      letter-spacing: 0.01em; color: var(--txt);
     }
-    .card-title svg { width: 14px; height: 14px; color: var(--teal); }
+    .card-title svg { width: 16px; height: 16px; color: var(--gold); flex-shrink: 0; }
+    .card-subtitle { font-size: 12px; color: var(--txt-3); margin-top: 2px; font-family: var(--sans); }
 
+    /* ── Photo banner used inside a card (e.g. The Watering Hole) ─────────────── */
+    .card-banner {
+      margin: -1.6rem -1.6rem 1.4rem -1.6rem;
+      height: 148px; position: relative;
+      background-size: cover; background-position: center 60%;
+      border-radius: var(--radius) var(--radius) 0 0;
+      display: flex; align-items: flex-end;
+    }
+    .card-banner::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(11,7,4,0.15) 0%, rgba(11,7,4,0.92) 100%);
+      border-radius: inherit;
+    }
+    .card-banner-content { position: relative; z-index: 1; padding: 0 1.6rem 1.1rem; }
+    .card-banner-content .card-title, .card-banner-content .card-subtitle { text-shadow: 0 2px 10px rgba(0,0,0,0.7); }
+
+    /* ── Stat rows ───────────────────────────────────────────────────────────── */
     .stat-row {
       display: flex; align-items: center; justify-content: space-between;
       padding: 10px 0; border-bottom: 1px solid var(--border);
       font-size: 13px;
     }
     .stat-row:last-child { border-bottom: none; padding-bottom: 0; }
-    .stat-key { color: var(--txt-3); font-family: var(--mono); font-size: 12px; }
+    .stat-key { color: var(--txt-2); font-family: var(--mono); font-size: 11px; }
     .stat-val { font-family: var(--mono); font-size: 12px; color: var(--txt); display: flex; align-items: center; gap: 8px; }
 
     .copy-btn {
@@ -153,29 +323,31 @@
       color: var(--txt-3); border-radius: 4px; transition: color 0.2s;
       display: flex; align-items: center;
     }
-    .copy-btn:hover { color: var(--teal); }
+    .copy-btn:hover { color: var(--gold); }
     .copy-btn svg { width: 11px; height: 11px; }
 
+    /* ── Version ─────────────────────────────────────────────────────────────── */
     .version-display {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 6px; height: 100px;
+      gap: 6px; height: 110px;
     }
-    .version-label { font-size: 11px; font-family: var(--mono); color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.1em; }
-    .version-number { font-family: var(--mono); font-size: 40px; font-weight: 700; color: var(--teal); letter-spacing: -1px; }
+    .version-label { font-size: 10px; font-family: var(--mono); color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.12em; }
+    .version-number { font-family: var(--display); font-size: 40px; font-weight: 700; color: var(--gold); letter-spacing: -1px; }
 
+    /* ── DB Status ───────────────────────────────────────────────────────────── */
     .db-status { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 1.25rem 0; }
     .status-dot-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
     .status-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--txt-3); }
-    .status-dot.connected { background: var(--green); }
+    .status-dot.connected { background: var(--grass); }
     .status-dot.disconnected { background: var(--red); }
     .status-dot.connected::before {
       content: ''; position: absolute;
-      width: 30px; height: 30px; border-radius: 50%;
-      background: rgba(74,222,128,0.2);
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(127,176,105,0.2);
       animation: pulse 2s ease-in-out infinite;
     }
-    .status-label { font-size: 15px; font-weight: 600; }
-    .status-label.connected { color: var(--green); }
+    .status-label { font-size: 15px; font-weight: 700; font-family: var(--display); }
+    .status-label.connected { color: var(--grass); }
     .status-label.disconnected { color: var(--red); }
     .db-type {
       font-family: var(--mono); font-size: 11px; color: var(--txt-3);
@@ -183,94 +355,16 @@
       padding: 4px 12px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.08em;
     }
 
+    /* ── Badges ──────────────────────────────────────────────────────────────── */
     .badge {
       font-family: var(--mono); font-size: 10px; font-weight: 500;
       padding: 4px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.08em;
       display: inline-flex; align-items: center; gap: 5px;
     }
-    .badge-yes { background: rgba(74,222,128,0.12); color: var(--green); border: 1px solid rgba(74,222,128,0.25); }
+    .badge-yes { background: var(--grass-dim); color: var(--grass); border: 1px solid rgba(127,176,105,0.3); }
     .badge-no  { background: var(--bg-3); color: var(--txt-3); border: 1px solid var(--border); }
 
-    .todo-input-row { display: flex; gap: 10px; margin-bottom: 1.25rem; }
-
-    .todo-input {
-      flex: 1; background: var(--bg-2); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); padding: 10px 14px;
-      font-family: var(--sans); font-size: 14px; color: var(--txt);
-      outline: none; transition: border-color 0.2s;
-    }
-    .todo-input::placeholder { color: var(--txt-3); }
-    .todo-input:focus { border-color: var(--border-hi); }
-
-    .todo-add-btn {
-      background: var(--teal); color: #000; border: none;
-      border-radius: var(--radius-sm); padding: 10px 20px;
-      font-family: var(--sans); font-size: 13px; font-weight: 700;
-      cursor: pointer; display: flex; align-items: center; gap: 6px;
-      transition: all 0.2s; white-space: nowrap;
-    }
-    .todo-add-btn:hover { background: #00f0c0; transform: translateY(-1px); }
-    .todo-add-btn:active { transform: translateY(0); }
-    .todo-add-btn svg { width: 14px; height: 14px; }
-
-    .todo-filters { display: flex; gap: 6px; margin-bottom: 1rem; }
-    .filter-btn {
-      font-family: var(--sans); font-size: 11px; font-weight: 600;
-      padding: 4px 12px; border-radius: 999px; cursor: pointer;
-      border: 1px solid var(--border); background: none; color: var(--txt-3);
-      transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.06em;
-    }
-    .filter-btn.active { background: var(--teal-dim); border-color: var(--border-hi); color: var(--teal); }
-
-    .todo-meta {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 12px; font-size: 12px; color: var(--txt-3);
-    }
-    .todo-count { font-family: var(--mono); }
-    .clear-done-btn {
-      background: none; border: none; cursor: pointer;
-      color: var(--txt-3); font-size: 11px; font-family: var(--sans);
-      text-decoration: underline; transition: color 0.2s;
-    }
-    .clear-done-btn:hover { color: var(--red); }
-
-    .todo-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-
-    .todo-item {
-      display: flex; align-items: center; gap: 10px;
-      background: var(--bg-2); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); padding: 10px 14px;
-      transition: all 0.25s; animation: slideIn 0.25s ease both;
-    }
-    .todo-item:hover { border-color: var(--border-hi); }
-    .todo-item.done { opacity: 0.4; }
-    .todo-item.done .todo-text { text-decoration: line-through; }
-    .todo-item.removing { animation: slideOut 0.25s ease forwards; }
-
-    .todo-check {
-      width: 18px; height: 18px; border-radius: 5px;
-      border: 1.5px solid var(--txt-3); cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; transition: all 0.2s;
-    }
-    .todo-item.done .todo-check { background: var(--teal); border-color: var(--teal); }
-    .todo-check svg { width: 10px; height: 10px; display: none; }
-    .todo-item.done .todo-check svg { display: block; }
-
-    .todo-text { flex: 1; font-size: 14px; color: var(--txt); cursor: pointer; }
-    .todo-timestamp { font-family: var(--mono); font-size: 10px; color: var(--txt-3); flex-shrink: 0; }
-
-    .todo-del {
-      background: none; border: none; cursor: pointer;
-      color: var(--txt-3); display: flex; align-items: center;
-      border-radius: 4px; padding: 3px; transition: color 0.2s;
-    }
-    .todo-del:hover { color: var(--red); }
-    .todo-del svg { width: 13px; height: 13px; }
-
-    .todo-empty { text-align: center; padding: 2.5rem 0; color: var(--txt-3); font-size: 13px; font-family: var(--mono); }
-    .todo-empty-icon { font-size: 32px; margin-bottom: 8px; }
-
+    /* ── Skeleton ────────────────────────────────────────────────────────────── */
     .skeleton {
       background: linear-gradient(90deg, var(--bg-2) 25%, var(--bg-3) 50%, var(--bg-2) 75%);
       background-size: 200% 100%;
@@ -278,76 +372,552 @@
       border-radius: 4px; height: 12px; margin: 6px 0;
     }
 
-    .toast-container { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 1000; }
+    /* ── Toast ───────────────────────────────────────────────────────────────── */
+    .toast-container { position: fixed; bottom: 24px; right: 24px; left: 24px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; z-index: 1000; }
     .toast {
-      font-size: 13px; padding: 10px 18px; border-radius: var(--radius-sm);
+      font-size: 13px; font-family: var(--sans); font-weight: 600;
+      padding: 11px 18px; border-radius: var(--radius-sm);
       display: flex; align-items: center; gap: 8px;
       animation: toastIn 0.3s ease both;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      max-width: 360px;
     }
-    .toast.success { background: rgba(74,222,128,0.15); border: 1px solid rgba(74,222,128,0.3); color: var(--green); }
-    .toast.error   { background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.3); color: var(--red); }
-    .toast.info    { background: rgba(56,189,248,0.15);  border: 1px solid rgba(56,189,248,0.3);  color: var(--cyan); }
+    .toast.success { background: rgba(127,176,105,0.16); border: 1px solid rgba(127,176,105,0.35); color: var(--grass); }
+    .toast.error   { background: rgba(229,72,77,0.16); border: 1px solid rgba(229,72,77,0.35); color: var(--red); }
+    .toast.info    { background: rgba(166,126,199,0.16);  border: 1px solid rgba(166,126,199,0.35);  color: var(--dusk); }
     .toast.removing { animation: toastOut 0.25s ease forwards; }
     .toast svg { width: 14px; height: 14px; flex-shrink: 0; }
 
-    .uptime-bar {
-      display: flex; align-items: center; gap: 10px;
-      font-family: var(--mono); font-size: 11px; color: var(--txt-3);
-      padding: 10px 16px; background: var(--bg-1);
-      border: 1px solid var(--border); border-radius: var(--radius);
-      margin-bottom: 16px; animation: fadeUp 0.5s 0.05s ease both;
-      flex-wrap: wrap;
+    /* ═══════════════════════════════════════════════════════════════════════════
+       ── TASK MANAGER ──────────────────────────────────────────────────────── */
+
+    .todo-progress-bar-wrap { margin-bottom: 1.25rem; display: flex; flex-direction: column; gap: 8px; }
+    .todo-progress-header { display: flex; align-items: center; justify-content: space-between; font-family: var(--mono); font-size: 11px; }
+    .todo-progress-label { color: var(--txt-2); }
+    .todo-progress-pct { color: var(--gold); font-weight: 700; font-size: 13px; }
+    .progress-track { width: 100%; height: 6px; background: var(--bg-3); border-radius: 999px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--gold), var(--amber)); transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+    .todo-stat-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .stat-chip { font-family: var(--mono); font-size: 10px; padding: 3px 10px; border-radius: 999px; display: flex; align-items: center; gap: 5px; }
+    .chip-total  { background: var(--bg-3); color: var(--txt-2); border: 1px solid var(--border); }
+    .chip-active { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(242,153,74,0.28); }
+    .chip-done   { background: var(--grass-dim); color: var(--grass); border: 1px solid rgba(127,176,105,0.28); }
+    .chip-high   { background: var(--red-dim); color: var(--red); border: 1px solid rgba(229,72,77,0.28); }
+
+    .todo-search-wrap { position: relative; margin-bottom: 14px; }
+    .todo-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--txt-3); pointer-events: none; }
+    .todo-search-icon svg { width: 13px; height: 13px; display: block; }
+    .todo-search {
+      width: 100%; background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 9px 12px 9px 36px;
+      font-family: var(--mono); font-size: 13px; color: var(--txt);
+      outline: none; transition: border-color 0.2s;
     }
-    .uptime-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; animation: pulse 2s ease-in-out infinite; }
-    .uptime-sep { color: var(--border); }
+    .todo-search::placeholder { color: var(--txt-3); }
+    .todo-search:focus { border-color: var(--border-hi); }
 
-    .countdown-ring { width: 28px; height: 28px; flex-shrink: 0; }
-    .countdown-ring circle { fill: none; stroke: var(--border); stroke-width: 2; r: 11; cx: 14; cy: 14; }
-    .countdown-ring .progress { stroke: var(--teal); stroke-linecap: round; transform-origin: 14px 14px; transform: rotate(-90deg); stroke-dasharray: 69.1; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear; }
+    .todo-form { background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px 18px; margin-bottom: 1.25rem; display: flex; flex-direction: column; gap: 12px; transition: border-color 0.2s; }
+    .todo-form:focus-within { border-color: var(--border-hi); }
+    .todo-form-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+    .todo-field-wrap { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 160px; }
+    .todo-field-label { font-size: 10px; font-family: var(--mono); color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.09em; display: flex; align-items: center; gap: 4px; }
+    .todo-field-label svg { width: 9px; height: 9px; }
 
+    .todo-input, .todo-name-input, .todo-email-input, .todo-assignee-select, .post-input, .post-textarea {
+      width: 100%; background: var(--bg-3); border: 1px solid var(--border);
+      border-radius: var(--radius-xs); padding: 9px 13px;
+      font-family: var(--sans); font-size: 14px; color: var(--txt);
+      outline: none; transition: border-color 0.2s;
+    }
+    .todo-input::placeholder, .todo-name-input::placeholder, .todo-email-input::placeholder,
+    .post-input::placeholder, .post-textarea::placeholder { color: var(--txt-3); }
+    .todo-input:focus, .todo-name-input:focus, .todo-email-input:focus, .todo-assignee-select:focus,
+    .post-input:focus, .post-textarea:focus { border-color: var(--border-hi); background: var(--bg-4); }
+    .todo-name-input, .todo-assignee-select { font-family: var(--mono); font-size: 13px; color: var(--dusk); flex-shrink: 0; width: 185px; }
+    .todo-email-input { font-family: var(--mono); font-size: 13px; color: var(--dusk); border-color: rgba(166,126,199,0.22); }
+    /* ENHANCEMENT: the notify email is now always looked up from the selected
+       assignee's account (see UserController), never typed — readonly makes
+       that explicit instead of looking like an editable field that happens
+       to be pre-filled. */
+    .todo-email-input[readonly] { color: var(--txt-3); background: var(--bg-2); cursor: not-allowed; }
+    .post-textarea { resize: vertical; min-height: 78px; line-height: 1.5; }
+
+    .todo-form-bottom { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+
+    .priority-row { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; }
+    .priority-label { font-size: 10px; font-family: var(--mono); color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.08em; margin-right: 2px; }
+    .priority-btn {
+      font-size: 10px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.07em;
+      padding: 4px 11px; border-radius: 999px; cursor: pointer;
+      border: 1px solid var(--border); background: none; color: var(--txt-3);
+      transition: all 0.15s; display: flex; align-items: center; gap: 4px;
+    }
+    .priority-btn:hover { border-color: rgba(255,255,255,0.2); color: var(--txt-2); }
+    .priority-btn.sel-high   { color: var(--red);   background: var(--red-dim);   border-color: rgba(229,72,77,0.4); }
+    .priority-btn.sel-medium { color: var(--amber); background: var(--amber-dim); border-color: rgba(242,153,74,0.4); }
+    .priority-btn.sel-low    { color: var(--grass); background: var(--grass-dim); border-color: rgba(127,176,105,0.4); }
+
+    .todo-add-btn {
+      background: linear-gradient(135deg, var(--gold), var(--amber)); color: #1a0f04; border: none;
+      border-radius: var(--radius-xs); padding: 10px 22px;
+      font-family: var(--sans); font-size: 13px; font-weight: 800;
+      cursor: pointer; display: flex; align-items: center; gap: 7px;
+      transition: all 0.2s; white-space: nowrap; letter-spacing: 0.02em;
+    }
+    .todo-add-btn:hover { filter: brightness(1.08); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(242,183,5,0.25); }
+    .todo-add-btn:active { transform: translateY(0); box-shadow: none; }
+    .todo-add-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+    .todo-add-btn svg { width: 14px; height: 14px; }
+
+    .todo-controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
+    .todo-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+    .filter-btn {
+      font-family: var(--mono); font-size: 11px; color: var(--txt-2);
+      background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: var(--radius-xs); padding: 5px 12px; cursor: pointer; transition: all 0.2s;
+    }
+    .filter-btn:hover { border-color: rgba(255,255,255,0.2); }
+    .filter-btn.active { background: var(--gold-dim); border-color: var(--border-hi); color: var(--gold); }
+
+    .todo-sort {
+      font-family: var(--mono); font-size: 11px; color: var(--txt-2);
+      background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: var(--radius-xs); padding: 5px 10px;
+      cursor: pointer; outline: none; transition: border-color 0.2s;
+    }
+    .todo-sort:focus { border-color: var(--border-hi); }
+    .todo-sort option { background: var(--bg-2); }
+
+    .todo-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+    .todo-count { font-family: var(--mono); font-size: 12px; color: var(--txt-2); }
+    .todo-bulk-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .bulk-btn {
+      background: none; border: 1px solid var(--border); cursor: pointer;
+      color: var(--txt-3); font-size: 11px; font-family: var(--mono);
+      padding: 4px 11px; border-radius: var(--radius-xs);
+      transition: all 0.2s; display: flex; align-items: center; gap: 5px;
+    }
+    .bulk-btn svg { width: 11px; height: 11px; }
+    .bulk-btn:hover { border-color: rgba(255,255,255,0.2); color: var(--txt-2); }
+    .bulk-btn.danger:hover { border-color: rgba(229,72,77,0.4); color: var(--red); background: var(--red-dim); }
+    .bulk-btn.success:hover { border-color: rgba(127,176,105,0.4); color: var(--grass); background: var(--grass-dim); }
+
+    .todo-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .todo-item {
+      display: flex; align-items: stretch; gap: 0;
+      background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      transition: all 0.25s; animation: slideIn 0.25s ease both;
+      overflow: hidden; position: relative;
+    }
+    .todo-item:hover { border-color: rgba(255,255,255,0.15); background: var(--bg-3); }
+    .todo-item.done { border-color: rgba(127,176,105,0.25); background: rgba(127,176,105,0.04); }
+    .todo-item.done .todo-text { text-decoration: line-through; color: var(--txt-3); }
+    .todo-item.removing { animation: slideOut 0.25s ease forwards; }
+
+    .todo-item-left {
+      position: relative; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      width: 56px; padding: 14px 8px;
+      border-right: 1px solid var(--border);
+      background: var(--bg-1);
+      transition: background 0.2s;
+    }
+    .todo-item:hover .todo-item-left { background: var(--bg-2); }
+    .todo-item.done .todo-item-left { background: rgba(127,176,105,0.08); }
+
+    .complete-btn {
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 2px solid var(--txt-3);
+      background: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; flex-shrink: 0;
+      position: relative; overflow: hidden;
+    }
+    .complete-btn svg { width: 15px; height: 15px; opacity: 0; transition: opacity 0.15s; }
+    .complete-btn:hover { border-color: var(--grass); background: rgba(127,176,105,0.12); transform: scale(1.1); }
+    .complete-btn:hover svg { opacity: 0.6; color: var(--grass); }
+    .todo-item.done .complete-btn { background: var(--grass); border-color: var(--grass); }
+    .todo-item.done .complete-btn svg { opacity: 1; color: #12200e; stroke: #12200e; }
+    .complete-btn:active { transform: scale(0.95); }
+
+    .complete-btn .ripple { position: absolute; border-radius: 50%; background: rgba(127,176,105,0.4); transform: scale(0); animation: ripple 0.5s ease-out forwards; }
+    @keyframes ripple { to { transform: scale(3); opacity: 0; } }
+
+    .todo-body { flex: 1; min-width: 0; padding: 13px 14px; }
+    .todo-header-row { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; flex-wrap: wrap; }
+    .todo-name-tag {
+      font-family: var(--mono); font-size: 10px; color: var(--dusk); background: var(--dusk-dim);
+      border: 1px solid rgba(166,126,199,0.28); padding: 2px 8px; border-radius: 999px;
+      display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;
+    }
+    .todo-name-tag svg { width: 9px; height: 9px; }
+    .todo-priority {
+      font-family: var(--mono); font-size: 9px; text-transform: uppercase;
+      letter-spacing: 0.09em; padding: 2px 8px; border-radius: 999px;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .todo-priority::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .todo-priority.high   { color: var(--red);   background: var(--red-dim);   border: 1px solid rgba(229,72,77,0.3); }
+    .todo-priority.medium { color: var(--amber); background: var(--amber-dim); border: 1px solid rgba(242,153,74,0.3); }
+    .todo-priority.low    { color: var(--grass); background: var(--grass-dim); border: 1px solid rgba(127,176,105,0.3); }
+    .todo-text { font-size: 14px; color: var(--txt); line-height: 1.5; word-break: break-word; cursor: default; }
+    .todo-edit-input { width: 100%; background: var(--bg-3); border: 1px solid var(--border-hi); border-radius: var(--radius-xs); padding: 5px 9px; font-family: var(--sans); font-size: 14px; color: var(--txt); outline: none; }
+    .todo-footer-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+    .todo-timestamp { font-family: var(--mono); font-size: 10px; color: var(--txt-3); }
+    .todo-relative { font-family: var(--mono); font-size: 10px; color: var(--txt-3); }
+    .todo-relative::before { content: '· '; }
+    .done-badge {
+      font-family: var(--mono); font-size: 9px; color: var(--grass); background: var(--grass-dim);
+      border: 1px solid rgba(127,176,105,0.28); padding: 1px 7px; border-radius: 999px;
+      text-transform: uppercase; letter-spacing: 0.08em; display: none;
+    }
+    .todo-item.done .done-badge { display: inline-flex; align-items: center; gap: 3px; }
+    .done-badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--grass); animation: pulse 2s ease-in-out infinite; }
+
+    .todo-item-actions { display: flex; flex-direction: column; border-left: 1px solid var(--border); flex-shrink: 0; }
+    .action-btn {
+      flex: 1; background: none; border: none; cursor: pointer;
+      color: var(--txt-3); display: flex; align-items: center; justify-content: center;
+      padding: 0 14px; transition: all 0.18s; gap: 5px;
+      font-family: var(--mono); font-size: 10px; text-transform: uppercase;
+      letter-spacing: 0.06em; min-width: 60px;
+    }
+    .action-btn + .action-btn { border-top: 1px solid var(--border); }
+    .action-btn svg { width: 12px; height: 12px; }
+    .edit-btn:hover { color: var(--dusk); background: var(--dusk-dim); }
+    .del-btn:hover { color: var(--red); background: var(--red-dim); }
+
+    .todo-empty {
+      text-align: center; padding: 3rem 1rem; color: var(--txt-3);
+      position: relative; border-radius: var(--radius-sm); overflow: hidden;
+      background-image:
+        linear-gradient(rgba(23,14,8,0.88), rgba(23,14,8,0.88)),
+        url('https://cdn.pixabay.com/photo/2017/10/21/10/09/tree-2874194_1280.jpg');
+      background-size: cover; background-position: center 70%;
+    }
+    .todo-empty-icon { font-size: 26px; margin-bottom: 10px; color: var(--gold); }
+    .todo-empty-sub { font-size: 12px; margin-top: 4px; }
+
+    /* ── Email settings (now lives in the Settings view, as a plain card) ────── */
+    .email-settings-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+    .email-field-wrap { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 220px; }
+    .email-field-label { font-size: 10px; font-family: var(--mono); color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.09em; display: flex; align-items: center; gap: 4px; }
+    .email-field-label svg { width: 9px; height: 9px; }
+    .email-input {
+      width: 100%; background: var(--bg-3); border: 1px solid rgba(166,126,199,0.22);
+      border-radius: var(--radius-xs); padding: 9px 13px;
+      font-family: var(--mono); font-size: 13px; color: var(--dusk);
+      outline: none; transition: border-color 0.2s;
+    }
+    .email-input::placeholder { color: var(--txt-3); }
+    .email-input:focus { border-color: rgba(166,126,199,0.5); background: var(--bg-4); }
+    .email-save-btn {
+      background: var(--dusk-dim); color: var(--dusk); border: 1px solid rgba(166,126,199,0.3);
+      border-radius: var(--radius-xs); padding: 9px 18px; cursor: pointer;
+      font-family: var(--sans); font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; gap: 6px; white-space: nowrap; transition: all 0.2s;
+    }
+    .email-save-btn:hover { background: rgba(166,126,199,0.24); }
+    .email-save-btn svg { width: 13px; height: 13px; }
+    .email-test-btn {
+      background: none; color: var(--txt-3); border: 1px solid var(--border);
+      border-radius: var(--radius-xs); padding: 9px 14px; cursor: pointer;
+      font-family: var(--mono); font-size: 11px;
+      display: flex; align-items: center; gap: 6px; white-space: nowrap; transition: all 0.2s;
+    }
+    .email-test-btn:hover { color: var(--dusk); border-color: rgba(166,126,199,0.3); }
+    .email-test-btn svg { width: 12px; height: 12px; }
+    .email-settings-hint { font-family: var(--mono); font-size: 10px; color: var(--txt-3); line-height: 1.6; border-top: 1px solid var(--border); padding-top: 10px; margin-top: 12px; }
+    .email-settings-hint code { background: var(--bg-3); border: 1px solid var(--border); padding: 1px 5px; border-radius: 3px; color: var(--gold); font-family: var(--mono); }
+
+    .email-badge {
+      font-family: var(--mono); font-size: 9px; padding: 2px 8px; border-radius: 999px;
+      text-transform: uppercase; letter-spacing: 0.08em; display: inline-flex; align-items: center; gap: 4px;
+      flex-shrink: 0; cursor: default;
+    }
+    .email-badge svg { width: 9px; height: 9px; }
+    .email-badge.sending { color: var(--amber); background: var(--amber-dim); border: 1px solid rgba(242,153,74,0.25); }
+    .email-badge.sent    { color: var(--dusk);  background: var(--dusk-dim); border: 1px solid rgba(166,126,199,0.25); }
+    .email-badge.failed  { color: var(--red);   background: var(--red-dim); border: 1px solid rgba(229,72,77,0.25); }
+    .spin-sm { animation: spin 0.8s linear infinite; }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       ── PRIDE BOARD (posts) ───────────────────────────────────────────────── */
+    .post-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem; }
+    .post-form-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .post-form-row > * { flex: 1; min-width: 200px; }
+    .post-form-actions { display: flex; justify-content: flex-end; }
+
+    .post-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+    .post-card {
+      background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      overflow: hidden; display: flex; flex-direction: column;
+      animation: fadeUp 0.4s ease both; transition: border-color 0.2s, transform 0.2s;
+    }
+    .post-card:hover { border-color: rgba(244,201,93,0.28); transform: translateY(-2px); }
+    .post-img { width: 100%; height: 140px; background-size: cover; background-position: center; background-color: var(--bg-3); }
+    .post-img-placeholder {
+      width: 100%; height: 140px; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, var(--bg-3), var(--bg-4));
+    }
+    .post-img-placeholder svg { width: 34px; height: 34px; color: var(--border-hi); }
+    .post-body { padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .post-title { font-family: var(--display); font-size: 16px; font-weight: 700; color: var(--txt); line-height: 1.3; }
+    .post-content { font-size: 13px; color: var(--txt-2); line-height: 1.6; flex: 1; white-space: pre-wrap; word-break: break-word; }
+    .post-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; padding-top: 10px; border-top: 1px solid var(--border); }
+    .post-author { font-family: var(--mono); font-size: 11px; color: var(--gold); display: flex; align-items: center; gap: 5px; }
+    .post-author svg { width: 11px; height: 11px; }
+    .post-date { font-family: var(--mono); font-size: 10px; color: var(--txt-3); }
+
+    /* ── Auth gate (shown while verifying session, before redirect/render) ───── */
+    .auth-gate {
+      position: fixed; inset: 0; z-index: 3000; background: var(--bg);
+      display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 14px;
+    }
+    .auth-gate.hidden { display: none; }
+    .auth-gate-spinner {
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 3px solid var(--border); border-top-color: var(--gold);
+      animation: spin 0.8s linear infinite;
+    }
+    .auth-gate-text { font-family: var(--mono); font-size: 12px; color: var(--txt-3); letter-spacing: 0.05em; }
+    body.auth-pending .page { display: none; }
+
+    /* ── Hero greeting (personalized line, filled once we know who's signed in) ── */
+    .hero-greeting { font-family: var(--mono); font-size: 11px; color: var(--gold); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 10px; }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       ── HOME OVERVIEW (tasks / posts / team summary + recent activity) ──────── */
+    .overview-card { display: flex; flex-direction: column; gap: 12px; min-height: 100%; }
+    .overview-stat-row { display: flex; align-items: baseline; gap: 9px; }
+    .overview-stat-num { font-family: var(--display); font-size: 34px; font-weight: 700; color: var(--gold); letter-spacing: -1px; line-height: 1; }
+    .overview-stat-label { font-family: var(--mono); font-size: 10.5px; color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.1em; }
+    .overview-preview { font-size: 12.5px; color: var(--txt-2); line-height: 1.5; padding: 10px 12px; background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--radius-xs); }
+    .overview-preview-title { font-family: var(--display); font-weight: 700; color: var(--txt); font-size: 13px; margin-bottom: 3px; }
+    .overview-preview-meta { font-family: var(--mono); font-size: 10px; color: var(--txt-3); margin-top: 6px; display: flex; gap: 8px; align-items: center; }
+    .overview-empty { font-size: 12px; color: var(--txt-3); font-style: italic; padding: 8px 0; }
+    .overview-avatars { display: flex; align-items: center; }
+    .overview-avatar {
+      width: 28px; height: 28px; border-radius: 50%; background: var(--gold-dim); color: var(--gold);
+      border: 2px solid var(--bg-1); font-family: var(--display); font-weight: 700; font-size: 12px;
+      display: flex; align-items: center; justify-content: center; margin-left: -8px;
+    }
+    .overview-avatar:first-child { margin-left: 0; }
+    .overview-more { font-family: var(--mono); font-size: 10.5px; color: var(--txt-3); margin-left: 8px; }
+    .overview-cta {
+      align-self: flex-start; margin-top: auto;
+      background: none; border: 1px solid var(--border); color: var(--txt-2);
+      border-radius: var(--radius-xs); padding: 8px 14px; cursor: pointer;
+      font-family: var(--sans); font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; gap: 6px; transition: all 0.2s;
+    }
+    .overview-cta:hover { border-color: var(--border-hi); color: var(--txt); background: var(--bg-2); }
+    .overview-cta svg { width: 12px; height: 12px; }
+
+    /* ── Recent activity feed ─────────────────────────────────────────────────── */
+    .activity-list { display: flex; flex-direction: column; }
+    .activity-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .activity-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .activity-icon { width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .activity-icon svg { width: 14px; height: 14px; }
+    .activity-icon.task { background: var(--amber-dim); color: var(--amber); }
+    .activity-icon.task.done { background: var(--grass-dim); color: var(--grass); }
+    .activity-icon.post { background: var(--dusk-dim); color: var(--dusk); }
+    .activity-body { flex: 1; min-width: 0; }
+    .activity-text { font-size: 13px; color: var(--txt); line-height: 1.4; }
+    .activity-text b { font-family: var(--display); }
+    .activity-meta { font-family: var(--mono); font-size: 10.5px; color: var(--txt-3); margin-top: 3px; }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       ── SETTINGS (grouped sections) ──────────────────────────────────────────── */
+    .settings-groups { display: flex; flex-direction: column; gap: 26px; }
+    .settings-group-title { font-family: var(--mono); font-size: 11px; color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 10px; }
+
+    .accent-picker { display: flex; gap: 12px; flex-wrap: wrap; }
+    .accent-swatch {
+      display: flex; align-items: center; gap: 9px;
+      background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 10px 14px; cursor: pointer; font-family: var(--sans); font-size: 12.5px; font-weight: 600;
+      color: var(--txt-2); transition: all 0.2s;
+    }
+    .accent-swatch:hover { border-color: var(--border-hi); color: var(--txt); }
+    .accent-swatch.active { border-color: var(--border-hi); color: var(--txt); background: var(--bg-3); }
+    .accent-swatch-dot { width: 15px; height: 15px; border-radius: 50%; flex-shrink: 0; box-shadow: inset 0 0 0 2px rgba(255,255,255,0.15); }
+    .accent-swatch-dot.gold   { background: #f2b705; }
+    .accent-swatch-dot.violet { background: #a67ec7; }
+    .accent-swatch-dot.jungle { background: #00d4aa; }
+    .accent-swatch-check { width: 12px; height: 12px; color: var(--grass); margin-left: 2px; flex-shrink: 0; }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       ── Animations ────────────────────────────────────────────────────────── */
     @keyframes fadeDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
     @keyframes fadeUp   { from { opacity: 0; transform: translateY(16px); }  to { opacity: 1; transform: none; } }
-    @keyframes slideIn  { from { opacity: 0; transform: translateX(-8px); }  to { opacity: 1; transform: none; } }
-    @keyframes slideOut { to   { opacity: 0; transform: translateX(8px); height: 0; padding: 0; margin: 0; } }
+    @keyframes slideIn  { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
+    @keyframes slideOut { to   { opacity: 0; transform: translateX(10px); max-height: 0; padding: 0; margin: 0; overflow: hidden; } }
     @keyframes spin     { to   { transform: rotate(360deg); } }
     @keyframes pulse    { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.4); } }
     @keyframes shimmer  { to { background-position: -200% 0; } }
     @keyframes toastIn  { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
     @keyframes toastOut { to   { opacity: 0; transform: translateX(20px); } }
+    @keyframes completePop { 0% { transform: scale(1); } 40% { transform: scale(1.25); } 100% { transform: scale(1); } }
+    .pop { animation: completePop 0.35s cubic-bezier(0.34,1.56,0.64,1) both; }
 
+    /* ── Responsive ──────────────────────────────────────────────────────────── */
     @media (max-width: 640px) {
-      .grid-2 { grid-template-columns: 1fr; }
-      .card { grid-row: span 1 !important; }
+      .grid-info { grid-template-columns: 1fr; }
+      .todo-form-row { flex-direction: column; align-items: stretch; }
+      .todo-name-input, .todo-assignee-select { width: 100%; }
+      .todo-item-actions { flex-direction: row; }
+      .action-btn + .action-btn { border-top: none; border-left: 1px solid var(--border); }
+      .hero { min-height: 200px; padding: 20px; background-position: center 25%; }
+      .hero-photo-credit { display: none; }
+      .toast-container { left: 12px; right: 12px; align-items: stretch; }
+      .toast { max-width: none; }
     }
     @media (max-width: 480px) {
       .header { flex-direction: column; align-items: flex-start; gap: 12px; }
       .header-right { width: 100%; justify-content: space-between; }
-      .version-number { font-size: 28px; }
+      .auth-area { width: 100%; justify-content: flex-end; }
+      .version-number { font-size: 30px; }
       .todo-add-btn span { display: none; }
       .uptime-bar { gap: 6px; }
+      .nav-link span { display: none; }
+      .nav-link { padding: 10px 13px; }
     }
+    /* ── Profile ("click your name to see your info") ────────────────────────── */
+    .user-chip.clickable { cursor: pointer; transition: border-color 0.2s; }
+    .user-chip.clickable:hover { border-color: var(--border-hi); }
+    .profile-header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+    .profile-avatar {
+      width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--gold), var(--rust));
+      color: #1a0f04; display: flex; align-items: center; justify-content: center;
+      font-family: var(--display); font-weight: 700; font-size: 22px;
+    }
+    .profile-name { font-family: var(--display); font-size: 19px; font-weight: 700; color: var(--txt); }
+    .profile-username { font-family: var(--mono); font-size: 12px; color: var(--txt-3); }
+    .profile-rows { display: flex; flex-direction: column; gap: 12px; }
+    .profile-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .profile-row:last-child { border-bottom: none; }
+    .profile-row-label { font-size: 11px; font-family: var(--mono); color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.08em; }
+    .profile-row-value { font-size: 13.5px; color: var(--txt); font-weight: 600; text-align: right; }
+
+    /* ── Comments & attachments (per task) ───────────────────────────────────── */
+    /* ENHANCEMENT ("comments and files not visible properly, make it
+       highlight to visible"): this toggle used to be plain 10.5px dim text
+       with no background — easy to miss among the timestamp row. It's now a
+       proper pill button with a visible border/background at rest, and an
+       "open" state so it's obvious the drawer below is expanded. */
+    .todo-extras-toggle {
+      background: var(--bg-3); border: 1px solid var(--border); color: var(--txt-2);
+      font-family: var(--mono); font-size: 11.5px; font-weight: 700;
+      cursor: pointer; padding: 6px 13px; border-radius: 999px;
+      display: inline-flex; align-items: center; gap: 6px; margin-right: 12px;
+      transition: all 0.2s;
+    }
+    .todo-extras-toggle:hover { color: var(--gold); border-color: var(--border-hi); background: var(--gold-dim); }
+    .todo-extras-toggle.open { color: var(--gold); border-color: var(--border-hi); background: var(--gold-dim); }
+    .todo-extras-toggle svg { width: 12px; height: 12px; }
+    .todo-extras-panel {
+      margin-top: 12px; padding: 14px 16px 16px; background: var(--bg-2);
+      border: 1px solid var(--border); border-radius: var(--radius-sm); display: none;
+    }
+    .todo-extras-panel.open { display: block; animation: fadeUp 0.25s ease both; }
+    .comment-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; max-height: 220px; overflow-y: auto; }
+    .comment-item { background: var(--bg-3); border-radius: var(--radius-xs); padding: 8px 11px; }
+    .comment-item-head { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--txt-3); margin-bottom: 3px; font-family: var(--mono); }
+    .comment-item-author { color: var(--gold); font-weight: 700; }
+    .comment-item-text { font-size: 13px; color: var(--txt); line-height: 1.45; word-break: break-word; }
+    .comment-empty { font-size: 12px; color: var(--txt-3); font-style: italic; margin-bottom: 10px; }
+    .comment-add-row { display: flex; gap: 8px; margin-bottom: 12px; }
+    .comment-add-row input { flex: 1; }
+    .comment-add-row button {
+      background: var(--gold-dim); color: var(--gold); border: 1px solid var(--border-hi);
+      border-radius: var(--radius-xs); padding: 0 14px; font-weight: 700; font-size: 12px; cursor: pointer;
+    }
+    .comment-add-row button:hover { background: var(--gold-mid); }
+    .attachment-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    .attachment-chip {
+      display: inline-flex; align-items: center; gap: 5px; background: var(--bg-3); border: 1px solid var(--border);
+      border-radius: 999px; padding: 4px 11px 4px 8px; font-size: 11px; color: var(--txt-2);
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .attachment-chip:hover { border-color: var(--border-hi); color: var(--txt); }
+    .attachment-chip svg { width: 11px; height: 11px; flex-shrink: 0; }
+    .attachment-upload-row { display: flex; align-items: center; gap: 10px; }
+    .attachment-upload-label {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--txt-2);
+      cursor: pointer; border: 1px dashed var(--border); border-radius: var(--radius-xs); padding: 6px 12px;
+    }
+    .attachment-upload-label:hover { border-color: var(--border-hi); color: var(--txt); }
+    .attachment-upload-label svg { width: 12px; height: 12px; }
+    .attachment-upload-hint { font-size: 10px; color: var(--txt-3); font-family: var(--mono); }
+
+    /* ── Post upload controls ────────────────────────────────────────────────── */
+    .post-upload-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .post-upload-label {
+      flex: 1; min-width: 140px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      font-size: 12px; color: var(--txt-2); cursor: pointer; border: 1px dashed var(--border);
+      border-radius: var(--radius-xs); padding: 9px 12px; transition: border-color 0.2s;
+    }
+    .post-upload-label:hover { border-color: var(--border-hi); color: var(--txt); }
+    .post-upload-label svg { width: 13px; height: 13px; }
+    .post-upload-label.has-file { border-style: solid; border-color: var(--border-hi); color: var(--gold); }
+    .post-attachment-chip { margin-top: 8px; }
+
   </style>
 </head>
-<body>
+<body class="auth-pending">
+
+<div class="auth-gate" id="auth-gate">
+  <div class="auth-gate-spinner"></div>
+  <div class="auth-gate-text">Checking your session…</div>
+</div>
+
+<div class="bg-scene" aria-hidden="true">
+  <svg viewBox="0 0 1600 500" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,500 L0,340 Q250,290 500,330 T1000,320 T1600,350 L1600,500 Z" fill="#100a05" opacity="0.65"/>
+    <path d="M0,500 L0,400 Q300,370 600,400 T1200,395 T1600,410 L1600,500 Z" fill="#0b0704" opacity="0.75"/>
+    <g opacity="0.42" fill="#0b0704">
+      <rect x="130" y="230" width="9" height="110"/>
+      <ellipse cx="134" cy="215" rx="85" ry="20"/>
+      <ellipse cx="70" cy="228" rx="42" ry="12"/>
+      <ellipse cx="198" cy="226" rx="42" ry="12"/>
+    </g>
+    <g opacity="0.32" fill="#0b0704">
+      <rect x="1390" y="260" width="7" height="90"/>
+      <ellipse cx="1393" cy="248" rx="62" ry="15"/>
+    </g>
+  </svg>
+</div>
 
 <div class="page">
 
+  <!-- ── Header ──────────────────────────────────────────────────────────────── -->
   <header class="header">
     <div class="logo">
       <div class="logo-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#00d4aa" stroke-width="2" stroke-linecap="round">
-          <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
-          <path d="M7 8h.01M11 8h6M7 12h10"/>
+        <svg viewBox="0 0 44 44" fill="none">
+          <circle cx="22" cy="22" r="9" fill="#f2b705"/>
+          <g stroke="#f2994a" stroke-width="3" stroke-linecap="round">
+            <line x1="22" y1="2" x2="22" y2="9"/><line x1="22" y1="35" x2="22" y2="42"/>
+            <line x1="2" y1="22" x2="9" y2="22"/><line x1="35" y1="22" x2="42" y2="22"/>
+            <line x1="8" y1="8" x2="13" y2="13"/><line x1="31" y1="31" x2="36" y2="36"/>
+            <line x1="36" y1="8" x2="31" y2="13"/><line x1="13" y1="31" x2="8" y2="36"/>
+          </g>
         </svg>
       </div>
       <div>
         <div class="logo-text">Sys<span>foo</span></div>
-        <div class="logo-sub">System Dashboard</div>
+        <div class="logo-sub">Pride Dashboard</div>
       </div>
     </div>
     <div class="header-right">
       <div class="live-clock" id="clock">--:--:--</div>
+      <button class="theme-btn" id="theme-btn" onclick="cycleAccent()" title="Switch accent color" aria-label="Switch accent color">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.5-.7 1.5-1.5 0-.4-.2-.8-.4-1.1-.2-.3-.4-.6-.4-1 0-.8.7-1.5 1.5-1.5H16c3.3 0 6-2.7 6-6 0-4.4-4.5-8-10-8z"/></svg>
+      </button>
       <button class="refresh-btn" id="refresh-btn" onclick="refreshAll()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
           <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
@@ -356,12 +926,56 @@
         </svg>
         Refresh
       </button>
+      <div class="auth-area" id="auth-area"></div>
     </div>
   </header>
 
+  <!-- ── Top navigation ─────────────────────────────────────────────────────── -->
+  <nav class="topnav" id="topnav">
+    <button class="nav-link active" id="nav-home" onclick="switchView('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="nav-link" id="nav-tasks" onclick="switchView('tasks')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      <span>Tasks</span>
+    </button>
+    <button class="nav-link" id="nav-posts" onclick="switchView('posts')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span>Posts</span>
+    </button>
+    <button class="nav-link" id="nav-settings" onclick="switchView('settings')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span>Settings</span>
+    </button>
+    <button class="nav-link" id="nav-profile" onclick="switchView('profile')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profile</span>
+    </button>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════
+       ── Home view ──────────────────────────────────────────────────────────── -->
+  <section id="view-home" class="view active">
+
+  <!-- ── Hero ────────────────────────────────────────────────────────────────── -->
+  <div class="hero">
+    <div class="hero-text">
+      <div class="hero-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Live system dashboard
+      </div>
+      <h1>Command your pride.</h1>
+      <p>Watch over your infrastructure, manage the team's tasks, and share updates — all from one watering hole.</p>
+      <p class="hero-greeting" id="hero-greeting"></p>
+    </div>
+    <span class="hero-photo-credit">Photo via Pixabay</span>
+  </div>
+
+  <!-- ── Uptime bar ─────────────────────────────────────────────────────────── -->
   <div class="uptime-bar">
     <div class="uptime-dot"></div>
-    <span>LIVE</span>
+    <span style="color:var(--grass);font-weight:700;">LIVE</span>
     <span class="uptime-sep">|</span>
     <span>Next refresh</span>
     <svg class="countdown-ring" id="countdown-ring">
@@ -369,107 +983,755 @@
     </svg>
     <span id="countdown-text">30s</span>
     <span class="uptime-sep">|</span>
-    <span>Session: <span id="session-start">--</span></span>
+    <span>Session: <span id="session-start" style="color:var(--txt);">--</span></span>
     <span class="uptime-sep">|</span>
-    <span>Uptime: <span id="page-uptime">0s</span></span>
+    <span>Uptime: <span id="page-uptime" style="color:var(--gold);">0s</span></span>
   </div>
 
-  <div class="grid-2">
+  <!-- ── Overview ───────────────────────────────────────────────────────────── -->
+  <!-- ENHANCEMENT: Home used to show raw ops diagnostics (System Info / Version /
+       Database) up front — useful to whoever runs the box, but not what draws a
+       teammate back to the app day to day. Those three cards now live in
+       Settings → System & Diagnostics (unchanged, same ids, same fetch calls);
+       Home leads instead with a live summary of the things people actually use
+       the app for, each with a one-click way in. -->
+  <div class="grid-info">
 
-    <div class="card" style="grid-row: span 2;">
+    <div class="card overview-card">
       <div class="card-header">
         <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-          System Info
-        </div>
-        <div id="sysinfo-loading" style="display:none;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00d4aa" stroke-width="2.5" stroke-linecap="round" style="animation:spin 0.8s linear infinite"><path d="M21 12a9 9 0 1 1-6.22-8.56"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Your Tasks
         </div>
       </div>
-      <div id="system-info">
-        <div class="skeleton" style="width:80%"></div>
-        <div class="skeleton" style="width:60%"></div>
-        <div class="skeleton" style="width:70%"></div>
-        <div class="skeleton" style="width:55%"></div>
-        <div class="skeleton" style="width:65%"></div>
+      <div class="overview-stat-row">
+        <span class="overview-stat-num" id="home-task-pct">0%</span>
+        <span class="overview-stat-label">complete</span>
       </div>
+      <div class="todo-stat-chips">
+        <span class="stat-chip chip-active"><span id="home-task-active">0</span> active</span>
+        <span class="stat-chip chip-high"><span id="home-task-high">0</span> high priority</span>
+      </div>
+      <button class="overview-cta" onclick="switchView('tasks')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        Open Task Manager
+      </button>
     </div>
 
-    <div class="card">
+    <div class="card overview-card">
       <div class="card-header">
         <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          App Version
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          The Watering Hole
         </div>
       </div>
-      <div class="version-display">
-        <div class="version-label">Current Release</div>
-        <div class="version-number" id="app-version">—</div>
-        <div style="font-size:11px;color:var(--txt-3);font-family:var(--mono);">sysfoo-app</div>
+      <div class="overview-stat-row">
+        <span class="overview-stat-num" id="home-post-count">0</span>
+        <span class="overview-stat-label">posts shared</span>
       </div>
+      <div id="home-latest-post" class="overview-empty">No posts yet.</div>
+      <button class="overview-cta" onclick="switchView('posts')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        Visit the board
+      </button>
     </div>
 
-    <div class="card">
+    <div class="card overview-card">
       <div class="card-header">
         <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg>
-          Database
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          The Pride
         </div>
       </div>
-      <div class="db-status" id="database-info">
-        <div class="skeleton" style="width:60px;height:60px;border-radius:50%;margin:0 auto;"></div>
+      <div class="overview-stat-row">
+        <span class="overview-stat-num" id="home-team-count">0</span>
+        <span class="overview-stat-label">members</span>
       </div>
+      <div class="overview-avatars" id="home-team-avatars"></div>
+      <button class="overview-cta" onclick="switchView('profile')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        View your profile
+      </button>
     </div>
 
   </div>
 
+  <!-- ── Recent activity ────────────────────────────────────────────────────── -->
+  <div class="card card-full">
+    <div class="card-header">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Recent Activity
+      </div>
+      <div class="card-subtitle">What's new across tasks and posts</div>
+    </div>
+    <div class="activity-list" id="home-activity-list">
+      <div class="skeleton" style="width:90%"></div>
+      <div class="skeleton" style="width:75%"></div>
+      <div class="skeleton" style="width:80%"></div>
+    </div>
+    <div class="overview-empty" id="home-activity-empty" style="display:none;">Nothing yet — add a task or share a post to get things moving.</div>
+  </div>
+
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════
+       ── Tasks view ─────────────────────────────────────────────────────────── -->
+  <section id="view-tasks" class="view">
   <div class="card card-full">
     <div class="card-header">
       <div class="card-title">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-        To-Do List
-      </div>
-      <div style="font-size:11px;font-family:var(--mono);color:var(--txt-3);">
-        press <kbd style="background:var(--bg-3);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:10px;">Enter</kbd> to add
+        Task Manager
       </div>
     </div>
 
-    <div class="todo-input-row">
-      <input class="todo-input" id="todo-text" type="text" placeholder="What needs to be done?" maxlength="120" />
-      <button class="todo-add-btn" id="add-todo-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-        <span>Add Task</span>
-      </button>
+    <div class="todo-progress-bar-wrap">
+      <div class="todo-progress-header">
+        <span class="todo-progress-label">Task Completion</span>
+        <span class="todo-progress-pct" id="progress-pct">0%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <div class="todo-stat-chips">
+        <span class="stat-chip chip-total"><span id="chip-total">0</span> total</span>
+        <span class="stat-chip chip-active"><span id="chip-active">0</span> active</span>
+        <span class="stat-chip chip-done"><span id="chip-done">0</span> done</span>
+        <span class="stat-chip chip-high"><span id="chip-high">0</span> high priority</span>
+      </div>
     </div>
 
-    <div class="todo-filters">
-      <button class="filter-btn active" data-filter="all">All</button>
-      <button class="filter-btn" data-filter="active">Active</button>
-      <button class="filter-btn" data-filter="done">Done</button>
+    <div class="todo-search-wrap">
+      <div class="todo-search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></div>
+      <input class="todo-search" id="todo-search" type="text" placeholder="Search tasks... ( / )" oninput="renderTodos()" />
+    </div>
+
+    <div class="todo-form" id="todo-form">
+      <div class="todo-form-row">
+        <div class="todo-field-wrap" style="flex:0 0 auto;width:175px;">
+          <label class="todo-field-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Assigned To
+          </label>
+          <select class="todo-assignee-select" id="todo-assignee" onchange="updateAssigneeEmail()">
+            <option value="">Unassigned</option>
+          </select>
+        </div>
+        <div class="todo-field-wrap">
+          <label class="todo-field-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
+            Notify Email
+          </label>
+          <input class="todo-email-input" id="todo-email" type="email" placeholder="Pick an assignee above" maxlength="120" readonly />
+        </div>
+      </div>
+      <div class="todo-form-row">
+        <div class="todo-field-wrap">
+          <label class="todo-field-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Task Description
+          </label>
+          <input class="todo-input" id="todo-text" type="text" placeholder="What needs to be done?" maxlength="200" />
+        </div>
+      </div>
+      <div class="todo-form-bottom">
+        <div class="priority-row">
+          <span class="priority-label">Priority:</span>
+          <button class="priority-btn" data-p="high" onclick="selectPriority('high')" aria-pressed="false">⬆ High</button>
+          <button class="priority-btn sel-medium" data-p="medium" onclick="selectPriority('medium')" aria-pressed="true">➡ Medium</button>
+          <button class="priority-btn" data-p="low" onclick="selectPriority('low')" aria-pressed="false">⬇ Low</button>
+        </div>
+        <button class="todo-add-btn" id="add-todo-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          <span>Add Task</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="todo-controls">
+      <div class="todo-filters">
+        <button class="filter-btn active" data-filter="all" aria-pressed="true">All</button>
+        <button class="filter-btn" data-filter="active" aria-pressed="false">Active</button>
+        <button class="filter-btn" data-filter="done" aria-pressed="false">Completed</button>
+        <button class="filter-btn" data-filter="high" aria-pressed="false">🔴 High</button>
+      </div>
+      <div class="todo-controls-right">
+        <select class="todo-sort" id="todo-sort" onchange="renderTodos()">
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="priority">By priority</option>
+          <option value="name">By assignee</option>
+        </select>
+      </div>
     </div>
 
     <div class="todo-meta">
       <span class="todo-count" id="todo-count">0 tasks</span>
-      <button class="clear-done-btn" onclick="clearDone()">Clear completed</button>
+      <div class="todo-bulk-actions">
+        <button class="bulk-btn success" onclick="markAllDone()" title="Mark all visible as done">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+          Complete All
+        </button>
+        <button class="bulk-btn" onclick="clearDone()" title="Remove completed tasks you created">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg>
+          Clear Done
+        </button>
+        <button class="bulk-btn danger" onclick="clearAll()" title="Remove all tasks you created">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+          Clear All
+        </button>
+      </div>
     </div>
 
     <ul class="todo-list" id="todo-list"></ul>
     <div class="todo-empty" id="todo-empty" style="display:none;">
-      <div class="todo-empty-icon">✓</div>
-      <div>All clear! Add a task above.</div>
+      <div class="todo-empty-icon">✦</div>
+      <div>No tasks here.</div>
+      <div class="todo-empty-sub">Sign in and add one above to get started.</div>
     </div>
   </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════
+       ── Posts view (The Watering Hole community board) ────────────────────── -->
+  <section id="view-posts" class="view">
+  <div class="card card-full">
+    <div class="card-banner" style="background-image:url('https://cdn.pixabay.com/photo/2015/11/27/14/37/elephant-1065632_1280.jpg')">
+      <div class="card-banner-content">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          The Watering Hole
+        </div>
+        <div class="card-subtitle">Share updates with the rest of the pride.</div>
+      </div>
+    </div>
+
+    <form class="post-form" id="post-form" onsubmit="submitPost(event)">
+      <input class="post-input" id="post-title" type="text" placeholder="Title" maxlength="140" required />
+      <textarea class="post-textarea" id="post-content" placeholder="What's happening at the watering hole?" maxlength="4000" required></textarea>
+      <div class="post-form-row">
+        <input class="post-input" id="post-image" type="url" placeholder="Image URL (optional)" />
+      </div>
+      <div class="post-upload-row">
+        <label class="post-upload-label" id="post-image-file-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <span id="post-image-file-text">Or upload an image</span>
+          <input type="file" accept=".png,.jpg,.jpeg,.gif,.webp" style="display:none" id="post-image-file" onchange="handlePostFilePick(this,'post-image-file-label','post-image-file-text','Image selected')" />
+        </label>
+        <label class="post-upload-label" id="post-file-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+          <span id="post-file-text">Attach a file (optional)</span>
+          <input type="file" style="display:none" id="post-file" onchange="handlePostFilePick(this,'post-file-label','post-file-text','File selected')" />
+        </label>
+      </div>
+      <div class="post-upload-hint" style="font-size:10px;color:var(--txt-3);font-family:var(--mono);">Both uploads are optional — image and file max 20MB each.</div>
+      <div class="post-form-actions">
+        <button type="submit" class="todo-add-btn" id="add-post-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          <span>Post</span>
+        </button>
+      </div>
+    </form>
+
+    <div class="post-grid" id="post-grid"></div>
+    <div class="todo-empty" id="post-empty" style="display:none;">
+      <div class="todo-empty-icon">✦</div>
+      <div>No posts yet.</div>
+      <div class="todo-empty-sub">Be the first to share something with the pride.</div>
+    </div>
+  </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════
+       ── Settings view ──────────────────────────────────────────────────────── -->
+  <section id="view-settings" class="view">
+  <div class="settings-groups">
+
+    <!-- ENHANCEMENT: the accent switcher used to be a header-only icon button
+         with no visible label of which color was active — a real settings
+         control belongs in Settings itself, discoverable and showing state.
+         The header icon (cycleAccent) is left in place as a quick toggle;
+         both call the same applyAccent() and stay in sync via updateAccentUI(). -->
+    <div>
+      <div class="settings-group-title">Appearance</div>
+      <div class="card" style="max-width:560px;">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.5-.7 1.5-1.5 0-.4-.2-.8-.4-1.1-.2-.3-.4-.6-.4-1 0-.8.7-1.5 1.5-1.5H16c3.3 0 6-2.7 6-6 0-4.4-4.5-8-10-8z"/></svg>
+            Accent Color
+          </div>
+        </div>
+        <div class="accent-picker" id="accent-picker">
+          <button class="accent-swatch" data-accent="gold" onclick="setAccent('gold')">
+            <span class="accent-swatch-dot gold"></span> Savanna Gold
+            <svg class="accent-swatch-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+          </button>
+          <button class="accent-swatch" data-accent="violet" onclick="setAccent('violet')">
+            <span class="accent-swatch-dot violet"></span> Twilight Violet
+            <svg class="accent-swatch-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+          </button>
+          <button class="accent-swatch" data-accent="jungle" onclick="setAccent('jungle')">
+            <span class="accent-swatch-dot jungle"></span> Jungle Teal
+            <svg class="accent-swatch-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="settings-group-title">Notifications</div>
+      <div class="card" style="max-width:560px;">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
+            Email Notifications
+          </div>
+        </div>
+        <div class="email-settings-row">
+          <button class="email-test-btn" onclick="sendTestEmail()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+            Send Test To Myself
+          </button>
+        </div>
+        <div class="email-settings-hint">
+          Notifications are sent via your Spring Boot backend at <code>POST /api/notify</code> and require you to be signed in.
+          The notify email for a task is always looked up from whoever you assign it to — pick an assignee when creating a task and it fills in automatically.
+        </div>
+      </div>
+    </div>
+
+    <!-- ENHANCEMENT: System Info / Version / Database — moved here verbatim
+         from the Home view (same ids, same fetchSystemInfo()/fetchDatabaseInfo()
+         calls, same auto-refresh) so ops-style diagnostics stay one click away
+         for whoever needs them, without being the first thing every teammate
+         sees when they open the app. -->
+    <div>
+      <div class="settings-group-title">System &amp; Diagnostics</div>
+      <div class="grid-info">
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M7 8h.01M11 8h6M7 12h10"/></svg>
+              System Info
+            </div>
+          </div>
+          <div id="system-info">
+            <div class="skeleton" style="width:80%"></div>
+            <div class="skeleton" style="width:60%"></div>
+            <div class="skeleton" style="width:70%"></div>
+            <div class="skeleton" style="width:50%"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+              Version
+            </div>
+          </div>
+          <div class="version-display">
+            <div class="version-label">Deployed build</div>
+            <div class="version-number" id="app-version">v--</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg>
+              Database
+            </div>
+          </div>
+          <div class="db-status" id="database-info">
+            <div class="skeleton" style="width:60px;height:60px;border-radius:50%;margin:0 auto;"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════
+       ── Profile view ───────────────────────────────────────────────────────── -->
+  <section id="view-profile" class="view">
+  <div class="card" style="max-width:420px;">
+    <div class="card-header">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Profile
+      </div>
+    </div>
+    <div class="profile-header">
+      <div class="profile-avatar" id="profile-avatar">?</div>
+      <div>
+        <div class="profile-name" id="profile-name">—</div>
+        <div class="profile-username" id="profile-username-line">@—</div>
+      </div>
+    </div>
+    <div class="profile-rows">
+      <div class="profile-row"><span class="profile-row-label">Email</span><span class="profile-row-value" id="profile-email">—</span></div>
+      <div class="profile-row"><span class="profile-row-label">Member Since</span><span class="profile-row-value" id="profile-created">—</span></div>
+      <div class="profile-row"><span class="profile-row-label">Tasks Created</span><span class="profile-row-value" id="profile-tasks-created">—</span></div>
+      <div class="profile-row"><span class="profile-row-label">Tasks Assigned To You</span><span class="profile-row-value" id="profile-tasks-assigned">—</span></div>
+    </div>
+  </div>
+  </section>
 
 </div>
 
-<div class="toast-container" id="toast-container"></div>
+<div class="toast-container" id="toast-container" role="status" aria-live="polite"></div>
 
 <script>
-  var todos = [], filter = 'all', refreshInterval, countdownInterval;
+  // ── State ──────────────────────────────────────────────────────────────────
+  var todos = [], posts = [], users = [], filter = 'all', refreshInterval, countdownInterval;
   var sessionStart = Date.now(), refreshSeconds = 30, currentCountdown = 30;
   var localIdCounter = 0;
   var CIRCUMFERENCE = 2 * Math.PI * 11;
+  var selectedPriority = 'medium';
+  var PRIORITY_ORDER = { high: 0, medium: 1, low: 2 };
+  var auth = { loggedIn: false, username: null, displayName: null };
 
+  // ── Accent theme ─────────────────────────────────────────────────────────────
+  var ACCENTS = ['gold', 'violet', 'jungle'];
+  var ACCENT_LABELS = { gold: 'Savanna Gold', violet: 'Twilight Violet', jungle: 'Jungle Teal' };
+  function applyAccent(accent) {
+    document.body.setAttribute('data-accent', accent);
+    localStorage.setItem('sysfoo_accent', accent);
+  }
+  function cycleAccent() {
+    var current = localStorage.getItem('sysfoo_accent') || 'gold';
+    var next = ACCENTS[(ACCENTS.indexOf(current) + 1) % ACCENTS.length];
+    applyAccent(next);
+    updateAccentUI();
+    showToast('Accent · ' + ACCENT_LABELS[next], 'info');
+  }
+  applyAccent(localStorage.getItem('sysfoo_accent') || 'gold');
+
+  // ── Accent picker (Settings → Appearance) ───────────────────────────────────
+  // Direct-select counterpart to the header's cycleAccent() — both write the
+  // same localStorage key, so whichever one the person used last is what the
+  // other reflects. updateAccentUI() just paints the current selection; called
+  // on boot and after either control changes it.
+  function setAccent(accent) {
+    applyAccent(accent);
+    updateAccentUI();
+    showToast('Accent · ' + ACCENT_LABELS[accent], 'info');
+  }
+  function updateAccentUI() {
+    var current = localStorage.getItem('sysfoo_accent') || 'gold';
+    document.querySelectorAll('.accent-swatch').forEach(function(btn) {
+      btn.classList.toggle('active', btn.dataset.accent === current);
+    });
+  }
+  updateAccentUI();
+
+  // ── Top-nav views ────────────────────────────────────────────────────────────
+  // The dashboard used to be one long scrolling page; it's now split into named
+  // views (Home / Tasks / Posts / Settings / Profile) toggled by the top nav.
+  // The current view lives in the URL hash so it survives a refresh and works
+  // with the browser's back/forward buttons.
+  var VIEWS = ['home', 'tasks', 'posts', 'settings', 'profile'];
+
+  function applyView(view) {
+    if (VIEWS.indexOf(view) === -1) view = 'home';
+    VIEWS.forEach(function(v) {
+      var section = document.getElementById('view-' + v);
+      var link = document.getElementById('nav-' + v);
+      if (section) section.classList.toggle('active', v === view);
+      if (link) link.classList.toggle('active', v === view);
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (view === 'profile') loadProfile();
+  }
+
+  function switchView(view) {
+    if ((location.hash || '').slice(1) === view) { applyView(view); return; }
+    location.hash = view;
+  }
+
+  window.addEventListener('hashchange', function() {
+    applyView((location.hash || '').slice(1) || 'home');
+  });
+
+  // ── Auth ───────────────────────────────────────────────────────────────────
+  // This page requires a signed-in session. checkAuth() resolves before anything
+  // else runs (see boot, at the bottom): if there's no valid session it sends the
+  // user to the dedicated login page instead of rendering the dashboard.
+  function goToLogin() {
+    var here = encodeURIComponent(window.location.pathname + window.location.search);
+    window.location.href = 'login.html?redirect=' + here;
+  }
+
+  function checkAuth() {
+    return fetch('/api/auth/me')
+      .then(function(r) { if (!r.ok) throw new Error('unauthenticated'); return r.json(); })
+      .then(function(d) {
+        auth = { loggedIn: true, username: d.username, displayName: d.displayName };
+        updateAuthUI();
+      })
+      .catch(function() {
+        goToLogin();
+        return Promise.reject(new Error('redirecting'));
+      });
+  }
+
+  function updateAuthUI() {
+    var area = document.getElementById('auth-area');
+    var label = auth.displayName || auth.username;
+    area.innerHTML =
+      '<div class="user-chip clickable" onclick="switchView(\'profile\')" title="View your profile"><span class="user-chip-avatar">' + escapeHtml(label.charAt(0).toUpperCase()) + '</span><span>' + escapeHtml(label) + '</span></div>' +
+      '<button class="auth-btn ghost" onclick="logout()">Sign Out</button>';
+
+    // ENHANCEMENT: personalizes the Home hero once we know who's signed in,
+    // instead of the page reading the same for everyone.
+    var greeting = document.getElementById('hero-greeting');
+    if (greeting) greeting.textContent = 'Welcome back, ' + label + ' — here\'s what the pride has been up to.';
+  }
+
+  // ENHANCEMENT ("in user profile if click it i need to get all the user
+  // info"): the user chip above (and the Profile nav tab) opens the Profile
+  // view, populated from GET /api/users/me/profile (full profile — email,
+  // member-since date, task counts) rather than the small /api/auth/me the
+  // header itself uses.
+  function loadProfile() {
+    fetch('/api/users/me/profile')
+      .then(function(r) { if (!r.ok) throw new Error('profile'); return r.json(); })
+      .then(function(p) {
+        var label = p.displayName || p.username;
+        document.getElementById('profile-avatar').textContent = label.charAt(0).toUpperCase();
+        document.getElementById('profile-name').textContent = label;
+        document.getElementById('profile-username-line').textContent = '@' + p.username;
+        document.getElementById('profile-email').textContent = p.email || '—';
+        document.getElementById('profile-created').textContent = p.createdAt ? formatDate(new Date(p.createdAt).getTime()) : '—';
+        document.getElementById('profile-tasks-created').textContent = p.tasksCreated;
+        document.getElementById('profile-tasks-assigned').textContent = p.tasksAssigned;
+      })
+      .catch(function() { showToast('Could not load your profile', 'error'); });
+  }
+
+  function logout() {
+    fetch('/api/auth/logout', { method: 'POST' })
+      .then(function() { window.location.href = 'login.html'; })
+      .catch(function() { window.location.href = 'login.html'; });
+  }
+
+  // ── User directory (assignee picker) ────────────────────────────────────────
+  // ENHANCEMENT: populates the "Assigned To" dropdown in the Task Manager —
+  // includes the signed-in user themselves ("(You)") alongside everyone else
+  // with an account, per "assignee name should get automatically including
+  // me name and other name also". See UserController for the endpoint.
+  function loadUsers() {
+    return fetch('/api/users')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        users = data;
+        var select = document.getElementById('todo-assignee');
+        var current = select.value;
+        select.innerHTML = '<option value="">Unassigned</option>' + users.map(function(u) {
+          var label = u.displayName + (u.username === auth.username ? ' (You)' : '');
+          return '<option value="' + escapeAttr(u.username) + '">' + escapeHtml(label) + '</option>';
+        }).join('');
+        if (current) select.value = current;
+        updateAssigneeEmail();
+        renderHomeOverview();
+      })
+      .catch(function() { showToast('Could not load the user directory', 'error'); });
+  }
+
+  // ENHANCEMENT ("if we select user automatically email should need to get
+  // update"): the notify-email field is read-only and always mirrors
+  // whichever user is currently selected — never typed by hand (see
+  // Todo.java / TodoController for why: it closes an arbitrary-recipient
+  // abuse vector, since the email now always comes from a real account).
+  function updateAssigneeEmail() {
+    var username = document.getElementById('todo-assignee').value;
+    var emailInput = document.getElementById('todo-email');
+    var user = users.find(function(u) { return u.username === username; });
+    emailInput.value = (user && user.email) ? user.email : '';
+  }
+
+  // ── Posts ──────────────────────────────────────────────────────────────────
+  function loadPosts(opts) {
+    opts = opts || {};
+    fetch('/api/posts')
+      .then(function(r) { return r.json(); })
+      .then(function(data) { posts = data; renderPosts(); })
+      .catch(function() { if (!opts.silent) showToast('Could not load the watering hole board', 'error'); });
+  }
+
+  function renderPosts() {
+    var grid = document.getElementById('post-grid');
+    var empty = document.getElementById('post-empty');
+    if (posts.length === 0) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
+    empty.style.display = 'none';
+    grid.innerHTML = posts.map(function(p) {
+      var attachments = p.attachments || [];
+      var imageAttachment = attachments.find(function(a) { return a.contentType && a.contentType.indexOf('image/') === 0; });
+      var fileAttachments = attachments.filter(function(a) { return !a.contentType || a.contentType.indexOf('image/') !== 0; });
+
+      // ENHANCEMENT: an uploaded image takes priority over a pasted URL if
+      // both are present — either way, both entry methods ("image upload
+      // and both") end up rendering the same way.
+      var imgSrc = imageAttachment ? ('/api/files/' + imageAttachment.id) : p.imageUrl;
+      var img = imgSrc
+        ? '<div class="post-img" data-img="' + escapeAttr(imgSrc) + '"></div>'
+        : '<div class="post-img-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>';
+      var createdMs = p.createdAt ? new Date(p.createdAt).getTime() : NaN;
+      var dateStr = !isNaN(createdMs) ? formatDate(createdMs) : '';
+      var dateSpan = !isNaN(createdMs)
+        ? '<span class="post-date" data-ts="' + createdMs + '" title="' + escapeAttr(dateStr) + '">' + relTime(createdMs) + '</span>'
+        : '<span class="post-date"></span>';
+      var fileChips = fileAttachments.map(function(a) {
+        return '<a class="attachment-chip post-attachment-chip" href="/api/files/' + a.id + '" target="_blank" rel="noopener">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>' +
+          escapeHtml(a.originalFilename) +
+        '</a>';
+      }).join('');
+      return '<article class="post-card">' + img +
+        '<div class="post-body">' +
+          '<h3 class="post-title">' + escapeHtml(p.title) + '</h3>' +
+          '<p class="post-content">' + escapeHtml(p.content) + '</p>' +
+          fileChips +
+          '<div class="post-meta">' +
+            '<span class="post-author"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>' + escapeHtml(p.author) + '</span>' +
+            dateSpan +
+          '</div>' +
+        '</div>' +
+      '</article>';
+    }).join('');
+
+    // Set background images via the CSSOM (not string-concatenated CSS) so an
+    // apostrophe or other quote character in the URL can never break out of a
+    // hand-built style string — see BUG FIX note above.
+    grid.querySelectorAll('.post-img[data-img]').forEach(function(el) {
+      el.style.backgroundImage = 'url(' + JSON.stringify(el.dataset.img) + ')';
+    });
+
+    renderHomeOverview();
+  }
+
+  // ENHANCEMENT: gives the upload label some visual feedback once a file is
+  // picked, since a native file input's own placeholder text doesn't update.
+  function handlePostFilePick(inputEl, labelId, textId, pickedLabel) {
+    var label = document.getElementById(labelId);
+    var text = document.getElementById(textId);
+    var file = inputEl.files[0];
+    if (file) {
+      if (file.size > 20 * 1024 * 1024) { showToast('File exceeds the 20MB limit', 'error'); inputEl.value = ''; return; }
+      label.classList.add('has-file');
+      text.textContent = pickedLabel + ': ' + file.name;
+    } else {
+      label.classList.remove('has-file');
+      text.textContent = pickedLabel.indexOf('Image') === 0 ? 'Or upload an image' : 'Attach a file (optional)';
+    }
+  }
+
+  function resetPostUploadLabels() {
+    ['post-image-file', 'post-file'].forEach(function(id) { document.getElementById(id).value = ''; });
+    document.getElementById('post-image-file-label').classList.remove('has-file');
+    document.getElementById('post-image-file-text').textContent = 'Or upload an image';
+    document.getElementById('post-file-label').classList.remove('has-file');
+    document.getElementById('post-file-text').textContent = 'Attach a file (optional)';
+  }
+
+  // ENHANCEMENT: switched from a JSON body to multipart/form-data so a post
+  // can carry an uploaded image and/or a separate general file, alongside
+  // (or instead of) the existing image URL field — see PostController.
+  function submitPost(e) {
+    e.preventDefault();
+    if (!auth.loggedIn) { goToLogin(); return; }
+
+    var titleInput = document.getElementById('post-title');
+    var contentInput = document.getElementById('post-content');
+    var imageUrlInput = document.getElementById('post-image');
+    var imageFileInput = document.getElementById('post-image-file');
+    var fileInput = document.getElementById('post-file');
+    var title = titleInput.value.trim();
+    var content = contentInput.value.trim();
+    var imageUrl = imageUrlInput.value.trim();
+
+    if (!title || !content) { showToast('Title and content are required', 'error'); return; }
+
+    var btn = document.getElementById('add-post-btn');
+    btn.disabled = true;
+
+    var formData = new FormData();
+    formData.append('title', title);
+    formData.append('content', content);
+    if (imageUrl) formData.append('imageUrl', imageUrl);
+    if (imageFileInput.files[0]) formData.append('image', imageFileInput.files[0]);
+    if (fileInput.files[0]) formData.append('file', fileInput.files[0]);
+
+    fetch('/api/posts', { method: 'POST', body: formData })
+      .then(function(r) {
+        if (r.status === 401) { goToLogin(); throw new Error('auth'); }
+        return r.json().then(function(d) { return { ok: r.ok, data: d }; });
+      })
+      .then(function(res) {
+        if (!res.ok) { showToast(res.data.message || 'Failed to post', 'error'); return; }
+        posts.unshift(res.data);
+        renderPosts();
+        document.getElementById('post-form').reset();
+        resetPostUploadLabels();
+        showToast('Posted to the watering hole', 'success');
+      })
+      .catch(function(err) { if (err.message !== 'auth') showToast('Failed to post — is the DB connected?', 'error'); })
+      .finally(function() { btn.disabled = false; });
+  }
+
+  // ── Email settings (Settings view) ──────────────────────────────────────────
+  function sendTestEmail() {
+    if (!auth.loggedIn) { goToLogin(); return; }
+    var me = users.find(function(u) { return u.username === auth.username; });
+    var email = me && me.email;
+    if (!email) { showToast('Your account has no email on file', 'error'); return; }
+    callNotifyAPI({
+      to: email, subject: '[Sysfoo] Test Notification',
+      taskText: 'This is a test notification from your Sysfoo Dashboard.',
+      name: auth.displayName || auth.username, priority: 'low', time: formatTime(Date.now())
+    })
+      .then(function() { showToast('Test email sent to ' + email, 'success'); })
+      .catch(function() { showToast('Test email failed — check /api/notify backend', 'error'); });
+  }
+
+  function isValidEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+
+  function callNotifyAPI(payload) {
+    return fetch('/api/notify', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+    }).then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    });
+  }
+
+  function sendEmailNotification(todo) {
+    if (!todo.email || !isValidEmail(todo.email)) return;
+    todo.emailStatus = 'sending';
+    renderTodos();
+    callNotifyAPI({
+      to: todo.email, subject: '[Sysfoo] New Task Assigned: ' + todo.text,
+      taskText: todo.text, name: todo.name || 'Team', priority: todo.priority,
+      time: todo.time, date: todo.date
+    })
+      .then(function() { todo.emailStatus = 'sent'; renderTodos(); showToast('📧 Notification sent → ' + todo.email, 'success'); })
+      .catch(function() { todo.emailStatus = 'failed'; renderTodos(); showToast('Mail failed — check backend /api/notify', 'error'); });
+  }
+
+  // ── Priority selector ────────────────────────────────────────────────────────
+  function selectPriority(p) {
+    selectedPriority = p;
+    document.querySelectorAll('.priority-btn').forEach(function(btn) {
+      btn.className = 'priority-btn';
+      btn.setAttribute('aria-pressed', btn.dataset.p === p ? 'true' : 'false');
+      if (btn.dataset.p === p) btn.classList.add('sel-' + p);
+    });
+  }
+
+  // ── Toast ────────────────────────────────────────────────────────────────────
   function showToast(msg, type) {
     type = type || 'info';
     var icons = {
@@ -479,7 +1741,7 @@
     };
     var el = document.createElement('div');
     el.className = 'toast ' + type;
-    el.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">' + icons[type] + '</svg>' + msg;
+    el.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">' + icons[type] + '</svg>' + escapeHtml(msg);
     document.getElementById('toast-container').appendChild(el);
     setTimeout(function() {
       el.classList.add('removing');
@@ -487,18 +1749,40 @@
     }, 2800);
   }
 
+  // ── Clock & uptime ───────────────────────────────────────────────────────────
   function updateClock() {
     var now = new Date();
     document.getElementById('clock').textContent = now.toLocaleTimeString('en-GB');
     var sec = Math.floor((Date.now() - sessionStart) / 1000);
     var h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
-    document.getElementById('page-uptime').textContent = h ? h+'h '+m+'m '+s+'s' : m ? m+'m '+s+'s' : s+'s';
+    document.getElementById('page-uptime').textContent = h ? h + 'h ' + m + 'm ' + s + 's' : m ? m + 'm ' + s + 's' : s + 's';
   }
 
-  function formatTime(ts) {
-    return new Date(ts).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  function formatTime(ts) { return new Date(ts).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }); }
+  function formatDate(ts) { return new Date(ts).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }); }
+
+  // ── Relative "time ago" — live-updated, see updateRelativeTimes() ───────────
+  function relTime(ms) {
+    var diff = Math.max(0, Date.now() - ms);
+    var s = Math.floor(diff / 1000);
+    if (s < 5) return 'just now';
+    if (s < 60) return s + 's ago';
+    var m = Math.floor(s / 60);
+    if (m < 60) return m + 'm ago';
+    var h = Math.floor(m / 60);
+    if (h < 24) return h + 'h ago';
+    var d = Math.floor(h / 24);
+    if (d < 7) return d + 'd ago';
+    return Math.floor(d / 7) + 'w ago';
+  }
+  function updateRelativeTimes() {
+    document.querySelectorAll('[data-ts]').forEach(function(el) {
+      var ts = Number(el.dataset.ts);
+      if (ts > 0) el.textContent = relTime(ts);
+    });
   }
 
+  // ── Countdown ring ───────────────────────────────────────────────────────────
   function updateCountdown(seconds) {
     var frac = seconds / refreshSeconds;
     document.getElementById('countdown-progress').style.strokeDashoffset = CIRCUMFERENCE * (1 - frac);
@@ -516,21 +1800,141 @@
     }, 1000);
   }
 
+  // ── Clipboard & escaping ─────────────────────────────────────────────────────
   function copyToClipboard(text) {
     navigator.clipboard.writeText(text).then(function() { showToast('Copied to clipboard', 'success'); });
   }
 
   function escapeHtml(s) {
-    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    if (!s) return '';
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function escapeAttr(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g, '&amp;').replace(/'/g, '&#39;').replace(/"/g, '&quot;');
   }
 
+  // ── Progress bar update ──────────────────────────────────────────────────────
+  function updateProgress() {
+    var total = todos.length;
+    var done = todos.filter(function(t) { return t.done; }).length;
+    var active = total - done;
+    var high = todos.filter(function(t) { return t.priority === 'high' && !t.done; }).length;
+    var pct = total === 0 ? 0 : Math.round(done / total * 100);
+
+    document.getElementById('progress-pct').textContent = pct + '%';
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('chip-total').textContent = total;
+    document.getElementById('chip-active').textContent = active;
+    document.getElementById('chip-done').textContent = done;
+    document.getElementById('chip-high').textContent = high;
+
+    renderHomeOverview();
+  }
+
+  // ── Home overview ────────────────────────────────────────────────────────────
+  // ENHANCEMENT: Home's three cards used to just mirror server/ops diagnostics.
+  // This reuses the same todos/posts/users already held in memory for the
+  // Tasks/Posts/Profile views — no new endpoints — to give Home a live summary
+  // of what people actually come to the app for, each with a way straight in.
+  // Called whenever any of those three collections changes (see updateProgress,
+  // renderPosts, loadUsers) so it never needs its own refresh timer.
+  function renderHomeOverview() {
+    var total = todos.length;
+    var done = todos.filter(function(t) { return t.done; }).length;
+    var active = total - done;
+    var high = todos.filter(function(t) { return t.priority === 'high' && !t.done; }).length;
+    var pct = total === 0 ? 0 : Math.round(done / total * 100);
+    document.getElementById('home-task-pct').textContent = pct + '%';
+    document.getElementById('home-task-active').textContent = active;
+    document.getElementById('home-task-high').textContent = high;
+
+    document.getElementById('home-post-count').textContent = posts.length;
+    var latestPostEl = document.getElementById('home-latest-post');
+    if (posts.length === 0) {
+      latestPostEl.className = 'overview-empty';
+      latestPostEl.textContent = 'No posts yet — be the first to share something.';
+    } else {
+      var latest = posts[0]; // server returns newest-first (findAllByOrderByCreatedAtDesc)
+      var preview = latest.content.length > 90 ? latest.content.slice(0, 90) + '…' : latest.content;
+      var createdMs = latest.createdAt ? new Date(latest.createdAt).getTime() : NaN;
+      latestPostEl.className = 'overview-preview';
+      latestPostEl.innerHTML =
+        '<div class="overview-preview-title">' + escapeHtml(latest.title) + '</div>' +
+        '<div>' + escapeHtml(preview) + '</div>' +
+        '<div class="overview-preview-meta"><span>' + escapeHtml(latest.author) + '</span>' +
+          (!isNaN(createdMs) ? '<span>· <span data-ts="' + createdMs + '">' + relTime(createdMs) + '</span></span>' : '') +
+        '</div>';
+    }
+
+    document.getElementById('home-team-count').textContent = users.length;
+    var avatarsEl = document.getElementById('home-team-avatars');
+    var shown = users.slice(0, 5);
+    avatarsEl.innerHTML = shown.map(function(u) {
+      var label = u.displayName || u.username;
+      return '<span class="overview-avatar" title="' + escapeAttr(label) + '">' + escapeHtml(label.charAt(0).toUpperCase()) + '</span>';
+    }).join('') + (users.length > shown.length ? '<span class="overview-more">+' + (users.length - shown.length) + ' more</span>' : '');
+
+    renderRecentActivity();
+  }
+
+  // ── Recent activity feed ─────────────────────────────────────────────────────
+  // Merges tasks and posts into one timeline sorted by createdAt — a quick
+  // "what changed" glance that neither the Tasks nor Posts view gives on its
+  // own since each only shows its own kind of item.
+  function renderRecentActivity() {
+    var items = [];
+    todos.forEach(function(t) {
+      if (!t.createdAt) return;
+      var ts = new Date(t.createdAt).getTime();
+      var who = t.name ? ' for ' + escapeHtml(t.name) : '';
+      items.push({
+        ts: ts, done: t.done, type: 'task',
+        text: (t.done ? 'Completed task ' : 'Added task ') + '<b>' + escapeHtml(t.text) + '</b>' + who
+      });
+    });
+    posts.forEach(function(p) {
+      if (!p.createdAt) return;
+      var ts = new Date(p.createdAt).getTime();
+      items.push({
+        ts: ts, type: 'post',
+        text: escapeHtml(p.author) + ' posted <b>' + escapeHtml(p.title) + '</b>'
+      });
+    });
+    items.sort(function(a, b) { return b.ts - a.ts; });
+    items = items.slice(0, 6);
+
+    var listEl = document.getElementById('home-activity-list');
+    var emptyEl = document.getElementById('home-activity-empty');
+    if (items.length === 0) {
+      listEl.innerHTML = '';
+      emptyEl.style.display = 'block';
+      return;
+    }
+    emptyEl.style.display = 'none';
+    listEl.innerHTML = items.map(function(i) {
+      var iconCls = i.type === 'task' ? ('activity-icon task' + (i.done ? ' done' : '')) : 'activity-icon post';
+      var icon = i.type === 'task'
+        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>'
+        : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
+      return '<div class="activity-item">' +
+        '<div class="' + iconCls + '">' + icon + '</div>' +
+        '<div class="activity-body">' +
+          '<div class="activity-text">' + i.text + '</div>' +
+          '<div class="activity-meta" data-ts="' + i.ts + '">' + relTime(i.ts) + '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  // ── System info ──────────────────────────────────────────────────────────────
   function renderSystemInfo(data) {
     var rows = [
-      { key: 'Hostname',   val: data.Hostname,                       copy: true },
-      { key: 'IP Address', val: data['IP Address'],                   copy: true },
-      { key: 'Docker',     badge: data['Running in Docker'],          label: 'Docker' },
-      { key: 'Kubernetes', badge: data['Running in Kubernetes'],      label: 'Kubernetes' },
-      { key: 'Version',    val: data['App Version'],                  copy: false }
+      { key: 'Hostname', val: data.Hostname, copy: true },
+      { key: 'IP Address', val: data['IP Address'], copy: true },
+      { key: 'Docker', badge: data['Running in Docker'] },
+      { key: 'Kubernetes', badge: data['Running in Kubernetes'] },
+      { key: 'Version', val: data['App Version'], copy: false }
     ];
     var html = '';
     rows.forEach(function(r) {
@@ -539,7 +1943,7 @@
         var txt = r.badge ? 'Running' : 'Not detected';
         html += '<div class="stat-row"><span class="stat-key">' + r.key + '</span><span class="stat-val"><span class="badge ' + cls + '">' + txt + '</span></span></div>';
       } else {
-        var copyHtml = r.copy ? '<button class="copy-btn" onclick="copyToClipboard(\'' + escapeHtml(r.val) + '\')" title="Copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>' : '';
+        var copyHtml = r.copy ? '<button class="copy-btn" data-copy="' + escapeAttr(r.val) + '" title="Copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>' : '';
         html += '<div class="stat-row"><span class="stat-key">' + r.key + '</span><span class="stat-val">' + escapeHtml(r.val) + copyHtml + '</span></div>';
       }
     });
@@ -548,21 +1952,10 @@
   }
 
   function fetchSystemInfo() {
-    document.getElementById('sysinfo-loading').style.display = 'block';
     fetch('/system-info')
       .then(function(r) { return r.json(); })
-      .then(function(data) {
-        renderSystemInfo(data);
-        document.getElementById('sysinfo-loading').style.display = 'none';
-      })
-      .catch(function() {
-        document.getElementById('sysinfo-loading').style.display = 'none';
-        showToast('Failed to load system info', 'error');
-      });
-    fetch('/version')
-      .then(function(r) { return r.text(); })
-      .then(function(v) { document.getElementById('app-version').textContent = 'v' + v; })
-      .catch(function() {});
+      .then(function(data) { renderSystemInfo(data); })
+      .catch(function() { showToast('Failed to load system info', 'error'); });
   }
 
   function fetchDatabaseInfo() {
@@ -584,128 +1977,669 @@
       });
   }
 
-  function renderTodos() {
+  // ── Todo rendering ───────────────────────────────────────────────────────────
+  function getSortedFiltered() {
+    var query = (document.getElementById('todo-search').value || '').toLowerCase().trim();
     var filtered = todos.filter(function(t) {
       if (filter === 'active') return !t.done;
-      if (filter === 'done')   return t.done;
+      if (filter === 'done') return t.done;
+      if (filter === 'high') return t.priority === 'high' && !t.done;
       return true;
+    }).filter(function(t) {
+      if (!query) return true;
+      return t.text.toLowerCase().includes(query) || (t.name || '').toLowerCase().includes(query);
     });
-    var list  = document.getElementById('todo-list');
+
+    var sort = document.getElementById('todo-sort').value;
+    filtered.sort(function(a, b) {
+      if (sort === 'oldest') return a.createdAt - b.createdAt;
+      if (sort === 'priority') return PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority];
+      if (sort === 'name') return (a.name || '').localeCompare(b.name || '');
+      return b.createdAt - a.createdAt;
+    });
+    return filtered;
+  }
+
+  function renderTodos() {
+    var filtered = getSortedFiltered();
+    var list = document.getElementById('todo-list');
     var empty = document.getElementById('todo-empty');
     var count = document.getElementById('todo-count');
     var active = todos.filter(function(t) { return !t.done; }).length;
     count.textContent = todos.length + ' task' + (todos.length !== 1 ? 's' : '') + ' · ' + active + ' active';
+
+    updateProgress();
+
     if (filtered.length === 0) { list.innerHTML = ''; empty.style.display = 'block'; return; }
     empty.style.display = 'none';
+
     list.innerHTML = filtered.map(function(todo) {
+      var nameTag = todo.editingAssignee
+        ? '<select class="todo-assignee-select" id="assignee-edit-' + todo.localId + '" style="width:auto;flex-shrink:0;" onchange="saveAssigneeChange(' + todo.localId + ')" onblur="cancelAssigneeEdit(' + todo.localId + ')">' +
+            '<option value="">Unassigned</option>' +
+            users.map(function(u) {
+              var label = u.displayName + (u.username === auth.username ? ' (You)' : '');
+              var sel = u.username === todo.assigneeUsername ? ' selected' : '';
+              return '<option value="' + escapeAttr(u.username) + '"' + sel + '>' + escapeHtml(label) + '</option>';
+            }).join('') +
+          '</select>'
+        : '<span class="todo-name-tag" onclick="startEditAssignee(' + todo.localId + ')" title="Click to reassign" style="cursor:pointer;">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>' +
+            (todo.name ? escapeHtml(todo.name) : 'Unassigned') +
+          '</span>';
+      var priTag = '<span class="todo-priority ' + todo.priority + '">' + todo.priority + '</span>';
+      var doneTag = '<span class="done-badge">completed</span>';
+      var dateStr = todo.date ? todo.date + ' · ' : '';
+
+      var emailBadge = '';
+      if (todo.email) {
+        if (todo.emailStatus === 'sending') {
+          emailBadge = '<span class="email-badge sending"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" class="spin-sm"><path d="M21 12a9 9 0 1 1-6.22-8.56"/></svg>Sending…</span>';
+        } else if (todo.emailStatus === 'sent') {
+          emailBadge = '<span class="email-badge sent" title="Notification sent to ' + escapeAttr(todo.email) + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>Notified</span>';
+        } else if (todo.emailStatus === 'failed') {
+          emailBadge = '<span class="email-badge failed" title="Failed to send to ' + escapeAttr(todo.email) + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>Mail failed</span>';
+        }
+      }
+
+      var isCreator = todo.createdByUsername === auth.username;
+      var deleteBtn = isCreator
+        ? '<button class="action-btn del-btn" onclick="deleteTodo(' + todo.localId + ')" title="Delete task">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg><span>Remove</span>' +
+          '</button>'
+        : '';
+
       return '<li class="todo-item ' + (todo.done ? 'done' : '') + '" id="todo-' + todo.localId + '">' +
-        '<div class="todo-check" onclick="toggleTodo(' + todo.localId + ')">' +
-          '<svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>' +
+        '<div class="todo-item-left">' +
+          '<button class="complete-btn" onclick="toggleTodo(' + todo.localId + ', event)" title="' + (todo.done ? 'Mark as active' : 'Mark as complete') + '">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>' +
+          '</button>' +
         '</div>' +
-        '<span class="todo-text" onclick="toggleTodo(' + todo.localId + ')">' + escapeHtml(todo.text) + '</span>' +
-        '<span class="todo-timestamp">' + todo.time + '</span>' +
-        '<button class="todo-del" onclick="deleteTodo(' + todo.localId + ')" title="Delete">' +
-          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>' +
-        '</button>' +
+        '<div class="todo-body">' +
+          '<div class="todo-header-row">' + nameTag + priTag + doneTag + '</div>' +
+          (todo.editing
+            ? '<input class="todo-edit-input" id="edit-input-' + todo.localId + '" value="' + escapeAttr(todo.text) + '" onblur="saveEdit(' + todo.localId + ')" onkeydown="handleEditKey(event,' + todo.localId + ')" />'
+            : '<div class="todo-text">' + escapeHtml(todo.text) + '</div>'
+          ) +
+          '<div class="todo-footer-row"><span class="todo-timestamp">' + dateStr + todo.time + '</span>' +
+          '<span class="todo-relative" data-ts="' + todo.createdAt + '">' + relTime(todo.createdAt) + '</span>' + emailBadge + '</div>' +
+          '<div>' +
+            '<button class="todo-extras-toggle' + (todo.extrasOpen ? ' open' : '') + '" id="extras-toggle-' + todo.localId + '" onclick="toggleTodoExtras(' + todo.localId + ', ' + todo.id + ')">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' +
+              'Comments &amp; Files' +
+            '</button>' +
+          '</div>' +
+          '<div class="todo-extras-panel' + (todo.extrasOpen ? ' open' : '') + '" id="extras-' + todo.localId + '">' +
+            '<div class="comment-list" id="comment-list-' + todo.localId + '"></div>' +
+            '<div class="comment-add-row">' +
+              '<input type="text" class="todo-input" id="comment-input-' + todo.localId + '" placeholder="Add a comment…" maxlength="2000" onkeydown="if(event.key===\'Enter\'){addTodoComment(' + todo.localId + ',' + todo.id + ')}" />' +
+              '<button onclick="addTodoComment(' + todo.localId + ',' + todo.id + ')">Post</button>' +
+            '</div>' +
+            '<div class="attachment-list" id="attachment-list-' + todo.localId + '"></div>' +
+            '<div class="attachment-upload-row">' +
+              '<label class="attachment-upload-label">' +
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>' +
+                'Attach .txt or .zip' +
+                '<input type="file" accept=".txt,.zip" style="display:none" onchange="uploadTodoAttachment(' + todo.localId + ',' + todo.id + ',this)" />' +
+              '</label>' +
+              '<span class="attachment-upload-hint">Max 20MB</span>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="todo-item-actions">' +
+          '<button class="action-btn edit-btn" onclick="startEdit(' + todo.localId + ')" title="Edit task">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg><span>Edit</span>' +
+          '</button>' +
+          deleteBtn +
+        '</div>' +
       '</li>';
+    }).join('');
+
+    filtered.forEach(function(todo) {
+      if (todo.editing) {
+        var inp = document.getElementById('edit-input-' + todo.localId);
+        if (inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+      }
+      if (todo.editingAssignee) {
+        var sel = document.getElementById('assignee-edit-' + todo.localId);
+        if (sel) sel.focus();
+      }
+      // The panel's "open" class survives the rebuild (see extrasOpen above),
+      // but its contents don't — comment-list/attachment-list are freshly
+      // empty <div>s again. Refill them so an open panel never renders blank.
+      // refreshTodoExtras throttles this so typing in the search box (which
+      // also calls renderTodos() on every keystroke) doesn't refetch on
+      // every single keypress.
+      if (todo.extrasOpen) refreshTodoExtras(todo);
+    });
+  }
+
+  function refreshTodoExtras(todo) {
+    if (!todo.id) return;
+    var now = Date.now();
+    if (todo.extrasFetchedAt && now - todo.extrasFetchedAt < 2000) return;
+    todo.extrasFetchedAt = now;
+    loadTodoComments(todo.localId, todo.id);
+    loadTodoAttachments(todo.localId, todo.id);
+  }
+
+  // ── Comments & attachments (per task) ────────────────────────────────────────
+  // ENHANCEMENT: "if assignee want to add comment or upload a file... can
+  // have it" — implemented for both the creator and the assignee (the only
+  // two people who can see the task at all; see canAccess() on the backend).
+  function toggleTodoExtras(localId, todoId) {
+    var panel = document.getElementById('extras-' + localId);
+    var toggleBtn = document.getElementById('extras-toggle-' + localId);
+    var opening = !panel.classList.contains('open');
+    panel.classList.toggle('open', opening);
+    if (toggleBtn) toggleBtn.classList.toggle('open', opening);
+    // BUG FIX ("updating a comment causes an automatic refresh that resets
+    // everything"): the periodic 30s auto-refresh (startAutoRefresh) calls
+    // renderTodos(), which rebuilds every task row's HTML from scratch. That
+    // used to always rebuild this panel closed, silently collapsing it out
+    // from under anyone who had it open — mid-comment or not. Tracking the
+    // open state on the todo itself (not just the DOM) lets renderTodos()
+    // rebuild it back open again; see the "extrasOpen" reads below.
+    var t = todos.find(function(x) { return x.localId === localId; });
+    if (t) t.extrasOpen = opening;
+    if (opening && t) refreshTodoExtras(t);
+  }
+
+  function loadTodoComments(localId, todoId) {
+    var list = document.getElementById('comment-list-' + localId);
+    list.innerHTML = '<div class="comment-empty">Loading…</div>';
+    fetch('/todos/' + todoId + '/comments')
+      .then(function(r) { return r.json(); })
+      .then(function(comments) {
+        if (comments.length === 0) { list.innerHTML = '<div class="comment-empty">No comments yet</div>'; return; }
+        list.innerHTML = comments.map(function(c) {
+          return '<div class="comment-item">' +
+            '<div class="comment-item-head"><span class="comment-item-author">' + escapeHtml(c.authorDisplayName) + '</span><span data-ts="' + new Date(c.createdAt).getTime() + '">' + relTime(new Date(c.createdAt).getTime()) + '</span></div>' +
+            '<div class="comment-item-text">' + escapeHtml(c.text) + '</div>' +
+          '</div>';
+        }).join('');
+      })
+      .catch(function() { list.innerHTML = '<div class="comment-empty">Could not load comments</div>'; });
+  }
+
+  function addTodoComment(localId, todoId) {
+    var input = document.getElementById('comment-input-' + localId);
+    var text = input.value.trim();
+    if (!text) return;
+    fetch('/todos/' + todoId + '/comments', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: text })
+    })
+      .then(function(r) {
+        if (r.status === 401) { goToLogin(); throw new Error('auth'); }
+        return r.json().then(function(d) { return { ok: r.ok, data: d }; });
+      })
+      .then(function(res) {
+        if (!res.ok) { showToast(res.data.message || 'Could not post comment', 'error'); return; }
+        input.value = '';
+        loadTodoComments(localId, todoId);
+      })
+      .catch(function(err) { if (err.message !== 'auth') showToast('Could not post comment', 'error'); });
+  }
+
+  function loadTodoAttachments(localId, todoId) {
+    var list = document.getElementById('attachment-list-' + localId);
+    fetch('/todos/' + todoId + '/attachments')
+      .then(function(r) { return r.json(); })
+      .then(function(attachments) { renderAttachmentChips(list, attachments); })
+      .catch(function() { list.innerHTML = ''; });
+  }
+
+  function renderAttachmentChips(listEl, attachments) {
+    listEl.innerHTML = attachments.map(function(a) {
+      return '<a class="attachment-chip" href="/api/files/' + a.id + '" target="_blank" rel="noopener">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>' +
+        escapeHtml(a.originalFilename) +
+      '</a>';
     }).join('');
   }
 
-  function addTodo() {
-    var input = document.getElementById('todo-text');
-    var text = input.value.trim();
-    if (!text) { input.focus(); return; }
-    var btn = document.getElementById('add-todo-btn');
-    btn.disabled = true;
-    fetch('/todos', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: text })
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      todos.push({ localId: localIdCounter++, id: data.id, text: data.text, done: false, time: formatTime(Date.now()) });
-      input.value = '';
-      renderTodos();
-      showToast('Task added', 'success');
-    })
-    .catch(function() { showToast('Failed to add task', 'error'); })
-    .finally(function() { btn.disabled = false; input.focus(); });
+  function uploadTodoAttachment(localId, todoId, inputEl) {
+    var file = inputEl.files[0];
+    if (!file) return;
+    if (file.size > 20 * 1024 * 1024) { showToast('File exceeds the 20MB limit', 'error'); inputEl.value = ''; return; }
+    var formData = new FormData();
+    formData.append('file', file);
+    fetch('/todos/' + todoId + '/attachments', { method: 'POST', body: formData })
+      .then(function(r) {
+        if (r.status === 401) { goToLogin(); throw new Error('auth'); }
+        return r.json().then(function(d) { return { ok: r.ok, data: d }; });
+      })
+      .then(function(res) {
+        if (!res.ok) { showToast(res.data.message || 'Upload failed', 'error'); return; }
+        showToast('File attached', 'success');
+        loadTodoAttachments(localId, todoId);
+      })
+      .catch(function(err) { if (err.message !== 'auth') showToast('Upload failed', 'error'); })
+      .finally(function() { inputEl.value = ''; });
   }
 
-  function toggleTodo(localId) {
+  // ── Ripple effect on complete ────────────────────────────────────────────────
+  function addRipple(btn) {
+    var ripple = document.createElement('span');
+    ripple.className = 'ripple';
+    ripple.style.width = ripple.style.height = '34px';
+    ripple.style.left = ripple.style.top = '0';
+    btn.appendChild(ripple);
+    setTimeout(function() { ripple.remove(); }, 600);
+  }
+
+  // ── Backend sync helpers ─────────────────────────────────────────────────────
+  // BUG FIX: these didn't exist before. Toggling complete, editing text,
+  // deleting, and the bulk actions below only ever touched the `todos` array
+  // in memory — nothing was sent back to the server, so a page reload (or
+  // another teammate loading the dashboard) undid every one of those actions.
+  function apiPatchTodo(id, changes) {
+    return fetch('/todos/' + id, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(changes)
+    }).then(function(r) {
+      if (r.status === 401) { goToLogin(); throw new Error('auth'); }
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    });
+  }
+
+  function apiDeleteTodo(id) {
+    return fetch('/todos/' + id, { method: 'DELETE' }).then(function(r) {
+      if (r.status === 401) { goToLogin(); throw new Error('auth'); }
+      if (!r.ok && r.status !== 404) throw new Error('HTTP ' + r.status);
+    });
+  }
+
+  // ── Toggle / edit / delete ───────────────────────────────────────────────────
+  function toggleTodo(localId, event) {
     var t = todos.find(function(x) { return x.localId === localId; });
-    if (t) { t.done = !t.done; renderTodos(); }
+    if (!t) return;
+    var next = !t.done;
+    t.done = next; // optimistic UI update
+    if (event && event.currentTarget) {
+      addRipple(event.currentTarget);
+      event.currentTarget.classList.add('pop');
+      setTimeout(function() { var b = event.currentTarget; if (b) b.classList.remove('pop'); }, 400);
+    }
+    renderTodos();
+    apiPatchTodo(t.id, { done: next })
+      .then(function() { showToast(next ? '✓ Task completed' : '↺ Marked as active', next ? 'success' : 'info'); })
+      .catch(function(err) {
+        t.done = !next; // revert — the server didn't accept the change
+        renderTodos();
+        if (err.message !== 'auth') showToast('Could not save that change — try again', 'error');
+      });
+  }
+
+  function startEdit(localId) {
+    todos.forEach(function(t) { t.editing = false; });
+    var t = todos.find(function(x) { return x.localId === localId; });
+    if (t) t.editing = true;
+    renderTodos();
+  }
+
+  function saveEdit(localId) {
+    var t = todos.find(function(x) { return x.localId === localId; });
+    var inp = document.getElementById('edit-input-' + localId);
+    if (!t || !inp) return;
+    var val = inp.value.trim();
+    var original = t.text;
+    t.editing = false;
+    if (!val || val === original) { renderTodos(); return; }
+    t.text = val; // optimistic UI update
+    renderTodos();
+    apiPatchTodo(t.id, { text: val })
+      .then(function() { showToast('Task updated', 'success'); })
+      .catch(function(err) {
+        t.text = original; // revert — the server didn't accept the change
+        renderTodos();
+        if (err.message !== 'auth') showToast('Could not save that change — try again', 'error');
+      });
+  }
+
+  // ── Reassign an existing task ────────────────────────────────────────────────
+  // ENHANCEMENT: the assignee badge on a task is clickable — swaps in the
+  // same directory <select> used when creating a task, and commits
+  // immediately on change (no separate save step), matching the pattern
+  // already used for toggling a task's priority.
+  function startEditAssignee(localId) {
+    var t = todos.find(function(x) { return x.localId === localId; });
+    if (t) t.editingAssignee = true;
+    renderTodos();
+  }
+
+  function cancelAssigneeEdit(localId) {
+    var t = todos.find(function(x) { return x.localId === localId; });
+    if (t) t.editingAssignee = false;
+    renderTodos();
+  }
+
+  function saveAssigneeChange(localId) {
+    var t = todos.find(function(x) { return x.localId === localId; });
+    var sel = document.getElementById('assignee-edit-' + localId);
+    if (!t || !sel) return;
+    var newAssignee = sel.value;
+    var originalAssignee = t.assigneeUsername;
+    var originalName = t.name;
+    t.editingAssignee = false;
+    if (newAssignee === (originalAssignee || '')) { renderTodos(); return; }
+
+    apiPatchTodo(t.id, { assigneeUsername: newAssignee })
+      .then(function(updated) {
+        t.assigneeUsername = updated.assigneeUsername || null;
+        t.name = updated.name || '';
+        renderTodos();
+        showToast(t.name ? 'Reassigned to ' + t.name : 'Task unassigned', 'success');
+      })
+      .catch(function(err) {
+        t.assigneeUsername = originalAssignee;
+        t.name = originalName;
+        renderTodos();
+        if (err.message !== 'auth') showToast('Could not reassign — try again', 'error');
+      });
+  }
+
+  function handleEditKey(e, localId) {
+    if (e.key === 'Enter') saveEdit(localId);
+    if (e.key === 'Escape') {
+      var t = todos.find(function(x) { return x.localId === localId; });
+      if (t) t.editing = false;
+      renderTodos();
+    }
   }
 
   function deleteTodo(localId) {
+    var t = todos.find(function(x) { return x.localId === localId; });
+    if (!t) return;
     var el = document.getElementById('todo-' + localId);
     if (el) el.classList.add('removing');
-    setTimeout(function() {
-      todos = todos.filter(function(x) { return x.localId !== localId; });
-      renderTodos();
-    }, 250);
+    apiDeleteTodo(t.id)
+      .then(function() {
+        setTimeout(function() {
+          todos = todos.filter(function(x) { return x.localId !== localId; });
+          renderTodos();
+          showToast('Task removed', 'info');
+        }, 250);
+      })
+      .catch(function(err) {
+        if (el) el.classList.remove('removing');
+        if (err.message !== 'auth') showToast('Could not delete that task — try again', 'error');
+      });
   }
 
+  // ENHANCEMENT ("remove/clear should only be visible to whoever created the
+  // ticket — others can't"): the per-task Remove button already hides itself
+  // for anyone but the creator (see isCreator in renderTodos), and the
+  // server independently enforces creator-only delete (TodoController.
+  // deleteTodo). But these two bulk actions used to loop over EVERY visible
+  // task regardless of who made it — so clicking "Clear All" would silently
+  // fail on any task assigned to you by someone else (the server rejects
+  // it), while the toast still reported a count, which was confusing.
+  // Scoping the candidate list to tasks you created makes the bulk actions
+  // behave exactly like the single Remove button, just in bulk.
   function clearDone() {
-    todos = todos.filter(function(t) { return !t.done; });
-    renderTodos();
-    showToast('Completed tasks cleared', 'info');
+    var mine = todos.filter(function(t) { return t.done && t.createdByUsername === auth.username; });
+    if (mine.length === 0) {
+      var anyDone = todos.some(function(t) { return t.done; });
+      showToast(anyDone ? 'You can only clear completed tasks you created' : 'No completed tasks to clear', 'info');
+      return;
+    }
+    Promise.all(mine.map(function(t) {
+      return apiDeleteTodo(t.id).then(function() { return t.localId; }).catch(function() { return null; });
+    })).then(function(results) {
+      var removedIds = results.filter(function(id) { return id !== null; });
+      todos = todos.filter(function(t) { return removedIds.indexOf(t.localId) === -1; });
+      renderTodos();
+      if (removedIds.length === 0) { showToast('Could not clear tasks — try again', 'error'); return; }
+      showToast(removedIds.length + ' completed task' + (removedIds.length !== 1 ? 's' : '') + ' cleared', 'success');
+    });
   }
 
-  function loadTodos() {
+  function clearAll() {
+    var mine = todos.filter(function(t) { return t.createdByUsername === auth.username; });
+    if (mine.length === 0) {
+      showToast(todos.length === 0 ? 'No tasks to clear' : 'You can only clear tasks you created', 'info');
+      return;
+    }
+    Promise.all(mine.map(function(t) {
+      return apiDeleteTodo(t.id).then(function() { return t.localId; }).catch(function() { return null; });
+    })).then(function(results) {
+      var removedIds = results.filter(function(id) { return id !== null; });
+      todos = todos.filter(function(t) { return removedIds.indexOf(t.localId) === -1; });
+      renderTodos();
+      if (removedIds.length === 0) { showToast('Could not clear tasks — try again', 'error'); return; }
+      showToast(removedIds.length + ' task' + (removedIds.length !== 1 ? 's' : '') + ' cleared', 'info');
+    });
+  }
+
+  function markAllDone() {
+    var visible = getSortedFiltered().filter(function(t) { return !t.done; });
+    if (visible.length === 0) { showToast('Nothing to mark complete', 'info'); return; }
+    visible.forEach(function(t) { t.done = true; });
+    renderTodos();
+    Promise.all(visible.map(function(t) {
+      return apiPatchTodo(t.id, { done: true }).catch(function() { t.done = false; return null; });
+    })).then(function() {
+      renderTodos();
+      showToast('All visible tasks marked complete', 'success');
+    });
+  }
+
+  // ── Server <-> client task mapping ───────────────────────────────────────────
+  // BUG FIX: previously inlined in both addTodo() and loadTodos(), each hardcoding
+  // priority: 'medium' and done: false regardless of what was actually saved.
+  // Now that the server persists priority/done/createdAt (see Todo.java), both
+  // callers just read them back from the response.
+  function todoFromServer(d, overrides) {
+    var createdMs = d.createdAt ? new Date(d.createdAt).getTime() : Date.now();
+    if (isNaN(createdMs)) createdMs = Date.now();
+    var t = {
+      localId: localIdCounter++, id: d.id, name: d.name || '', text: d.text,
+      priority: d.priority || 'medium', done: !!d.done, editing: false,
+      assigneeUsername: d.assigneeUsername || null, createdByUsername: d.createdByUsername || null,
+      time: formatTime(createdMs), date: formatDate(createdMs), createdAt: createdMs
+    };
+    return Object.assign(t, overrides || {});
+  }
+
+  // ── Add todo ─────────────────────────────────────────────────────────────────
+  function addTodo() {
+    if (!auth.loggedIn) { goToLogin(); return; }
+    var textInput = document.getElementById('todo-text');
+    var assigneeSelect = document.getElementById('todo-assignee');
+    var emailInput = document.getElementById('todo-email');
+    var text = textInput.value.trim();
+    var assigneeUsername = assigneeSelect.value;
+    var email = emailInput.value.trim();
+    var assigneeLabel = assigneeSelect.options[assigneeSelect.selectedIndex]
+      ? assigneeSelect.options[assigneeSelect.selectedIndex].text
+      : '';
+
+    if (!text) { textInput.focus(); showToast('Please enter a task description', 'error'); return; }
+
+    var btn = document.getElementById('add-todo-btn');
+    btn.disabled = true;
+
+    fetch('/todos', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: text, priority: selectedPriority, assigneeUsername: assigneeUsername })
+    })
+      .then(function(r) {
+        if (r.status === 401) { goToLogin(); throw new Error('auth'); }
+        return r.json().then(function(d) { return { ok: r.ok, data: d }; });
+      })
+      .then(function(res) {
+        if (!res.ok) { showToast(res.data.message || 'Failed to add task', 'error'); return; }
+        var newTodo = todoFromServer(res.data, { email: email, emailStatus: email ? null : undefined });
+        todos.push(newTodo);
+        textInput.value = '';
+        renderTodos();
+        showToast('Task added' + (assigneeUsername ? ' for ' + assigneeLabel : ''), 'success');
+        if (email) sendEmailNotification(newTodo);
+      })
+      .catch(function(err) { if (err.message !== 'auth') showToast('Failed to add task — is the DB connected?', 'error'); })
+      .finally(function() { btn.disabled = false; textInput.focus(); });
+  }
+
+  // ── Merge a fresh server snapshot into local state ───────────────────────────
+  // Used for both the initial load and the periodic background refresh below.
+  // A plain replace-the-array approach would be fine for the initial load, but
+  // would blow away an in-progress inline edit (see startEdit/saveEdit) or the
+  // client-only email/emailStatus badge the moment a poll landed — so existing
+  // rows are updated in place instead of replaced, and a row currently being
+  // edited is left completely untouched until the person finishes.
+  function mergeTodosFromServer(data) {
+    var byId = {};
+    todos.forEach(function(t) { byId[t.id] = t; });
+    todos = data.map(function(d) {
+      var existing = byId[d.id];
+      if (!existing) return todoFromServer(d);
+      if (existing.editing) return existing;
+      existing.text = d.text;
+      existing.priority = d.priority || 'medium';
+      existing.done = !!d.done;
+      existing.name = d.name || '';
+      existing.assigneeUsername = d.assigneeUsername || null;
+      existing.createdByUsername = d.createdByUsername || null;
+      return existing;
+    });
+  }
+
+  function isEditingAnyTodo() {
+    if (todos.some(function(t) { return t.editing || t.editingAssignee; })) return true;
+    // BUG FIX ("updating a comment causes an automatic refresh that resets
+    // everything"): loadTodos() already skips itself while a task's text is
+    // mid-edit (below) — extending the same guard to "there's unsent text
+    // sitting in a comment box" stops the 30s auto-refresh from rebuilding
+    // the task list (and wiping that box) out from under someone mid-comment.
+    return todos.some(function(t) {
+      var input = document.getElementById('comment-input-' + t.localId);
+      return !!(input && input.value.trim().length > 0);
+    });
+  }
+
+  // ── Load todos from server ───────────────────────────────────────────────────
+  // Never clobbers an in-progress inline edit (checked both before the request
+  // and again once it resolves, in case editing started while it was in
+  // flight) — the refresh is simply skipped and picked up on the next cycle or
+  // click. Pass { silent: true } for the periodic auto-refresh (see
+  // startAutoRefresh) so a transient network hiccup doesn't pop an error toast
+  // every 30 seconds; the manual "Refresh" button and the initial page load
+  // still report failures.
+  function loadTodos(opts) {
+    opts = opts || {};
+    if (isEditingAnyTodo()) return;
     fetch('/todos')
       .then(function(r) { return r.json(); })
       .then(function(data) {
-        todos = data.map(function(d) {
-          return { localId: localIdCounter++, id: d.id, text: d.text, done: false, time: formatTime(Date.now()) };
-        });
+        if (isEditingAnyTodo()) return; // editing started while this request was in flight
+        // BUG FIX: this used to stamp every single task with the same
+        // Date.now() captured once for the whole batch, and hardcoded
+        // priority: 'medium' / done: false for every row — so a reload wiped
+        // out completion state, priority, and made "Newest/Oldest first"
+        // sorting meaningless. Now each task keeps its own real values.
+        mergeTodosFromServer(data);
         renderTodos();
       })
-      .catch(function() {});
+      .catch(function() { if (!opts.silent) showToast('Could not load tasks from server', 'error'); });
   }
 
+  // ── Copy buttons (event delegation — see BUG FIX note in renderSystemInfo) ──
+  document.getElementById('system-info').addEventListener('click', function(e) {
+    var btn = e.target.closest('.copy-btn');
+    if (btn && btn.dataset.copy) copyToClipboard(btn.dataset.copy);
+  });
+
+  // ── Filter buttons ───────────────────────────────────────────────────────────
   document.querySelectorAll('.filter-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
-      document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+      document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); });
       btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
       filter = btn.dataset.filter;
       renderTodos();
     });
   });
 
+  // ── Keyboard shortcuts ───────────────────────────────────────────────────────
   document.getElementById('add-todo-btn').addEventListener('click', addTodo);
-  document.getElementById('todo-text').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') addTodo();
+  document.getElementById('todo-text').addEventListener('keypress', function(e) { if (e.key === 'Enter') addTodo(); });
+
+  // ── Global keyboard shortcuts ────────────────────────────────────────────────
+  // "/" jumps to the task search box (skipped while already typing anywhere so
+  // it doesn't hijack a literal "/" being typed into a field), and Escape
+  // clears + leaves the search box when it's focused.
+  document.addEventListener('keydown', function(e) {
+    var tag = (e.target && e.target.tagName || '').toLowerCase();
+    var typing = tag === 'input' || tag === 'textarea' || tag === 'select';
+    var search = document.getElementById('todo-search');
+    if (e.key === '/' && !typing) {
+      e.preventDefault();
+      search.focus();
+    } else if (e.key === 'Escape' && document.activeElement === search) {
+      search.value = '';
+      renderTodos();
+      search.blur();
+    }
   });
 
+  // ── Refresh all ──────────────────────────────────────────────────────────────
   function refreshAll() {
     var btn = document.getElementById('refresh-btn');
     btn.classList.add('spinning');
     fetchSystemInfo();
     fetchDatabaseInfo();
+    loadUsers();
+    loadTodos();
+    loadPosts();
     startCountdown();
     setTimeout(function() { btn.classList.remove('spinning'); }, 700);
     showToast('Dashboard refreshed', 'info');
   }
 
+  // BUG FIX / ENHANCEMENT: the countdown ring and "Next refresh" label always
+  // implied the whole dashboard was kept live, but this timer only ever
+  // touched system-info/database-info — the task list and Watering Hole board
+  // (both explicitly described as shared/team surfaces) only ever updated in
+  // response to the current user's own actions. A teammate's new task or post
+  // never appeared without a manual full page reload. Now every tick — and
+  // the manual Refresh button above — keeps all four in sync; loadTodos()
+  // still refuses to run while a task is mid-edit (see isEditingAnyTodo()).
   function startAutoRefresh() {
     clearInterval(refreshInterval);
     refreshInterval = setInterval(function() {
       fetchSystemInfo();
       fetchDatabaseInfo();
+      loadTodos({ silent: true });
+      loadPosts({ silent: true });
       startCountdown();
     }, refreshSeconds * 1000);
     startCountdown();
   }
 
-  document.getElementById('session-start').textContent = formatTime(sessionStart);
-  setInterval(updateClock, 1000);
-  updateClock();
-  fetchSystemInfo();
-  fetchDatabaseInfo();
-  loadTodos();
-  startAutoRefresh();
+  // ── Boot ─────────────────────────────────────────────────────────────────────
+  // Gate everything behind a valid session: checkAuth() either resolves (session
+  // confirmed, safe to render the dashboard) or redirects to login.html — in
+  // which case the rest of this chain deliberately never runs.
+  checkAuth().then(function() {
+    document.body.classList.remove('auth-pending');
+    document.getElementById('auth-gate').classList.add('hidden');
+    applyView((location.hash || '').slice(1) || 'home');
+
+    document.getElementById('session-start').textContent = formatTime(sessionStart);
+    var savedEmail = localStorage.getItem('sysfoo_default_email') || '';
+    if (savedEmail) document.getElementById('todo-email').value = savedEmail;
+    setInterval(updateClock, 1000);
+    updateClock();
+    setInterval(updateRelativeTimes, 20000);
+    fetchSystemInfo();
+    fetchDatabaseInfo();
+    loadUsers().then(loadTodos);
+    loadPosts();
+    startAutoRefresh();
+  }).catch(function() {
+    // checkAuth() already triggered a redirect to login.html; nothing else to do.
+  });
 </script>
 </body>
 </html>

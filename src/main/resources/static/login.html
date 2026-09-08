@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In — Sysfoo</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A6%81%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #170e08;
+      --bg-1:       #1f130a;
+      --bg-2:       #29190d;
+      --bg-3:       #382312;
+      --bg-4:       #482d17;
+      --border:     rgba(244,201,93,0.12);
+      --border-hi:  rgba(242,153,74,0.5);
+      --gold:       #f2b705;
+      --gold-dim:   rgba(242,183,5,0.14);
+      --amber:      #f2994a;
+      --amber-dim:  rgba(242,153,74,0.14);
+      --dusk:       #a67ec7;
+      --grass:      #7fb069;
+      --red:        #e5484d;
+      --red-dim:    rgba(229,72,77,0.14);
+      --txt:        #fbf0dd;
+      --txt-2:      #d3af86;
+      --txt-3:      #8c6b4d;
+      --mono:       'JetBrains Mono', monospace;
+      --display:    'Fraunces', serif;
+      --sans:       'Inter', sans-serif;
+      --radius:     16px;
+      --radius-sm:  11px;
+      --radius-xs:  7px;
+    }
+
+    /* Accent themes — mirrors the picker on the dashboard (index.html) */
+    body[data-accent="violet"] {
+      --gold: #a67ec7; --gold-dim: rgba(166,126,199,0.14);
+      --amber: #c9a0e0; --amber-dim: rgba(201,160,224,0.14);
+      --border-hi: rgba(166,126,199,0.5);
+    }
+    body[data-accent="jungle"] {
+      --gold: #00d4aa; --gold-dim: rgba(0,212,170,0.14);
+      --amber: #34e0b8; --amber-dim: rgba(52,224,184,0.14);
+      --border-hi: rgba(0,212,170,0.5);
+    }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--txt);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    button, input { font-family: inherit; }
+    :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+    /* ── Split layout: photo panel + form panel ─────────────────────────────── */
+    .auth-page {
+      min-height: 100vh; display: flex;
+    }
+
+    .auth-visual {
+      flex: 1.1; position: relative; display: none;
+      background-image:
+        linear-gradient(180deg, rgba(11,7,4,0.15) 0%, rgba(11,7,4,0.55) 60%, rgba(11,7,4,0.92) 100%),
+        url('https://cdn.pixabay.com/photo/2020/02/22/23/03/lion-4871786_1280.jpg');
+      background-size: cover; background-position: center 30%;
+      padding: 3rem;
+      flex-direction: column; justify-content: space-between;
+    }
+    @media (min-width: 860px) { .auth-visual { display: flex; } }
+
+    .auth-visual-top { display: flex; align-items: center; gap: 12px; }
+    .logo-icon {
+      width: 42px; height: 42px; border-radius: 13px; flex-shrink: 0;
+      background: rgba(23,14,8,0.55); border: 1px solid var(--border-hi);
+      display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(2px);
+    }
+    .logo-icon svg { width: 25px; height: 25px; }
+    .logo-text { font-family: var(--display); font-size: 22px; font-weight: 700; color: var(--txt); text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+    .logo-text span { color: var(--gold); }
+
+    .auth-visual-bottom h2 {
+      font-family: var(--display); font-weight: 700; font-size: clamp(28px, 3vw, 36px);
+      line-height: 1.2; color: var(--txt); text-shadow: 0 2px 16px rgba(0,0,0,0.6);
+      margin-bottom: 12px; max-width: 420px;
+    }
+    .auth-visual-bottom p {
+      color: var(--txt-2); font-size: 14px; max-width: 380px; line-height: 1.6;
+      text-shadow: 0 1px 8px rgba(0,0,0,0.5);
+    }
+    .auth-visual-credit { font-family: var(--mono); font-size: 9px; color: rgba(251,240,221,0.4); margin-top: 18px; }
+
+    /* ── Form panel ──────────────────────────────────────────────────────────── */
+    .auth-form-panel {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      padding: 2.5rem 1.5rem; position: relative;
+    }
+    .auth-form-panel::before {
+      content: '';
+      position: absolute; inset: 0; z-index: 0;
+      background: radial-gradient(ellipse 70% 45% at 50% 0%, rgba(242,153,74,0.10) 0%, transparent 60%);
+    }
+
+    .auth-card { position: relative; z-index: 1; width: 100%; max-width: 380px; }
+
+    .auth-card-logo {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 2rem;
+    }
+    .auth-card-logo .logo-icon { background: var(--gold-dim); }
+    .auth-card-logo .logo-text { color: var(--txt); text-shadow: none; }
+
+    .auth-heading { font-family: var(--display); font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+    .auth-subheading { font-size: 13.5px; color: var(--txt-3); margin-bottom: 1.75rem; }
+
+    .auth-tabs { display: flex; gap: 4px; background: var(--bg-3); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 1.6rem; }
+    .auth-tab {
+      flex: 1; background: none; border: none; cursor: pointer;
+      padding: 9px; border-radius: var(--radius-xs); font-size: 12.5px; font-weight: 700;
+      color: var(--txt-3); transition: all 0.2s; font-family: var(--sans);
+    }
+    .auth-tab.active { background: var(--gold-dim); color: var(--gold); }
+
+    .auth-form { display: flex; flex-direction: column; gap: 14px; }
+    .auth-form label { display: flex; flex-direction: column; gap: 6px; font-size: 11px; font-family: var(--mono); color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.08em; }
+    .auth-form label span.optional { text-transform: none; letter-spacing: normal; color: var(--txt-3); }
+    .auth-form input {
+      background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--radius-xs);
+      padding: 11px 13px; font-family: var(--sans); font-size: 14px; color: var(--txt);
+      outline: none; transition: border-color 0.2s; text-transform: none; letter-spacing: normal;
+    }
+    .auth-form input::placeholder { color: var(--txt-3); }
+    .auth-form input:focus { border-color: var(--border-hi); background: var(--bg-3); }
+
+    .auth-error {
+      font-size: 12.5px; color: var(--red); background: var(--red-dim);
+      border: 1px solid rgba(229,72,77,0.28); border-radius: var(--radius-xs);
+      padding: 9px 12px; display: none; align-items: center; gap: 7px;
+    }
+    .auth-error.show { display: flex; }
+    .auth-error svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+    .auth-submit-btn {
+      background: linear-gradient(135deg, var(--gold), var(--amber)); color: #1a0f04; border: none;
+      border-radius: var(--radius-xs); padding: 13px; font-size: 14px; font-weight: 800;
+      cursor: pointer; transition: all 0.2s; letter-spacing: 0.01em;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .auth-submit-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    .auth-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .auth-submit-btn .spinner {
+      width: 14px; height: 14px; border-radius: 50%;
+      border: 2px solid rgba(26,15,4,0.35); border-top-color: #1a0f04;
+      animation: spin 0.7s linear infinite; display: none;
+    }
+    .auth-submit-btn.loading .spinner { display: inline-block; }
+    .auth-submit-btn.loading .btn-label { opacity: 0.7; }
+
+    .auth-hint { font-size: 11.5px; color: var(--txt-3); text-align: center; margin-top: 4px; }
+
+    .auth-gate-check {
+      position: fixed; inset: 0; z-index: 10; background: var(--bg);
+      display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 14px;
+    }
+    .auth-gate-check.hidden { display: none; }
+    .auth-gate-spinner {
+      width: 30px; height: 30px; border-radius: 50%;
+      border: 3px solid var(--border); border-top-color: var(--gold);
+      animation: spin 0.8s linear infinite;
+    }
+    .auth-gate-text { font-family: var(--mono); font-size: 12px; color: var(--txt-3); letter-spacing: 0.05em; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+    .auth-card { animation: fadeUp 0.4s ease both; }
+  </style>
+</head>
+<body data-accent="">
+<script>document.body.setAttribute('data-accent', localStorage.getItem('sysfoo_accent') || 'gold');</script>
+
+<div class="auth-gate-check" id="auth-gate-check">
+  <div class="auth-gate-spinner"></div>
+  <div class="auth-gate-text">Checking your session…</div>
+</div>
+
+<div class="auth-page" id="auth-page" style="visibility:hidden;">
+
+  <div class="auth-visual">
+    <div class="auth-visual-top">
+      <div class="logo-icon">
+        <svg viewBox="0 0 44 44" fill="none">
+          <circle cx="22" cy="22" r="9" fill="#f2b705"/>
+          <g stroke="#f2994a" stroke-width="3" stroke-linecap="round">
+            <line x1="22" y1="2" x2="22" y2="9"/><line x1="22" y1="35" x2="22" y2="42"/>
+            <line x1="2" y1="22" x2="9" y2="22"/><line x1="35" y1="22" x2="42" y2="22"/>
+            <line x1="8" y1="8" x2="13" y2="13"/><line x1="31" y1="31" x2="36" y2="36"/>
+            <line x1="36" y1="8" x2="31" y2="13"/><line x1="13" y1="31" x2="8" y2="36"/>
+          </g>
+        </svg>
+      </div>
+      <div class="logo-text">Sys<span>foo</span></div>
+    </div>
+    <div class="auth-visual-bottom">
+      <h2>Command your pride.</h2>
+      <p>Sign in to manage tasks, post updates to the watering hole, and keep an eye on the whole dashboard.</p>
+      <div class="auth-visual-credit">Photo via Pixabay</div>
+    </div>
+  </div>
+
+  <div class="auth-form-panel">
+    <div class="auth-card">
+      <div class="auth-card-logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 44 44" fill="none">
+            <circle cx="22" cy="22" r="9" fill="#f2b705"/>
+            <g stroke="#f2994a" stroke-width="3" stroke-linecap="round">
+              <line x1="22" y1="2" x2="22" y2="9"/><line x1="22" y1="35" x2="22" y2="42"/>
+              <line x1="2" y1="22" x2="9" y2="22"/><line x1="35" y1="22" x2="42" y2="22"/>
+              <line x1="8" y1="8" x2="13" y2="13"/><line x1="31" y1="31" x2="36" y2="36"/>
+              <line x1="36" y1="8" x2="31" y2="13"/><line x1="13" y1="31" x2="8" y2="36"/>
+            </g>
+          </svg>
+        </div>
+        <div class="logo-text">Sys<span>foo</span></div>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-login" onclick="switchTab('login')" type="button">Sign In</button>
+        <button class="auth-tab" id="tab-register" onclick="switchTab('register')" type="button">Join the Pride</button>
+      </div>
+
+      <div id="login-panel">
+        <div class="auth-heading">Welcome back</div>
+        <div class="auth-subheading">Sign in to reach your dashboard.</div>
+        <form class="auth-form" id="login-form" onsubmit="submitLogin(event)">
+          <label>Username
+            <input id="login-username" type="text" required maxlength="40" autocomplete="username" placeholder="e.g. simba" />
+          </label>
+          <label>Password
+            <input id="login-password" type="password" required autocomplete="current-password" placeholder="••••••••" />
+          </label>
+          <div class="auth-error" id="login-error">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+            <span id="login-error-text"></span>
+          </div>
+          <button type="submit" class="auth-submit-btn" id="login-submit-btn">
+            <span class="spinner"></span>
+            <span class="btn-label">Sign In</span>
+          </button>
+        </form>
+      </div>
+
+      <div id="register-panel" style="display:none;">
+        <div class="auth-heading">Join the pride</div>
+        <div class="auth-subheading">Create an account to get started.</div>
+        <form class="auth-form" id="register-form" onsubmit="submitRegister(event)">
+          <label>Display Name
+            <input id="register-displayname" type="text" maxlength="60" placeholder="e.g. Nala" />
+          </label>
+          <label>Username
+            <input id="register-username" type="text" required maxlength="40" autocomplete="username" placeholder="e.g. nala" />
+          </label>
+          <label>Email <span class="optional">(optional)</span>
+            <input id="register-email" type="email" maxlength="120" placeholder="you@example.com" />
+          </label>
+          <label>Password
+            <input id="register-password" type="password" required minlength="6" autocomplete="new-password" placeholder="At least 6 characters" />
+          </label>
+          <div class="auth-error" id="register-error">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+            <span id="register-error-text"></span>
+          </div>
+          <button type="submit" class="auth-submit-btn" id="register-submit-btn">
+            <span class="spinner"></span>
+            <span class="btn-label">Create Account</span>
+          </button>
+          <div class="auth-hint">Password must be at least 6 characters.</div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ── Redirect target after a successful sign-in/registration ─────────────────
+  function getRedirectTarget() {
+    var params = new URLSearchParams(window.location.search);
+    var target = params.get('redirect');
+    // Only ever redirect within this app — never to an external URL.
+    if (target && target.startsWith('/')) return target;
+    return 'index.html';
+  }
+
+  // ── If a session already exists, skip straight to the dashboard ─────────────
+  fetch('/api/auth/me')
+    .then(function(r) { if (!r.ok) throw new Error('unauthenticated'); return r.json(); })
+    .then(function() { window.location.href = getRedirectTarget(); })
+    .catch(function() {
+      document.getElementById('auth-gate-check').classList.add('hidden');
+      var page = document.getElementById('auth-page');
+      page.style.visibility = 'visible';
+    });
+
+  // ── Tabs ─────────────────────────────────────────────────────────────────────
+  function switchTab(tab) {
+    var isLogin = tab === 'login';
+    document.getElementById('tab-login').classList.toggle('active', isLogin);
+    document.getElementById('tab-register').classList.toggle('active', !isLogin);
+    document.getElementById('login-panel').style.display = isLogin ? 'block' : 'none';
+    document.getElementById('register-panel').style.display = isLogin ? 'none' : 'block';
+  }
+
+  function isValidEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+
+  function showError(prefix, message) {
+    document.getElementById(prefix + '-error-text').textContent = message;
+    document.getElementById(prefix + '-error').classList.add('show');
+  }
+  function clearError(prefix) {
+    document.getElementById(prefix + '-error').classList.remove('show');
+  }
+  function setLoading(prefix, loading) {
+    var btn = document.getElementById(prefix + '-submit-btn');
+    btn.classList.toggle('loading', loading);
+    btn.disabled = loading;
+  }
+
+  // ── Login ────────────────────────────────────────────────────────────────────
+  function submitLogin(e) {
+    e.preventDefault();
+    clearError('login');
+    var username = document.getElementById('login-username').value.trim();
+    var password = document.getElementById('login-password').value;
+
+    if (!username || !password) { showError('login', 'Enter your username and password'); return; }
+
+    setLoading('login', true);
+    fetch('/api/auth/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: username, password: password })
+    })
+      .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+      .then(function(res) {
+        if (!res.ok) { showError('login', res.data.message || 'Sign in failed'); setLoading('login', false); return; }
+        window.location.href = getRedirectTarget();
+      })
+      .catch(function() { showError('login', 'Network error — please try again'); setLoading('login', false); });
+  }
+
+  // ── Register ─────────────────────────────────────────────────────────────────
+  function submitRegister(e) {
+    e.preventDefault();
+    clearError('register');
+    var displayName = document.getElementById('register-displayname').value.trim();
+    var username = document.getElementById('register-username').value.trim();
+    var email = document.getElementById('register-email').value.trim();
+    var password = document.getElementById('register-password').value;
+
+    if (username.length < 3) { showError('register', 'Username must be at least 3 characters'); return; }
+    if (password.length < 6) { showError('register', 'Password must be at least 6 characters'); return; }
+    if (email && !isValidEmail(email)) { showError('register', 'Invalid email address'); return; }
+
+    setLoading('register', true);
+    fetch('/api/auth/register', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ displayName: displayName, username: username, email: email, password: password })
+    })
+      .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+      .then(function(res) {
+        if (!res.ok) { showError('register', res.data.message || 'Registration failed'); setLoading('register', false); return; }
+        window.location.href = getRedirectTarget();
+      })
+      .catch(function() { showError('register', 'Network error — please try again'); setLoading('register', false); });
+  }
+
+  // If the person arrived with ?mode=register (e.g. a "Join the Pride" link elsewhere), open that tab.
+  (function() {
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('mode') === 'register') switchTab('register');
+  })();
+</script>
+</body>
+</html>
