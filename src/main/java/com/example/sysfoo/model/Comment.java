@@ -11,7 +11,13 @@ import java.time.LocalDateTime;
 /**
  * A comment on a task, left by whoever created it or whoever it's assigned
  * to (the only two people who can see the task at all — see
- * TodoController.getAllTodos()).
+ * TodoController.getAllTodos()) — OR a comment on a public post (see
+ * PostController), left by any signed-in user.
+ *
+ * ENHANCEMENT ("likes/comments on posts, parity with what tasks already
+ * have"): postId added alongside the original todoId, same dual-purpose
+ * pattern Attachment already uses. Exactly one of todoId/postId is set on
+ * any given row.
  */
 @Entity
 public class Comment {
@@ -20,8 +26,11 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column
     private Long todoId;
+
+    @Column
+    private Long postId;
 
     @Column(nullable = false, length = 40)
     private String authorUsername;
@@ -44,6 +53,24 @@ public class Comment {
         this.authorUsername = authorUsername;
         this.authorDisplayName = authorDisplayName;
         this.text = text;
+    }
+
+    /** Convenience factory for a post comment, to keep the (todoId, ...) constructor's meaning unambiguous at call sites. */
+    public static Comment forPost(Long postId, String authorUsername, String authorDisplayName, String text) {
+        Comment c = new Comment();
+        c.postId = postId;
+        c.authorUsername = authorUsername;
+        c.authorDisplayName = authorDisplayName;
+        c.text = text;
+        return c;
+    }
+
+    public Long getPostId() {
+        return postId;
+    }
+
+    public void setPostId(Long postId) {
+        this.postId = postId;
     }
 
     public Long getId() {

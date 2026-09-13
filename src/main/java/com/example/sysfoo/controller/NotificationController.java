@@ -1,5 +1,7 @@
 package com.example.sysfoo.controller;
 
+import com.example.sysfoo.model.User;
+import com.example.sysfoo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -45,7 +47,7 @@ import java.util.Map;
  *  Frontend (index.html) calls: POST /api/notify
  *  Body (JSON):
  *    {
- *      "to":       "assignee@company.com",
+ *      "toUsername": "raja",
  *      "subject":  "[Sysfoo] New Task Assigned: Fix login bug",
  *      "taskText": "Fix login bug on the staging server",
  *      "name":     "Raja",
@@ -53,6 +55,15 @@ import java.util.Map;
  *      "time":     "14:35",
  *      "date":     "18 Apr"
  *    }
+ *
+ *  SECURITY FIX: this used to accept a raw "to" email address straight from
+ *  the client. Even though the dashboard UI only ever populated it from a
+ *  real account's email, that was a client-side convenience, not a server
+ *  boundary — anyone could POST directly to this endpoint with an arbitrary
+ *  "to" address and turn this app into an open mail relay. It now takes a
+ *  username and looks the recipient's email up itself, server-side; a
+ *  caller can never make this endpoint send mail to an address that isn't
+ *  actually on file for a real account.
  */
 // FIX: removed @CrossOrigin(origins = "*"). The frontend is served from the same
 // origin as this API, so wildcard CORS bought nothing but unnecessarily widened
@@ -68,6 +79,9 @@ public class NotificationController {
     @Autowired(required = false)
     private JavaMailSender mailSender;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Value("${sysfoo.mail.from:Sysfoo Dashboard <noreply@sysfoo.dev>}")
     private String fromAddress;
 
@@ -82,7 +96,7 @@ public class NotificationController {
                                  "message", "Mail service is not configured in this environment"));
         }
 
-        String to       = payload.getOrDefault("to", "");
+        String toUsername = payload.getOrDefault("toUsername", "").trim();
         String subject  = payload.getOrDefault("subject", "[Sysfoo] New Task Notification");
         String taskText = payload.getOrDefault("taskText", "(no description)");
         String name     = payload.getOrDefault("name", "Team");
@@ -90,10 +104,17 @@ public class NotificationController {
         String time     = payload.getOrDefault("time", "");
         String date     = payload.getOrDefault("date", "");
 
-        if (to.isBlank()) {
+        if (toUsername.isBlank()) {
             return ResponseEntity.badRequest()
-                    .body(Map.of("status", "error", "message", "Recipient email is required"));
+                    .body(Map.of("status", "error", "message", "A recipient username is required"));
         }
+
+        User recipient = userRepository.findByUsername(toUsername).orElse(null);
+        if (recipient == null || recipient.getEmail() == null || recipient.getEmail().isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("status", "error", "message", "That user has no email on file"));
+        }
+        String to = recipient.getEmail();
 
         try {
             MimeMessage message = mailSender.createMimeMessage();

@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,17 +22,18 @@ import java.util.stream.Collectors;
  * SecurityConfig):
  *
  *  - GET /api/users        — directory of every registered user (username,
- *    display name, email). Used to populate the assignee picker in the Task
+ *    display name, and whether they have a notifiable email on file — NOT
+ *    the address itself). Used to populate the assignee picker in the Task
  *    Manager, so a task's assignee is always a real account instead of
- *    free-typed text, and so the notification email can be looked up
- *    automatically instead of being typed by hand.
+ *    free-typed text.
  *
- *    NOTE ON PRIVACY: this hands every signed-in user's email address to
- *    every OTHER signed-in user. That's an accepted trade-off for a small
- *    team practice app (same spirit as the CSRF/GET-visibility trade-offs
- *    already documented in SecurityConfig) — a larger deployment would want
- *    to gate this more carefully, e.g. only exposing email to people who
- *    share a task.
+ *    SECURITY FIX: this used to also return every user's raw email address
+ *    to every OTHER signed-in user — a real privacy leak once this app has
+ *    more than a handful of trusted people in it. Notification emails are
+ *    now resolved server-side, by username, at send time (see
+ *    NotificationController) — the client never needs, and is never given,
+ *    anyone else's email address. The "notifiable" boolean is all the
+ *    frontend needs to grey out "notify" for a user with no email on file.
  *
  *  - GET /api/users/me/profile — the signed-in user's own full profile
  *    (username, display name, email, member-since date, and a couple of
@@ -49,8 +52,8 @@ public class UserController {
     private TodoRepository todoRepository;
 
     @GetMapping
-    public ResponseEntity<List<Map<String, String>>> listUsers() {
-        List<Map<String, String>> users = userRepository.findAll().stream()
+    public ResponseEntity<List<Map<String, Object>>> listUsers() {
+        List<Map<String, Object>> users = userRepository.findAll().stream()
                 .map(this::toDirectoryEntry)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(users);
@@ -62,28 +65,52 @@ public class UserController {
         if (user == null) {
             return ResponseEntity.status(404).body(Map.of("status", "error", "message", "User not found"));
         }
-        long createdCount = todoRepository.findAll().stream()
-                .filter(t -> user.getUsername().equals(t.getCreatedByUsername()))
-                .count();
-        long assignedCount = todoRepository.findAll().stream()
-                .filter(t -> user.getUsername().equals(t.getAssigneeUsername()))
-                .count();
+        // CORRECTNESS FIX (N+1 / full-table scan): this used to call
+        // todoRepository.findAll() — the ENTIRE todos table, every task
+        // belonging to every user in the system — twice, just to run
+        // .stream().filter().count() over it in Java. Two indexed COUNT(*)
+        // queries do the same job without ever pulling a single Todo row
+        // (or its text/comments/attachments) into memory.
+        long createdCount = todoRepository.countCreatedBy(user.getUsername());
+        long assignedCount = todoRepository.countAssignedTo(user.getUsername());
 
         Map<String, Object> profile = new LinkedHashMap<>();
         profile.put("username", user.getUsername());
         profile.put("displayName", (user.getDisplayName() != null && !user.getDisplayName().isBlank()) ? user.getDisplayName() : user.getUsername());
         profile.put("email", user.getEmail());
+        profile.put("emailVerified", user.isEmailVerified());
+        profile.put("notifyOnAssignment", user.isNotifyOnAssignment());
+        profile.put("role", user.getRole());
         profile.put("createdAt", user.getCreatedAt());
         profile.put("tasksCreated", createdCount);
         profile.put("tasksAssigned", assignedCount);
         return ResponseEntity.ok(profile);
     }
 
-    private Map<String, String> toDirectoryEntry(User u) {
-        Map<String, String> m = new LinkedHashMap<>();
+    /** ENHANCEMENT ("notification preferences"): lets a user turn assignment-notification emails off without removing their email address. */
+    @PatchMapping("/me/preferences")
+    public ResponseEntity<?> updatePreferences(@RequestBody Map<String, Object> updates, Authentication authentication) {
+        User user = userRepository.findByUsername(authentication.getName()).orElse(null);
+        if (user == null) {
+            return ResponseEntity.status(404).body(Map.of("status", "error", "message", "User not found"));
+        }
+        if (updates.containsKey("notifyOnAssignment")) {
+            user.setNotifyOnAssignment(Boolean.parseBoolean(String.valueOf(updates.get("notifyOnAssignment"))));
+        }
+        userRepository.save(user);
+        return ResponseEntity.ok(Map.of("status", "ok", "notifyOnAssignment", user.isNotifyOnAssignment()));
+    }
+
+    private Map<String, Object> toDirectoryEntry(User u) {
+        Map<String, Object> m = new LinkedHashMap<>();
         m.put("username", u.getUsername());
         m.put("displayName", (u.getDisplayName() != null && !u.getDisplayName().isBlank()) ? u.getDisplayName() : u.getUsername());
-        m.put("email", u.getEmail());
+        // Deliberately NOT the address itself — see class javadoc. Also
+        // gated by the user's own notifyOnAssignment preference (see
+        // User.notifyOnAssignment) — someone who's opted out simply never
+        // appears notifiable to a task creator.
+        boolean hasEmail = u.getEmail() != null && !u.getEmail().isBlank();
+        m.put("notifiable", hasEmail && u.isNotifyOnAssignment());
         return m;
     }
 }

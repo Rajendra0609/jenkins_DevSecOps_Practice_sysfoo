@@ -3,14 +3,20 @@ package com.example.sysfoo.controller;
 import com.example.sysfoo.model.Todo;
 import com.example.sysfoo.repository.AttachmentRepository;
 import com.example.sysfoo.repository.CommentRepository;
+import com.example.sysfoo.repository.SubtaskRepository;
 import com.example.sysfoo.repository.UserRepository;
 import com.example.sysfoo.service.FileStorageService;
+import com.example.sysfoo.service.EventBroadcastService;
+import com.example.sysfoo.service.TaskAuditService;
 import com.example.sysfoo.service.TodoService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -41,9 +47,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 //
 // ENHANCEMENT: TodoController now also depends on UserRepository (assignee
 // lookup), CommentRepository/AttachmentRepository (comment/attachment
-// sub-resources) and FileStorageService (attachment uploads) — all mocked
-// here so the @WebMvcTest slice context has something to wire in, even
-// though most tests below don't touch them directly.
+// sub-resources), FileStorageService (attachment uploads) and
+// TaskAuditService (history log) — all mocked here so the @WebMvcTest slice
+// context has something to wire in, even though most tests below don't
+// touch them directly.
 @WebMvcTest(TodoController.class)
 @AutoConfigureMockMvc(addFilters = false)
 public class TodoControllerTest {
@@ -65,6 +72,15 @@ public class TodoControllerTest {
 
     @MockBean
     private FileStorageService fileStorageService;
+
+    @MockBean
+    private TaskAuditService taskAuditService;
+
+    @MockBean
+    private SubtaskRepository subtaskRepository;
+
+    @MockBean
+    private EventBroadcastService eventBroadcastService;
 
     @Test
     @WithMockUser(username = "alice")
@@ -119,6 +135,48 @@ public class TodoControllerTest {
 
     @Test
     @WithMockUser(username = "alice")
+    public void addTodoCreatesStableIssueKeyAndDefaultWorkflowStatus() throws Exception {
+        when(todoService.save(any(Todo.class))).thenAnswer(invocation -> {
+            Todo t = invocation.getArgument(0);
+            t.setId(1L);
+            t.setIssueKey("TASK-1");
+            t.setStatus("TO_DO");
+            return t;
+        });
+
+        mockMvc.perform(post("/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"text\":\"Ship the release\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("TO_DO"))
+                .andExpect(jsonPath("$.issueKey").value("TASK-1"));
+    }
+
+    @Test
+    @WithMockUser(username = "alice")
+    public void addTodoAcceptsAdvancedJiraLikeTicketMetadata() throws Exception {
+        when(todoService.save(any(Todo.class))).thenAnswer(invocation -> {
+            Todo t = invocation.getArgument(0);
+            t.setId(1L);
+            t.setIssueKey("TASK-1");
+            t.setStatus("TO_DO");
+            return t;
+        });
+
+        mockMvc.perform(post("/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"text\":\"Ship the release\",\"ticketType\":\"BUG\",\"component\":\"Auth\",\"team\":\"Platform\",\"folder\":\"Security\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.ticketType").value("BUG"))
+                .andExpect(jsonPath("$.component").value("Auth"))
+                .andExpect(jsonPath("$.team").value("Platform"))
+                .andExpect(jsonPath("$.folder").value("Security"))
+                .andExpect(jsonPath("$.status").value("TO_DO"))
+                .andExpect(jsonPath("$.issueKey").value("TASK-1"));
+    }
+
+    @Test
+    @WithMockUser(username = "alice")
     public void addTodoRejectsUnknownAssignee() throws Exception {
         when(userRepository.findByUsername("nobody")).thenReturn(Optional.empty());
 
@@ -130,9 +188,11 @@ public class TodoControllerTest {
     }
 
     // ENHANCEMENT: GET /todos now filters to only what the caller created or
-    // is assigned to (see TodoController.getAllTodos()) — this is the actual
+    // is assigned to (see TodoService.findVisibleToUser) — this is the actual
     // regression test for "assignee can only see the task, rest can't view
     // it": bob's task must not appear for alice.
+    // CORRECTNESS FIX: also now paginated — the endpoint returns a Page<Todo>
+    // (content/totalElements/...) instead of a bare JSON array.
     @Test
     @WithMockUser(username = "alice")
     public void getAllTodosOnlyReturnsOwnedOrAssignedTasks() throws Exception {
@@ -145,17 +205,15 @@ public class TodoControllerTest {
         assignedToMe.setCreatedByUsername("bob");
         assignedToMe.setAssigneeUsername("alice");
 
-        Todo notMine = new Todo("Bob's private task");
-        notMine.setId(3L);
-        notMine.setCreatedByUsername("bob");
-
-        when(todoService.findAllNewestFirst()).thenReturn(List.of(mine, assignedToMe, notMine));
+        Page<Todo> page = new PageImpl<>(List.of(mine, assignedToMe));
+        when(todoService.findVisibleToUser(org.mockito.ArgumentMatchers.eq("alice"), any(Pageable.class)))
+                .thenReturn(page);
 
         mockMvc.perform(get("/todos"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[1].id").value(2));
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[1].id").value(2));
     }
 
     @Test
@@ -226,6 +284,9 @@ public class TodoControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    // CORRECTNESS FIX: delete no longer calls todoService.delete(id) (hard
+    // delete) — it soft-deletes via todoService.softDelete(todo, username)
+    // and records a DELETED audit entry. See TodoController.deleteTodo().
     @Test
     @WithMockUser(username = "alice")
     public void deleteTodoSucceeds() throws Exception {
@@ -233,11 +294,31 @@ public class TodoControllerTest {
         existing.setId(1L);
         existing.setCreatedByUsername("alice");
         when(todoService.findById(1L)).thenReturn(Optional.of(existing));
-        when(todoService.delete(1L)).thenReturn(true);
+        when(todoService.softDelete(any(Todo.class), org.mockito.ArgumentMatchers.eq("alice")))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         mockMvc.perform(delete("/todos/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("ok"));
+
+        org.mockito.Mockito.verify(taskAuditService).log(
+                org.mockito.ArgumentMatchers.eq(1L), org.mockito.ArgumentMatchers.eq("alice"),
+                org.mockito.ArgumentMatchers.eq("DELETED"), any());
+    }
+
+    // CORRECTNESS FIX: an already soft-deleted task can't be deleted again
+    // (it's already gone from every normal query — see Todo.deleted).
+    @Test
+    @WithMockUser(username = "alice")
+    public void deleteTodoRejectsAlreadyDeleted() throws Exception {
+        Todo existing = new Todo("Ship the release");
+        existing.setId(1L);
+        existing.setCreatedByUsername("alice");
+        existing.setDeleted(true);
+        when(todoService.findById(1L)).thenReturn(Optional.of(existing));
+
+        mockMvc.perform(delete("/todos/1"))
+                .andExpect(status().isNotFound());
     }
 
     // ENHANCEMENT: delete is creator-only — an assignee (not the creator)
@@ -253,5 +334,53 @@ public class TodoControllerTest {
 
         mockMvc.perform(delete("/todos/1"))
                 .andExpect(status().isNotFound());
+    }
+
+    // ENHANCEMENT ("subtasks/checklists")
+    @Test
+    @WithMockUser(username = "alice")
+    public void addSubtaskSucceedsForCreator() throws Exception {
+        Todo existing = new Todo("Ship the release");
+        existing.setId(1L);
+        existing.setCreatedByUsername("alice");
+        when(todoService.findById(1L)).thenReturn(Optional.of(existing));
+        when(subtaskRepository.countByTodoId(1L)).thenReturn(0L);
+        when(subtaskRepository.save(any(com.example.sysfoo.model.Subtask.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
+
+        mockMvc.perform(post("/todos/1/subtasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"text\":\"Write the tests\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.text").value("Write the tests"));
+    }
+
+    @Test
+    @WithMockUser(username = "mallory")
+    public void addSubtaskRejectsNonCreatorAssignee() throws Exception {
+        Todo existing = new Todo("Ship the release");
+        existing.setId(1L);
+        existing.setCreatedByUsername("alice");
+        existing.setAssigneeUsername("bob");
+        when(todoService.findById(1L)).thenReturn(Optional.of(existing));
+
+        mockMvc.perform(post("/todos/1/subtasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"text\":\"Sneaky item\"}"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(username = "alice")
+    public void addSubtaskRejectsBlankText() throws Exception {
+        Todo existing = new Todo("Ship the release");
+        existing.setId(1L);
+        existing.setCreatedByUsername("alice");
+        when(todoService.findById(1L)).thenReturn(Optional.of(existing));
+
+        mockMvc.perform(post("/todos/1/subtasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"text\":\"   \"}"))
+                .andExpect(status().isBadRequest());
     }
 }

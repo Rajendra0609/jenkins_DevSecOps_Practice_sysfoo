@@ -24,7 +24,7 @@ public class PostServiceTest {
 
     @Test
     public void savePostTest() {
-        Post post = new Post("Watering hole hours", "Open from dawn to dusk.", null, "Rafiki");
+        Post post = new Post("Watering hole hours", "Open from dawn to dusk.", null, "Rafiki", "rafiki");
         when(postRepository.save(post)).thenReturn(post);
 
         Post saved = postService.save(post);
@@ -34,8 +34,8 @@ public class PostServiceTest {
 
     @Test
     public void findAllNewestFirstTest() {
-        Post p1 = new Post("First", "Body 1", null, "Author A");
-        Post p2 = new Post("Second", "Body 2", "https://example.com/img.jpg", "Author B");
+        Post p1 = new Post("First", "Body 1", null, "Author A", "authora");
+        Post p2 = new Post("Second", "Body 2", "https://example.com/img.jpg", "Author B", "authorb");
         when(postRepository.findAllByOrderByCreatedAtDesc()).thenReturn(List.of(p2, p1));
 
         List<Post> result = postService.findAllNewestFirst();

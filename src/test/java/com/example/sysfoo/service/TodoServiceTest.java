@@ -80,6 +80,15 @@ public class TodoServiceTest {
     }
 
     @Test
+    public void nextIssueKeyUsesLargestPersistedIssueNumber() {
+        when(todoRepository.findMaxIssueNumber()).thenReturn(7L);
+
+        String issueKey = todoService.nextIssueKey();
+
+        assertEquals("TASK-8", issueKey);
+    }
+
+    @Test
     public void deleteMissingTodoTest() {
         when(todoRepository.existsById(99L)).thenReturn(false);
 

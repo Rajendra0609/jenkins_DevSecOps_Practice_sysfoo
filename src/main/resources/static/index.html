@@ -123,6 +123,33 @@
 
     .header-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 
+    .global-search { position: relative; display: flex; align-items: center; }
+    .global-search-icon { position: absolute; left: 12px; width: 14px; height: 14px; color: var(--txt-3); pointer-events: none; }
+    .global-search input {
+      width: 220px; font-family: var(--sans); font-size: 12.5px; color: var(--txt);
+      background: var(--bg-2); border: 1px solid var(--border); border-radius: 999px;
+      padding: 8px 14px 8px 32px; transition: border-color 0.15s, width 0.15s;
+    }
+    .global-search input:focus { outline: none; border-color: var(--gold); width: 260px; }
+    .global-search-results {
+      display: none; position: absolute; top: calc(100% + 8px); right: 0; width: 340px; max-height: 420px;
+      overflow-y: auto; background: var(--bg-1); border: 1px solid var(--border-hi);
+      border-radius: var(--radius-sm); box-shadow: 0 12px 32px rgba(0,0,0,0.4); z-index: 200;
+    }
+    .global-search-results.show { display: block; }
+    .search-result-group-label {
+      font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--txt-3); padding: 10px 14px 4px;
+    }
+    .search-result-item {
+      display: block; width: 100%; text-align: left; padding: 8px 14px; background: none; border: none;
+      cursor: pointer; border-bottom: 1px solid var(--border);
+    }
+    .search-result-item:hover { background: var(--bg-2); }
+    .search-result-item-title { font-size: 12.5px; color: var(--txt); font-weight: 600; }
+    .search-result-item-snippet { font-size: 11px; color: var(--txt-3); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .search-result-empty { padding: 16px 14px; font-size: 12px; color: var(--txt-3); text-align: center; }
+
     .live-clock {
       font-family: var(--mono); font-size: 13px; color: var(--txt-2);
       background: var(--bg-2); border: 1px solid var(--border);
@@ -421,6 +448,7 @@
     .todo-form-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
     .todo-field-wrap { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 160px; }
     .todo-field-label { font-size: 10px; font-family: var(--mono); color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.09em; display: flex; align-items: center; gap: 4px; }
+    .todo-field-label .optional { text-transform: none; letter-spacing: normal; opacity: 0.75; }
     .todo-field-label svg { width: 9px; height: 9px; }
 
     .todo-input, .todo-name-input, .todo-email-input, .todo-assignee-select, .post-input, .post-textarea {
@@ -469,6 +497,23 @@
     .todo-add-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
     .todo-add-btn svg { width: 14px; height: 14px; }
 
+    .todo-form-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(23,14,8,0.72); backdrop-filter: blur(2px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .modal-backdrop[style*="display:none"] { display: none !important; }
+    .task-modal { width: min(940px, 100%); background: var(--bg-1); border: 1px solid var(--border-hi); border-radius: var(--radius); box-shadow: 0 30px 80px rgba(0,0,0,0.75); color: var(--txt); }
+    .task-modal-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 16px 20px; border-bottom: 1px solid var(--border); background: var(--bg-2); border-radius: var(--radius) var(--radius) 0 0; }
+    .task-modal-title { font-weight: 800; font-size: 16px; letter-spacing: 0.06em; }
+    .task-modal-kicker { color: var(--gold); font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; }
+    .task-modal-close { border: 1px solid var(--border-hi); background: transparent; color: var(--txt); width: 36px; height: 36px; border-radius: 50%; font-size: 18px; cursor: pointer; }
+    .task-modal-body { padding: 20px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .task-modal-field { display: flex; flex-direction: column; gap: 6px; }
+    .task-modal-field.full { grid-column: 1 / -1; }
+    .task-modal-label { font-family: var(--mono); color: var(--txt-2); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .task-modal-body .todo-input, .task-modal-body select { width: 100%; }
+    .task-modal-actions { display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding: 0 20px 20px; }
+    .task-modal-actions .ghost-btn { background: transparent; color: var(--txt); border: 1px solid var(--border-hi); padding: 10px 14px; border-radius: var(--radius-xs); font-weight: 700; cursor: pointer; }
+
     .todo-controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
     .todo-filters { display: flex; gap: 6px; flex-wrap: wrap; }
     .filter-btn {
@@ -487,6 +532,32 @@
     }
     .todo-sort:focus { border-color: var(--border-hi); }
     .todo-sort option { background: var(--bg-2); }
+
+    /* ENHANCEMENT ("...a Kanban or calendar view") */
+    .view-toggle { display: flex; border: 1px solid var(--border); border-radius: var(--radius-xs); overflow: hidden; }
+    .view-toggle-btn {
+      font-family: var(--mono); font-size: 11px; color: var(--txt-2); background: var(--bg-2);
+      border: none; padding: 5px 12px; cursor: pointer; transition: background 0.15s, color 0.15s;
+    }
+    .view-toggle-btn + .view-toggle-btn { border-left: 1px solid var(--border); }
+    .view-toggle-btn.active { background: var(--gold-dim); color: var(--gold); }
+    .kanban-board { display: none; gap: 12px; overflow-x: auto; padding-bottom: 8px; }
+    .kanban-column { flex: 1 0 220px; min-width: 220px; background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--radius-sm); display: flex; flex-direction: column; max-height: 620px; }
+    .kanban-column-header {
+      display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 12.5px; font-weight: 700;
+      color: var(--txt-2); padding: 12px 14px; border-bottom: 1px solid var(--border);
+    }
+    .kanban-column-count { font-family: var(--mono); font-size: 10px; color: var(--txt-3); background: var(--bg-3); padding: 1px 7px; border-radius: 999px; }
+    .kanban-column-body { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+    .kanban-column-empty { font-size: 11.5px; color: var(--txt-3); font-style: italic; text-align: center; padding: 16px 4px; border: 1px dashed var(--border); border-radius: var(--radius-xs); }
+    .kanban-card {
+      background: var(--bg-3); border: 1px solid var(--border); border-radius: var(--radius-xs);
+      padding: 10px 12px; cursor: grab; transition: border-color 0.15s, transform 0.1s;
+    }
+    .kanban-card:hover { border-color: var(--gold); }
+    .kanban-card:active { cursor: grabbing; transform: scale(0.98); }
+    .kanban-card-text { font-size: 12.5px; color: var(--txt); line-height: 1.4; }
+    .kanban-card-assignee, .kanban-card-due { font-family: var(--mono); font-size: 10px; color: var(--txt-3); margin-top: 6px; }
 
     .todo-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
     .todo-count { font-family: var(--mono); font-size: 12px; color: var(--txt-2); }
@@ -514,6 +585,14 @@
     .todo-item.done { border-color: rgba(127,176,105,0.25); background: rgba(127,176,105,0.04); }
     .todo-item.done .todo-text { text-decoration: line-through; color: var(--txt-3); }
     .todo-item.removing { animation: slideOut 0.25s ease forwards; }
+    .todo-issue-key { font-family: var(--mono); font-size: 10px; color: var(--gold); font-weight: 700; letter-spacing: 0.08em; }
+    .todo-status { font-family: var(--mono); font-size: 9px; color: var(--txt-2); background: var(--bg-3); border: 1px solid var(--border); padding: 2px 8px; border-radius: 999px; text-transform: uppercase; }
+    .todo-status.TO_DO { color: var(--amber); background: var(--amber-dim); border-color: rgba(242,153,74,0.3); }
+    .todo-status.IN_PROGRESS { color: var(--dusk); background: var(--dusk-dim); border-color: rgba(166,126,199,0.3); }
+    .todo-status.IN_REVIEW { color: var(--txt); background: var(--bg-3); border-color: var(--border-hi); }
+    .todo-status.DONE { color: var(--grass); background: var(--grass-dim); border-color: rgba(127,176,105,0.30); }
+    .todo-metadata { margin-top: 8px; }
+    .todo-metadata-tag { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 10px; color: var(--txt-2); background: var(--bg-3); border: 1px solid var(--border); padding: 3px 8px; border-radius: 999px; }
 
     .todo-item-left {
       position: relative; flex-shrink: 0;
@@ -575,6 +654,20 @@
     .todo-item.done .done-badge { display: inline-flex; align-items: center; gap: 3px; }
     .done-badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--grass); animation: pulse 2s ease-in-out infinite; }
 
+    /* ENHANCEMENT ("task due dates + reminders... tags/labels") */
+    .todo-duedate {
+      display: inline-flex; align-items: center; gap: 4px; font-family: var(--mono); font-size: 9px;
+      color: var(--txt-3); background: var(--bg-2); border: 1px solid var(--border);
+      padding: 1px 7px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .todo-duedate svg { width: 10px; height: 10px; }
+    .todo-duedate.overdue { color: var(--red); background: var(--red-dim); border-color: rgba(229,72,77,0.3); }
+    .todo-tags-row { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+    .todo-tag-chip {
+      font-family: var(--mono); font-size: 9px; color: var(--dusk); background: rgba(166,126,199,0.12);
+      border: 1px solid rgba(166,126,199,0.28); padding: 1px 8px; border-radius: 999px;
+    }
+
     .todo-item-actions { display: flex; flex-direction: column; border-left: 1px solid var(--border); flex-shrink: 0; }
     .action-btn {
       flex: 1; background: none; border: none; cursor: pointer;
@@ -598,6 +691,15 @@
     }
     .todo-empty-icon { font-size: 26px; margin-bottom: 10px; color: var(--gold); }
     .todo-empty-sub { font-size: 12px; margin-top: 4px; }
+
+    .load-more-btn {
+      display: block; margin: 16px auto 4px; padding: 9px 20px;
+      background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--radius-xs);
+      color: var(--txt-2); font-size: 12.5px; font-weight: 600; cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .load-more-btn:hover { background: var(--bg-3); color: var(--txt); border-color: var(--gold); }
+    .load-more-btn:disabled { opacity: 0.5; cursor: default; }
 
     /* ── Email settings (now lives in the Settings view, as a plain card) ────── */
     .email-settings-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
@@ -629,6 +731,16 @@
     .email-test-btn:hover { color: var(--dusk); border-color: rgba(166,126,199,0.3); }
     .email-test-btn svg { width: 12px; height: 12px; }
     .email-settings-hint { font-family: var(--mono); font-size: 10px; color: var(--txt-3); line-height: 1.6; border-top: 1px solid var(--border); padding-top: 10px; margin-top: 12px; }
+
+    /* ENHANCEMENT: notification preferences toggle */
+    .pref-row { justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid var(--border); margin-top: 4px; }
+    .pref-toggle-label { font-size: 13px; color: var(--txt-2); }
+    .pref-toggle { position: relative; display: inline-block; width: 38px; height: 22px; cursor: pointer; flex-shrink: 0; }
+    .pref-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .pref-toggle-track { position: absolute; inset: 0; background: var(--bg-3); border: 1px solid var(--border); border-radius: 999px; transition: background 0.15s; }
+    .pref-toggle-thumb { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--txt-3); transition: transform 0.15s, background 0.15s; }
+    .pref-toggle input:checked + .pref-toggle-track { background: var(--accent-dim, rgba(244,201,93,0.25)); border-color: var(--gold); }
+    .pref-toggle input:checked + .pref-toggle-track .pref-toggle-thumb { transform: translateX(16px); background: var(--gold); }
     .email-settings-hint code { background: var(--bg-3); border: 1px solid var(--border); padding: 1px 5px; border-radius: 3px; color: var(--gold); font-family: var(--mono); }
 
     .email-badge {
@@ -669,6 +781,27 @@
     .post-author { font-family: var(--mono); font-size: 11px; color: var(--gold); display: flex; align-items: center; gap: 5px; }
     .post-author svg { width: 11px; height: 11px; }
     .post-date { font-family: var(--mono); font-size: 10px; color: var(--txt-3); }
+
+    /* ENHANCEMENT ("likes/comments on posts, post editing/deleting") */
+    .post-actions { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+    .post-action-btn {
+      display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px;
+      background: var(--bg-2); border: 1px solid var(--border); border-radius: 999px;
+      color: var(--txt-3); font-family: var(--mono); font-size: 11px; cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .post-action-btn svg { width: 13px; height: 13px; }
+    .post-action-btn:hover { color: var(--txt); border-color: var(--gold); }
+    .post-action-btn.liked { color: var(--red, #e5484d); border-color: var(--red, #e5484d); }
+    .post-action-btn.danger:hover { color: var(--red, #e5484d); border-color: var(--red, #e5484d); }
+    .post-action-btn.primary { background: var(--gold-dim); color: var(--gold); border-color: var(--border-hi); }
+    .post-edit-title { margin-bottom: 8px; font-weight: 700; }
+    .post-edit-content { width: 100%; resize: vertical; font-family: var(--sans); }
+    .post-edit-actions { display: flex; gap: 8px; margin-top: 8px; }
+    .post-comments-panel { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
+    .post-comment { font-size: 12px; color: var(--txt-2); line-height: 1.5; }
+    .post-comment-author { font-weight: 700; color: var(--gold); margin-right: 6px; }
+    .post-comments-loading, .post-comments-empty { font-size: 11.5px; color: var(--txt-3); font-style: italic; }
 
     /* ── Auth gate (shown while verifying session, before redirect/render) ───── */
     .auth-gate {
@@ -803,6 +936,37 @@
     .profile-row-label { font-size: 11px; font-family: var(--mono); color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.08em; }
     .profile-row-value { font-size: 13.5px; color: var(--txt); font-weight: 600; text-align: right; }
 
+    .profile-banner {
+      display: none; align-items: center; gap: 10px; font-size: 12.5px;
+      padding: 10px 12px; border-radius: var(--radius-xs); margin-bottom: 16px;
+      background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(242,153,74,0.3);
+    }
+    .profile-banner.show { display: flex; }
+    .auth-link-btn {
+      background: none; border: none; padding: 0; font: inherit;
+      cursor: pointer; text-decoration: underline; text-underline-offset: 2px;
+    }
+    .profile-banner .auth-link-btn { color: inherit; }
+    .profile-actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+
+    /* ENHANCEMENT ("roles & permissions") */
+    .admin-user-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      padding: 12px 0; border-bottom: 1px solid var(--border); flex-wrap: wrap;
+    }
+    .admin-user-row:last-child { border-bottom: none; }
+    .admin-user-info { display: flex; flex-direction: column; gap: 2px; }
+    .admin-user-name { font-size: 13px; color: var(--txt); font-weight: 600; }
+    .admin-user-username { font-family: var(--mono); font-size: 11px; color: var(--txt-3); }
+    .admin-user-flag {
+      display: inline-block; margin-top: 2px; width: fit-content; font-size: 9px; text-transform: uppercase;
+      letter-spacing: 0.06em; padding: 1px 7px; border-radius: 999px; font-family: var(--mono);
+    }
+    .admin-user-flag.locked { color: var(--red); background: var(--red-dim); }
+    .admin-user-flag.unverified { color: var(--amber, #f2994a); background: var(--amber-dim, rgba(242,153,74,0.14)); }
+    .admin-user-actions { display: flex; gap: 8px; }
+
+
     /* ── Comments & attachments (per task) ───────────────────────────────────── */
     /* ENHANCEMENT ("comments and files not visible properly, make it
        highlight to visible"): this toggle used to be plain 10.5px dim text
@@ -830,6 +994,31 @@
     .comment-item-author { color: var(--gold); font-weight: 700; }
     .comment-item-text { font-size: 13px; color: var(--txt); line-height: 1.45; word-break: break-word; }
     .comment-empty { font-size: 12px; color: var(--txt-3); font-style: italic; margin-bottom: 10px; }
+
+    /* ENHANCEMENT ("subtasks/checklists") */
+    .subtask-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; max-height: 220px; overflow-y: auto; }
+    .subtask-item {
+      display: flex; align-items: center; gap: 8px; background: var(--bg-3);
+      border-radius: var(--radius-xs); padding: 6px 10px;
+    }
+    .subtask-check {
+      flex-shrink: 0; width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid var(--border-hi);
+      background: none; color: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .subtask-check svg { width: 12px; height: 12px; }
+    .subtask-check:hover { border-color: var(--gold); }
+    .subtask-item.done .subtask-check { background: var(--grass); border-color: var(--grass); color: var(--bg); }
+    .subtask-text { flex: 1; font-size: 12.5px; color: var(--txt); word-break: break-word; }
+    .subtask-item.done .subtask-text { color: var(--txt-3); text-decoration: line-through; }
+    .subtask-remove {
+      flex-shrink: 0; background: none; border: none; color: var(--txt-3); cursor: pointer;
+      display: flex; align-items: center; justify-content: center; padding: 2px; opacity: 0.6;
+      transition: opacity 0.15s, color 0.15s;
+    }
+    .subtask-remove svg { width: 12px; height: 12px; }
+    .subtask-remove:hover { opacity: 1; color: var(--red); }
+
     .comment-add-row { display: flex; gap: 8px; margin-bottom: 12px; }
     .comment-add-row input { flex: 1; }
     .comment-add-row button {
@@ -914,6 +1103,13 @@
       </div>
     </div>
     <div class="header-right">
+      <!-- ENHANCEMENT ("search across tasks and posts — nothing global") -->
+      <div class="global-search" id="global-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" class="global-search-icon"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" id="global-search-input" placeholder="Search tasks & posts…" autocomplete="off"
+               oninput="onGlobalSearchInput()" onfocus="onGlobalSearchInput()" />
+        <div class="global-search-results" id="global-search-results"></div>
+      </div>
       <div class="live-clock" id="clock">--:--:--</div>
       <button class="theme-btn" id="theme-btn" onclick="cycleAccent()" title="Switch accent color" aria-label="Switch accent color">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.5-.7 1.5-1.5 0-.4-.2-.8-.4-1.1-.2-.3-.4-.6-.4-1 0-.8.7-1.5 1.5-1.5H16c3.3 0 6-2.7 6-6 0-4.4-4.5-8-10-8z"/></svg>
@@ -1119,9 +1315,16 @@
         <div class="todo-field-wrap">
           <label class="todo-field-label">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
-            Notify Email
+            Notify Status
           </label>
-          <input class="todo-email-input" id="todo-email" type="email" placeholder="Pick an assignee above" maxlength="120" readonly />
+          <!-- SECURITY FIX: this used to display the assignee's raw email
+               address (auto-filled from GET /api/users). That endpoint no
+               longer hands out anyone's email to other users (see
+               UserController) — the actual address is resolved server-side,
+               by username, only at the moment a notification is actually
+               sent (see NotificationController). This field now just shows
+               whether the selected assignee CAN be notified. -->
+          <input class="todo-email-input" id="todo-email" type="text" placeholder="Pick an assignee above" readonly />
         </div>
       </div>
       <div class="todo-form-row">
@@ -1133,6 +1336,48 @@
           <input class="todo-input" id="todo-text" type="text" placeholder="What needs to be done?" maxlength="200" />
         </div>
       </div>
+      <div class="todo-form-row">
+        <div class="todo-field-wrap" style="flex:0 0 auto;width:160px;">
+          <label class="todo-field-label">Ticket Type</label>
+          <select class="todo-input" id="todo-ticket-type">
+            <option value="TASK">Task</option>
+            <option value="BUG">Bug</option>
+            <option value="FEATURE">Feature</option>
+            <option value="CHORE">Chore</option>
+            <option value="IMPROVEMENT">Improvement</option>
+            <option value="RESEARCH">Research</option>
+          </select>
+        </div>
+        <div class="todo-field-wrap" style="flex:0 0 auto;width:150px;">
+          <label class="todo-field-label">Component</label>
+          <input class="todo-input" id="todo-component" type="text" placeholder="Auth" maxlength="50" />
+        </div>
+        <div class="todo-field-wrap" style="flex:0 0 auto;width:150px;">
+          <label class="todo-field-label">Team</label>
+          <input class="todo-input" id="todo-team" type="text" placeholder="Platform" maxlength="50" />
+        </div>
+        <div class="todo-field-wrap" style="flex:0 0 auto;width:150px;">
+          <label class="todo-field-label">Folder</label>
+          <input class="todo-input" id="todo-folder" type="text" placeholder="Security" maxlength="50" />
+        </div>
+      </div>
+      <!-- ENHANCEMENT ("task due dates + reminders... tags/labels") -->
+      <div class="todo-form-row">
+        <div class="todo-field-wrap" style="flex:0 0 auto;width:175px;">
+          <label class="todo-field-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            Due Date <span class="optional">(optional)</span>
+          </label>
+          <input class="todo-input" id="todo-duedate" type="date" />
+        </div>
+        <div class="todo-field-wrap">
+          <label class="todo-field-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20.6 12.3 12.3 20.6a2 2 0 0 1-2.8 0l-7-7a2 2 0 0 1 0-2.9L10.8 2.4a2 2 0 0 1 1.4-.6H19a2 2 0 0 1 2 2v7.2a2 2 0 0 1-.4 1.3Z"/><circle cx="15" cy="7" r="1" fill="currentColor"/></svg>
+            Tags <span class="optional">(optional, comma-separated, up to 6)</span>
+          </label>
+          <input class="todo-input" id="todo-tags" type="text" placeholder="e.g. urgent, backend" maxlength="150" />
+        </div>
+      </div>
       <div class="todo-form-bottom">
         <div class="priority-row">
           <span class="priority-label">Priority:</span>
@@ -1140,10 +1385,99 @@
           <button class="priority-btn sel-medium" data-p="medium" onclick="selectPriority('medium')" aria-pressed="true">➡ Medium</button>
           <button class="priority-btn" data-p="low" onclick="selectPriority('low')" aria-pressed="false">⬇ Low</button>
         </div>
-        <button class="todo-add-btn" id="add-todo-btn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-          <span>Add Task</span>
-        </button>
+        <div class="todo-form-actions">
+          <button class="todo-add-btn" id="open-create-task-modal-btn" onclick="openCreateTaskModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/><path d="M19 16l3 3 4-6"/></svg>
+            <span>Open Popup</span>
+          </button>
+          <button class="todo-add-btn" id="add-todo-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            <span>Add Task</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="create-task-modal" style="display:none;">
+      <div class="task-modal">
+        <div class="task-modal-header">
+          <div>
+            <div class="task-modal-kicker">Create Ticket</div>
+            <div class="task-modal-title">Create Jira-Like Task</div>
+          </div>
+          <button class="task-modal-close" onclick="closeCreateTaskModal()" aria-label="Close">×</button>
+        </div>
+        <div class="task-modal-body">
+          <div class="task-modal-field full">
+            <label class="task-modal-label">Task Description</label>
+            <input class="todo-input" id="modal-task-text" type="text" placeholder="What needs to be done?" maxlength="200" />
+          </div>
+          <div class="task-modal-field">
+            <label class="task-modal-label">Assignee</label>
+            <select class="todo-assignee-select" id="modal-task-assignee">
+              <option value="">Unassigned</option>
+            </select>
+          </div>
+          <div class="task-modal-field">
+            <label class="task-modal-label">Notify Status</label>
+            <input class="todo-email-input" id="modal-task-email" type="text" placeholder="Pick an assignee" readonly />
+          </div>
+          <div class="task-modal-field">
+            <label class="task-modal-label">Priority</label>
+            <select class="todo-input" id="modal-task-priority">
+              <option value="high">High</option>
+              <option value="medium" selected>Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+          <div class="task-modal-field">
+            <label class="task-modal-label">Status</label>
+            <select class="todo-input" id="modal-task-status">
+              <option value="TO_DO" selected>To Do</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="IN_REVIEW">In Review</option>
+              <option value="DONE">Done</option>
+            </select>
+          </div>
+          <div class="task-modal-field">
+            <label class="task-modal-label">Ticket Type</label>
+            <select class="todo-input" id="modal-task-ticket-type">
+              <option value="TASK" selected>Task</option>
+              <option value="BUG">Bug</option>
+              <option value="FEATURE">Feature</option>
+              <option value="CHORE">Chore</option>
+              <option value="IMPROVEMENT">Improvement</option>
+              <option value="RESEARCH">Research</option>
+            </select>
+          </div>
+          <div class="task-modal-field">
+            <label class="task-modal-label">Component</label>
+            <input class="todo-input" id="modal-task-component" type="text" placeholder="Auth" maxlength="50" />
+          </div>
+          <div class="task-modal-field">
+            <label class="task-modal-label">Team</label>
+            <input class="todo-input" id="modal-task-team" type="text" placeholder="Platform" maxlength="50" />
+          </div>
+          <div class="task-modal-field">
+            <label class="task-modal-label">Folder</label>
+            <input class="todo-input" id="modal-task-folder" type="text" placeholder="Security" maxlength="50" />
+          </div>
+          <div class="task-modal-field">
+            <label class="task-modal-label">Due Date</label>
+            <input class="todo-input" id="modal-task-duedate" type="date" />
+          </div>
+          <div class="task-modal-field full">
+            <label class="task-modal-label">Tags</label>
+            <input class="todo-input" id="modal-task-tags" type="text" placeholder="backend, auth" maxlength="150" />
+          </div>
+        </div>
+        <div class="task-modal-actions">
+          <button class="ghost-btn" onclick="closeCreateTaskModal()">Cancel</button>
+          <button class="todo-add-btn" id="modal-create-task-btn" onclick="submitCreateTaskFromModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            <span>Create Task</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -1155,6 +1489,12 @@
         <button class="filter-btn" data-filter="high" aria-pressed="false">🔴 High</button>
       </div>
       <div class="todo-controls-right">
+        <!-- ENHANCEMENT ("...a Kanban or calendar view — the task manager
+             currently only has priority + done/not-done") -->
+        <div class="view-toggle" id="todo-view-toggle">
+          <button class="view-toggle-btn active" data-view="list" onclick="setTaskViewMode('list')">List</button>
+          <button class="view-toggle-btn" data-view="board" onclick="setTaskViewMode('board')">Board</button>
+        </div>
         <select class="todo-sort" id="todo-sort" onchange="renderTodos()">
           <option value="newest">Newest first</option>
           <option value="oldest">Oldest first</option>
@@ -1183,11 +1523,24 @@
     </div>
 
     <ul class="todo-list" id="todo-list"></ul>
+    <!-- ENHANCEMENT ("Kanban... view"): a lightweight 3-column board over
+         the SAME task data (priority + done) — no new backend fields, so
+         dragging a card just calls the existing toggleTodo()/updateTodo()
+         endpoints, exactly like the list view's own buttons do. -->
+    <div class="kanban-board" id="kanban-board" style="display:none;"></div>
     <div class="todo-empty" id="todo-empty" style="display:none;">
       <div class="todo-empty-icon">✦</div>
       <div>No tasks here.</div>
       <div class="todo-empty-sub">Sign in and add one above to get started.</div>
     </div>
+    <!-- CORRECTNESS FIX (no pagination — see TodoController.getAllTodos()):
+         /todos is now bounded by page/size instead of always returning
+         every task. This button widens the loaded window rather than
+         paging through separate screens, so it plays nicely with the
+         existing "merge in place, don't lose edits" refresh logic. -->
+    <button class="load-more-btn" id="load-more-todos-btn" onclick="loadMoreTodos()" style="display:none;">
+      Load more tasks
+    </button>
   </div>
   </section>
 
@@ -1238,6 +1591,10 @@
       <div>No posts yet.</div>
       <div class="todo-empty-sub">Be the first to share something with the pride.</div>
     </div>
+    <!-- CORRECTNESS FIX (no pagination — see PostController.getAllPosts()) -->
+    <button class="load-more-btn" id="load-more-posts-btn" onclick="loadMorePosts()" style="display:none;">
+      Load more posts
+    </button>
   </div>
   </section>
 
@@ -1292,9 +1649,18 @@
             Send Test To Myself
           </button>
         </div>
+        <!-- ENHANCEMENT ("notification preferences... right now email
+             notifications are all-or-nothing per assignment") -->
+        <div class="email-settings-row pref-row">
+          <label class="pref-toggle-label" for="pref-notify-assignment">Email me when I'm assigned a task</label>
+          <label class="pref-toggle">
+            <input type="checkbox" id="pref-notify-assignment" onchange="updateNotifyPreference(this.checked)" />
+            <span class="pref-toggle-track"><span class="pref-toggle-thumb"></span></span>
+          </label>
+        </div>
         <div class="email-settings-hint">
           Notifications are sent via your Spring Boot backend at <code>POST /api/notify</code> and require you to be signed in.
-          The notify email for a task is always looked up from whoever you assign it to — pick an assignee when creating a task and it fills in automatically.
+          The notify email for a task is always looked up from whoever you assign it to — pick an assignee when creating a task and it fills in automatically. Turning the toggle above off stops others' task assignments from emailing you, without removing your email address (so password reset still works).
         </div>
       </div>
     </div>
@@ -1351,6 +1717,22 @@
       </div>
     </div>
 
+    <!-- ENHANCEMENT ("roles & permissions — no one can manage other
+         accounts, moderate posts, or reassign orphaned tasks"): only
+         rendered/populated for an admin — see updateAuthUI(). -->
+    <div id="admin-settings-group" style="display:none;">
+      <div class="settings-group-title">Admin</div>
+      <div class="card" style="max-width:560px;">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2 3 7v6c0 5 4 9 9 9s9-4 9-9V7z"/></svg>
+            Team Accounts
+          </div>
+        </div>
+        <div id="admin-users-list"><div class="comment-empty">Loading…</div></div>
+      </div>
+    </div>
+
   </div>
   </section>
 
@@ -1371,11 +1753,19 @@
         <div class="profile-username" id="profile-username-line">@—</div>
       </div>
     </div>
+    <div class="profile-banner" id="profile-verify-banner">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+      <span>Your email isn't verified yet. <button type="button" class="auth-link-btn" onclick="resendVerification()">Resend verification email</button></span>
+    </div>
     <div class="profile-rows">
       <div class="profile-row"><span class="profile-row-label">Email</span><span class="profile-row-value" id="profile-email">—</span></div>
+      <div class="profile-row"><span class="profile-row-label">Role</span><span class="profile-row-value" id="profile-role">—</span></div>
       <div class="profile-row"><span class="profile-row-label">Member Since</span><span class="profile-row-value" id="profile-created">—</span></div>
       <div class="profile-row"><span class="profile-row-label">Tasks Created</span><span class="profile-row-value" id="profile-tasks-created">—</span></div>
       <div class="profile-row"><span class="profile-row-label">Tasks Assigned To You</span><span class="profile-row-value" id="profile-tasks-assigned">—</span></div>
+    </div>
+    <div class="profile-actions">
+      <button class="auth-btn ghost" onclick="logoutEverywhere()" title="Sign out every other device/browser signed in as you">Sign Out Everywhere Else</button>
     </div>
   </div>
   </section>
@@ -1387,14 +1777,130 @@
 <script>
   // ── State ──────────────────────────────────────────────────────────────────
   var todos = [], posts = [], users = [], filter = 'all', refreshInterval, countdownInterval;
+
+  // CORRECTNESS FIX (no pagination — see TodoController/PostController):
+  // the "window" of rows currently loaded grows via loadMoreTodos()/
+  // loadMorePosts() rather than paging to a separate screen, so the
+  // existing merge-in-place refresh logic (mergeTodosFromServer) doesn't
+  // need to know anything changed.
+  var todosLoadedSize = 25, todosTotalElements = 0;
+  var postsLoadedSize = 15, postsTotalElements = 0;
+
+  // ENHANCEMENT ("...a Kanban or calendar view")
+  var taskViewMode = 'list';
   var sessionStart = Date.now(), refreshSeconds = 30, currentCountdown = 30;
   var localIdCounter = 0;
   var CIRCUMFERENCE = 2 * Math.PI * 11;
   var selectedPriority = 'medium';
   var PRIORITY_ORDER = { high: 0, medium: 1, low: 2 };
-  var auth = { loggedIn: false, username: null, displayName: null };
+  var STATUS_LABELS = { TO_DO: 'To Do', IN_PROGRESS: 'In Progress', IN_REVIEW: 'In Review', DONE: 'Done' };
+  var STATUS_ORDER = { TO_DO: 0, IN_PROGRESS: 1, IN_REVIEW: 2, DONE: 3 };
+  var auth = { loggedIn: false, username: null, displayName: null, isAdmin: false, role: 'MEMBER' };
 
-  // ── Accent theme ─────────────────────────────────────────────────────────────
+  // ── CSRF helper ──────────────────────────────────────────────────────────
+  // SECURITY FIX: CSRF protection is back on (see SecurityConfig). Spring
+  // Security hands the browser a readable "XSRF-TOKEN" cookie; every
+  // mutating request (anything but GET) must echo it back as the
+  // "X-XSRF-TOKEN" header, or the server rejects it. apiFetch() is a
+  // drop-in wrapper for fetch() that does this automatically — every
+  // POST/PATCH/DELETE call in this file goes through it now instead of the
+  // raw fetch().
+  function getCookie(name) {
+    var match = document.cookie.match('(?:^|; )' + name + '=([^;]*)');
+    return match ? decodeURIComponent(match[1]) : null;
+  }
+  function ensureCsrfCookie() {
+    if (!getCookie('XSRF-TOKEN')) {
+      return fetch('/api/csrf').catch(function() {});
+    }
+    return Promise.resolve();
+  }
+  function apiFetch(url, options) {
+    options = options || {};
+    var method = (options.method || 'GET').toUpperCase();
+    if (method !== 'GET' && method !== 'HEAD') {
+      options.headers = Object.assign({}, options.headers, { 'X-XSRF-TOKEN': getCookie('XSRF-TOKEN') || '' });
+    }
+    return fetch(url, options);
+  }
+
+  // ── Global search ────────────────────────────────────────────────────────
+  // ENHANCEMENT ("search across tasks and posts — there's a task search box,
+  // but nothing global"): debounced so we're not firing a request on every
+  // keystroke; a click outside closes the results panel.
+  var globalSearchDebounce = null;
+  var globalSearchLastQuery = '';
+
+  function onGlobalSearchInput() {
+    var q = document.getElementById('global-search-input').value.trim();
+    clearTimeout(globalSearchDebounce);
+    if (!q) { hideGlobalSearchResults(); return; }
+    globalSearchDebounce = setTimeout(function() { runGlobalSearch(q); }, 250);
+  }
+
+  function runGlobalSearch(q) {
+    if (!auth.loggedIn) return;
+    globalSearchLastQuery = q;
+    apiFetch('/api/search?q=' + encodeURIComponent(q))
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (document.getElementById('global-search-input').value.trim() !== q) return; // stale response
+        renderGlobalSearchResults(data.todos || [], data.posts || []);
+      })
+      .catch(function() { /* silent — search is a convenience, not critical path */ });
+  }
+
+  function renderGlobalSearchResults(todos, posts) {
+    var panel = document.getElementById('global-search-results');
+    if (todos.length === 0 && posts.length === 0) {
+      panel.innerHTML = '<div class="search-result-empty">No matches for "' + escapeAttr(globalSearchLastQuery) + '"</div>';
+      panel.classList.add('show');
+      return;
+    }
+    var html = '';
+    if (todos.length > 0) {
+      html += '<div class="search-result-group-label">Tasks</div>';
+      todos.forEach(function(t) {
+        var issueKey = t.issueKey || ('TASK-' + t.id);
+        html += '<button class="search-result-item" onclick="goToSearchResult(\'task\', ' + t.id + ')">' +
+          '<div class="search-result-item-title">' + escapeHtml(issueKey + ' — ' + t.text) + '</div>' +
+          '<div class="search-result-item-snippet">' + (t.name ? 'Assigned to ' + escapeHtml(t.name) : 'Unassigned') + ' · ' + STATUS_LABELS[t.status || 'TO_DO'] + '</div>' +
+          '</button>';
+      });
+    }
+    if (posts.length > 0) {
+      html += '<div class="search-result-group-label">Posts</div>';
+      posts.forEach(function(p) {
+        html += '<button class="search-result-item" onclick="goToSearchResult(\'post\', ' + p.id + ')">' +
+          '<div class="search-result-item-title">' + escapeHtml(p.title) + '</div>' +
+          '<div class="search-result-item-snippet">' + escapeHtml(p.content) + '</div>' +
+          '</button>';
+      });
+    }
+    panel.innerHTML = html;
+    panel.classList.add('show');
+  }
+
+  function hideGlobalSearchResults() {
+    document.getElementById('global-search-results').classList.remove('show');
+  }
+
+  // Jumps to the relevant view. Doesn't scroll to/highlight the specific
+  // row — the task/post might be beyond what's currently loaded (see
+  // pagination) and forcing an extra fetch just for that is more machinery
+  // than this earns; landing on the right view is most of the value.
+  function goToSearchResult(kind, id) {
+    hideGlobalSearchResults();
+    document.getElementById('global-search-input').value = '';
+    switchView(kind === 'task' ? 'tasks' : 'posts');
+  }
+
+  document.addEventListener('click', function(e) {
+    var box = document.getElementById('global-search');
+    if (box && !box.contains(e.target)) hideGlobalSearchResults();
+  });
+
+
   var ACCENTS = ['gold', 'violet', 'jungle'];
   var ACCENT_LABELS = { gold: 'Savanna Gold', violet: 'Twilight Violet', jungle: 'Jungle Teal' };
   function applyAccent(accent) {
@@ -1444,7 +1950,8 @@
       if (link) link.classList.toggle('active', v === view);
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (view === 'profile') loadProfile();
+    if (view === 'profile' || view === 'settings') loadProfile();
+    if (view === 'settings' && auth.isAdmin) loadAdminUsers();
   }
 
   function switchView(view) {
@@ -1466,10 +1973,10 @@
   }
 
   function checkAuth() {
-    return fetch('/api/auth/me')
+    return ensureCsrfCookie().then(function() { return fetch('/api/auth/me'); })
       .then(function(r) { if (!r.ok) throw new Error('unauthenticated'); return r.json(); })
       .then(function(d) {
-        auth = { loggedIn: true, username: d.username, displayName: d.displayName };
+        auth = { loggedIn: true, username: d.username, displayName: d.displayName, isAdmin: !!d.isAdmin, role: d.role || 'MEMBER' };
         updateAuthUI();
       })
       .catch(function() {
@@ -1489,6 +1996,10 @@
     // instead of the page reading the same for everyone.
     var greeting = document.getElementById('hero-greeting');
     if (greeting) greeting.textContent = 'Welcome back, ' + label + ' — here\'s what the pride has been up to.';
+
+    // ENHANCEMENT ("roles & permissions")
+    var adminGroup = document.getElementById('admin-settings-group');
+    if (adminGroup) adminGroup.style.display = auth.isAdmin ? 'block' : 'none';
   }
 
   // ENHANCEMENT ("in user profile if click it i need to get all the user
@@ -1505,15 +2016,114 @@
         document.getElementById('profile-name').textContent = label;
         document.getElementById('profile-username-line').textContent = '@' + p.username;
         document.getElementById('profile-email').textContent = p.email || '—';
+        document.getElementById('profile-role').textContent = p.role === 'ADMIN' ? 'Admin' : 'Member';
         document.getElementById('profile-created').textContent = p.createdAt ? formatDate(new Date(p.createdAt).getTime()) : '—';
         document.getElementById('profile-tasks-created').textContent = p.tasksCreated;
         document.getElementById('profile-tasks-assigned').textContent = p.tasksAssigned;
+        // SECURITY FEATURE: nudge people who have an email on file but never
+        // confirmed it — see AuthController.verifyEmail / resendVerification.
+        document.getElementById('profile-verify-banner').classList.toggle('show', !!p.email && !p.emailVerified);
+        var prefToggle = document.getElementById('pref-notify-assignment');
+        if (prefToggle) prefToggle.checked = !!p.notifyOnAssignment;
       })
       .catch(function() { showToast('Could not load your profile', 'error'); });
   }
 
+  // ENHANCEMENT ("notification preferences"): toggled from Settings.
+  function updateNotifyPreference(checked) {
+    apiFetch('/api/users/me/preferences', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notifyOnAssignment: checked })
+    })
+      .then(function(r) { return r.json(); })
+      .then(function() { showToast(checked ? 'Assignment emails turned on' : 'Assignment emails turned off', 'success'); loadUsers(); })
+      .catch(function() {
+        showToast('Could not save that preference', 'error');
+        document.getElementById('pref-notify-assignment').checked = !checked; // revert on failure
+      });
+  }
+
+  // ENHANCEMENT ("roles & permissions — no one can manage other accounts,
+  // moderate posts, or reassign orphaned tasks"): admin-only, and the
+  // backend enforces that independently (returns 404 for a non-admin) —
+  // this panel simply isn't rendered/called for anyone else, see
+  // updateAuthUI()/applyView().
+  function loadAdminUsers() {
+    var list = document.getElementById('admin-users-list');
+    fetch('/api/admin/users')
+      .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function(users) { renderAdminUsers(users); })
+      .catch(function() { list.innerHTML = '<div class="comment-empty">Could not load accounts</div>'; });
+  }
+
+  function renderAdminUsers(users) {
+    var list = document.getElementById('admin-users-list');
+    list.innerHTML = users.map(function(u) {
+      var isSelf = u.username === auth.username;
+      var isAdminUser = u.role === 'ADMIN';
+      return '<div class="admin-user-row">' +
+        '<div class="admin-user-info">' +
+          '<span class="admin-user-name">' + escapeHtml(u.displayName || u.username) + '</span>' +
+          '<span class="admin-user-username">@' + escapeHtml(u.username) + (isSelf ? ' (you)' : '') + '</span>' +
+          (u.locked ? '<span class="admin-user-flag locked">Locked</span>' : '') +
+          (u.email && !u.emailVerified ? '<span class="admin-user-flag unverified">Unverified</span>' : '') +
+        '</div>' +
+        '<div class="admin-user-actions">' +
+          '<button class="post-action-btn' + (isAdminUser ? ' primary' : '') + '" onclick="setUserRole(\'' + u.username + '\', \'' + (isAdminUser ? 'MEMBER' : 'ADMIN') + '\')">' +
+            (isAdminUser ? 'Admin' : 'Member') +
+          '</button>' +
+          (u.locked ? '<button class="post-action-btn" onclick="unlockUserAccount(\'' + u.username + '\')">Unlock</button>' : '') +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function setUserRole(username, newRole) {
+    apiFetch('/api/admin/users/' + encodeURIComponent(username) + '/role', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ role: newRole })
+    })
+      .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+      .then(function(res) {
+        if (!res.ok) { showToast(res.data.message || 'Could not update role', 'error'); return; }
+        showToast(username + ' is now ' + (newRole === 'ADMIN' ? 'an admin' : 'a member'), 'success');
+        loadAdminUsers();
+      })
+      .catch(function() { showToast('Network error — please try again', 'error'); });
+  }
+
+  function unlockUserAccount(username) {
+    apiFetch('/api/admin/users/' + encodeURIComponent(username) + '/unlock', { method: 'POST' })
+      .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+      .then(function(res) {
+        if (!res.ok) { showToast(res.data.message || 'Could not unlock account', 'error'); return; }
+        showToast(username + "'s account is unlocked", 'success');
+        loadAdminUsers();
+      })
+      .catch(function() { showToast('Network error — please try again', 'error'); });
+  }
+
+  function resendVerification() {
+    apiFetch('/api/auth/resend-verification', { method: 'POST' })
+      .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+      .then(function(res) { showToast(res.data.message || (res.ok ? 'Verification email sent' : 'Could not send verification email'), res.ok ? 'success' : 'error'); })
+      .catch(function() { showToast('Network error — please try again', 'error'); });
+  }
+
+  // SECURITY FEATURE: invalidates every OTHER active session for this
+  // account (e.g. "I forgot to sign out on a shared computer") — see
+  // AuthController.logoutEverywhere / SecurityConfig's SessionRegistry setup.
+  function logoutEverywhere() {
+    apiFetch('/api/auth/logout-everywhere', { method: 'POST' })
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        var count = d.sessionsSignedOut || 0;
+        showToast(count > 0 ? ('Signed out ' + count + ' other session(s)') : 'No other active sessions found', 'success');
+      })
+      .catch(function() { showToast('Could not sign out other sessions', 'error'); });
+  }
+
   function logout() {
-    fetch('/api/auth/logout', { method: 'POST' })
+    apiFetch('/api/auth/logout', { method: 'POST' })
       .then(function() { window.location.href = 'login.html'; })
       .catch(function() { window.location.href = 'login.html'; });
   }
@@ -1529,12 +2139,25 @@
       .then(function(data) {
         users = data;
         var select = document.getElementById('todo-assignee');
-        var current = select.value;
-        select.innerHTML = '<option value="">Unassigned</option>' + users.map(function(u) {
-          var label = u.displayName + (u.username === auth.username ? ' (You)' : '');
-          return '<option value="' + escapeAttr(u.username) + '">' + escapeHtml(label) + '</option>';
-        }).join('');
-        if (current) select.value = current;
+        var current = select ? select.value : '';
+        if (select) {
+          select.innerHTML = '<option value="">Unassigned</option>' + users.map(function(u) {
+            var label = u.displayName + (u.username === auth.username ? ' (You)' : '');
+            return '<option value="' + escapeAttr(u.username) + '">' + escapeHtml(label) + '</option>';
+          }).join('');
+          if (current) select.value = current;
+        }
+
+        var modalSelect = document.getElementById('modal-task-assignee');
+        var modalCurrent = modalSelect ? modalSelect.value : '';
+        if (modalSelect) {
+          modalSelect.innerHTML = '<option value="">Unassigned</option>' + users.map(function(u) {
+            var label = u.displayName + (u.username === auth.username ? ' (You)' : '');
+            return '<option value="' + escapeAttr(u.username) + '">' + escapeHtml(label) + '</option>';
+          }).join('');
+          if (modalCurrent) modalSelect.value = modalCurrent;
+        }
+
         updateAssigneeEmail();
         renderHomeOverview();
       })
@@ -1547,24 +2170,159 @@
   // Todo.java / TodoController for why: it closes an arbitrary-recipient
   // abuse vector, since the email now always comes from a real account).
   function updateAssigneeEmail() {
-    var username = document.getElementById('todo-assignee').value;
-    var emailInput = document.getElementById('todo-email');
-    var user = users.find(function(u) { return u.username === username; });
-    emailInput.value = (user && user.email) ? user.email : '';
+    var username = document.getElementById('todo-assignee') ? document.getElementById('todo-assignee').value : '';
+    var todoStatusInput = document.getElementById('todo-email');
+    var modalUsername = document.getElementById('modal-task-assignee') ? document.getElementById('modal-task-assignee').value : '';
+    var modalStatusInput = document.getElementById('modal-task-email');
+    var user = users.find(function(u) { return u.username === username || u.username === modalUsername; });
+
+    if (todoStatusInput) {
+      if (!username) { todoStatusInput.value = ''; }
+      else {
+        var labeledUser = users.find(function(u) { return u.username === username; });
+        todoStatusInput.value = (labeledUser && labeledUser.notifiable) ? 'Will notify by email' : 'No email on file — no notification';
+      }
+    }
+
+    if (modalStatusInput) {
+      if (!modalUsername) { modalStatusInput.value = ''; }
+      else {
+        var modalUser = users.find(function(u) { return u.username === modalUsername; });
+        modalStatusInput.value = (modalUser && modalUser.notifiable) ? 'Will notify by email' : 'No email on file — no notification';
+      }
+    }
   }
 
   // ── Posts ──────────────────────────────────────────────────────────────────
+  // CORRECTNESS FIX (no pagination — see PostController.getAllPosts()):
+  // was fetch('/api/posts') returning the entire board every time; now
+  // bounded by page/size, growing via loadMorePosts() below.
   function loadPosts(opts) {
     opts = opts || {};
-    fetch('/api/posts')
+    if (isEditingAnyPost()) return Promise.resolve();
+    return fetch('/api/posts?page=0&size=' + postsLoadedSize)
       .then(function(r) { return r.json(); })
-      .then(function(data) { posts = data; renderPosts(); })
+      .then(function(page) { posts = page.content; postsTotalElements = page.totalElements; renderPosts(); })
       .catch(function() { if (!opts.silent) showToast('Could not load the watering hole board', 'error'); });
+  }
+
+  function loadMorePosts() {
+    var btn = document.getElementById('load-more-posts-btn');
+    btn.disabled = true;
+    postsLoadedSize += 15;
+    loadPosts().finally(function() { btn.disabled = false; });
+  }
+
+  function isEditingAnyPost() {
+    return posts.some(function(p) { return p.editing || p.commentsOpen; });
+  }
+
+  // ── Post likes ───────────────────────────────────────────────────────────
+  // ENHANCEMENT ("likes ... on posts, parity with what tasks already have")
+  function togglePostLike(id) {
+    if (!auth.loggedIn) { goToLogin(); return; }
+    apiFetch('/api/posts/' + id + '/like', { method: 'POST' })
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        var post = posts.find(function(p) { return p.id === id; });
+        if (post) { post.likedByMe = d.liked; post.likeCount = d.likeCount; renderPosts(); }
+      })
+      .catch(function() { showToast('Could not update like', 'error'); });
+  }
+
+  // ── Post edit ────────────────────────────────────────────────────────────
+  // ENHANCEMENT ("post editing/deleting ... parity with what tasks already have")
+  function startEditPost(id) {
+    var post = posts.find(function(p) { return p.id === id; });
+    if (post) { post.editing = true; renderPosts(); }
+  }
+
+  function cancelEditPost(id) {
+    var post = posts.find(function(p) { return p.id === id; });
+    if (post) { post.editing = false; renderPosts(); }
+  }
+
+  function saveEditPost(id) {
+    var title = document.getElementById('post-edit-title-' + id).value.trim();
+    var content = document.getElementById('post-edit-content-' + id).value.trim();
+    if (!title || !content) { showToast('Title and content are required', 'error'); return; }
+
+    apiFetch('/api/posts/' + id, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: title, content: content })
+    })
+      .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+      .then(function(res) {
+        if (!res.ok) { showToast(res.data.message || 'Could not save changes', 'error'); return; }
+        var idx = posts.findIndex(function(p) { return p.id === id; });
+        if (idx !== -1) {
+          res.data.commentsOpen = posts[idx].commentsOpen;
+          res.data.comments = posts[idx].comments;
+          posts[idx] = res.data;
+        }
+        renderPosts();
+        showToast('Post updated', 'success');
+      })
+      .catch(function() { showToast('Network error — please try again', 'error'); });
+  }
+
+  function deletePostConfirm(id) {
+    if (!confirm('Delete this post? This cannot be undone from the dashboard.')) return;
+    apiFetch('/api/posts/' + id, { method: 'DELETE' })
+      .then(function(r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        posts = posts.filter(function(p) { return p.id !== id; });
+        renderPosts();
+        showToast('Post deleted', 'success');
+      })
+      .catch(function() { showToast('Could not delete post', 'error'); });
+  }
+
+  // ── Post comments ────────────────────────────────────────────────────────
+  // ENHANCEMENT ("comments ... on posts, parity with what tasks already have")
+  function togglePostComments(id) {
+    var post = posts.find(function(p) { return p.id === id; });
+    if (!post) return;
+    post.commentsOpen = !post.commentsOpen;
+    if (post.commentsOpen && !post.comments) {
+      post.commentsLoading = true;
+      renderPosts();
+      fetch('/api/posts/' + id + '/comments')
+        .then(function(r) { return r.json(); })
+        .then(function(data) { post.comments = data; post.commentsLoading = false; renderPosts(); })
+        .catch(function() { post.commentsLoading = false; post.comments = []; renderPosts(); showToast('Could not load comments', 'error'); });
+    } else {
+      renderPosts();
+    }
+  }
+
+  function submitPostComment(id) {
+    if (!auth.loggedIn) { goToLogin(); return; }
+    var input = document.getElementById('post-comment-input-' + id);
+    var text = input.value.trim();
+    if (!text) return;
+
+    apiFetch('/api/posts/' + id + '/comments', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: text })
+    })
+      .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+      .then(function(res) {
+        if (!res.ok) { showToast(res.data.message || 'Could not post comment', 'error'); return; }
+        var post = posts.find(function(p) { return p.id === id; });
+        if (post) {
+          post.comments = (post.comments || []).concat([res.data]);
+          post.commentCount = post.comments.length;
+        }
+        renderPosts();
+      })
+      .catch(function() { showToast('Network error — please try again', 'error'); });
   }
 
   function renderPosts() {
     var grid = document.getElementById('post-grid');
     var empty = document.getElementById('post-empty');
+    var loadMoreBtn = document.getElementById('load-more-posts-btn');
+    loadMoreBtn.style.display = (posts.length < postsTotalElements) ? 'block' : 'none';
     if (posts.length === 0) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
     empty.style.display = 'none';
     grid.innerHTML = posts.map(function(p) {
@@ -1575,7 +2333,12 @@
       // ENHANCEMENT: an uploaded image takes priority over a pasted URL if
       // both are present — either way, both entry methods ("image upload
       // and both") end up rendering the same way.
-      var imgSrc = imageAttachment ? ('/api/files/' + imageAttachment.id) : p.imageUrl;
+      // ENHANCEMENT ("image thumbnailing"): the board view requests the
+      // generated thumbnail (?thumb=true) rather than the full-resolution
+      // original — FileController falls back to the original automatically
+      // if no thumbnail exists (external image URLs never have one either,
+      // which is fine — there's nothing to thumbnail for those).
+      var imgSrc = imageAttachment ? ('/api/files/' + imageAttachment.id + '?thumb=true') : p.imageUrl;
       var img = imgSrc
         ? '<div class="post-img" data-img="' + escapeAttr(imgSrc) + '"></div>'
         : '<div class="post-img-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>';
@@ -1590,15 +2353,62 @@
           escapeHtml(a.originalFilename) +
         '</a>';
       }).join('');
+
+      // ENHANCEMENT ("post editing/deleting... parity with what tasks already have")
+      var isAuthor = auth.loggedIn && p.createdByUsername && p.createdByUsername === auth.username;
+      var bodyContent = p.editing
+        ? '<input type="text" class="todo-input post-edit-title" id="post-edit-title-' + p.id + '" value="' + escapeAttr(p.title) + '" maxlength="140" />' +
+          '<textarea class="todo-input post-edit-content" id="post-edit-content-' + p.id + '" maxlength="4000" rows="4">' + escapeHtml(p.content) + '</textarea>' +
+          '<div class="post-edit-actions">' +
+            '<button class="post-action-btn primary" onclick="saveEditPost(' + p.id + ')">Save</button>' +
+            '<button class="post-action-btn" onclick="cancelEditPost(' + p.id + ')">Cancel</button>' +
+          '</div>'
+        : '<h3 class="post-title">' + escapeHtml(p.title) + '</h3><p class="post-content">' + escapeHtml(p.content) + '</p>';
+
+      // ENHANCEMENT ("likes/comments on posts")
+      var likeBtn = '<button class="post-action-btn' + (p.likedByMe ? ' liked' : '') + '" onclick="togglePostLike(' + p.id + ')" title="' + (auth.loggedIn ? 'Like' : 'Sign in to like') + '">' +
+        '<svg viewBox="0 0 24 24" fill="' + (p.likedByMe ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>' +
+        (p.likeCount || 0) +
+      '</button>';
+      var commentBtn = '<button class="post-action-btn" onclick="togglePostComments(' + p.id + ')">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' +
+        (p.commentCount || 0) +
+      '</button>';
+      var ownerBtns = isAuthor && !p.editing
+        ? '<button class="post-action-btn" onclick="startEditPost(' + p.id + ')" title="Edit">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>' +
+          '</button>' +
+          '<button class="post-action-btn danger" onclick="deletePostConfirm(' + p.id + ')" title="Delete">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>' +
+          '</button>'
+        : '';
+
+      var commentsPanel = '';
+      if (p.commentsOpen) {
+        var commentsList = p.commentsLoading
+          ? '<div class="post-comments-loading">Loading comments…</div>'
+          : (p.comments || []).map(function(c) {
+              return '<div class="post-comment"><span class="post-comment-author">' + escapeHtml(c.authorDisplayName) + '</span>' +
+                '<span class="post-comment-text">' + escapeHtml(c.text) + '</span></div>';
+            }).join('') || '<div class="post-comments-empty">No comments yet.</div>';
+        commentsPanel = '<div class="post-comments-panel">' + commentsList +
+          (auth.loggedIn
+            ? '<input type="text" class="todo-input" id="post-comment-input-' + p.id + '" placeholder="Add a comment…" maxlength="1000" ' +
+              'onkeydown="if(event.key===\'Enter\'){submitPostComment(' + p.id + ')}" />'
+            : '') +
+        '</div>';
+      }
+
       return '<article class="post-card">' + img +
         '<div class="post-body">' +
-          '<h3 class="post-title">' + escapeHtml(p.title) + '</h3>' +
-          '<p class="post-content">' + escapeHtml(p.content) + '</p>' +
+          bodyContent +
           fileChips +
           '<div class="post-meta">' +
             '<span class="post-author"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>' + escapeHtml(p.author) + '</span>' +
             dateSpan +
           '</div>' +
+          '<div class="post-actions">' + likeBtn + commentBtn + ownerBtns + '</div>' +
+          commentsPanel +
         '</div>' +
       '</article>';
     }).join('');
@@ -1665,7 +2475,7 @@
     if (imageFileInput.files[0]) formData.append('image', imageFileInput.files[0]);
     if (fileInput.files[0]) formData.append('file', fileInput.files[0]);
 
-    fetch('/api/posts', { method: 'POST', body: formData })
+    apiFetch('/api/posts', { method: 'POST', body: formData })
       .then(function(r) {
         if (r.status === 401) { goToLogin(); throw new Error('auth'); }
         return r.json().then(function(d) { return { ok: r.ok, data: d }; });
@@ -1686,21 +2496,20 @@
   function sendTestEmail() {
     if (!auth.loggedIn) { goToLogin(); return; }
     var me = users.find(function(u) { return u.username === auth.username; });
-    var email = me && me.email;
-    if (!email) { showToast('Your account has no email on file', 'error'); return; }
+    if (!me || !me.notifiable) { showToast('Your account has no email on file', 'error'); return; }
     callNotifyAPI({
-      to: email, subject: '[Sysfoo] Test Notification',
+      toUsername: auth.username, subject: '[Sysfoo] Test Notification',
       taskText: 'This is a test notification from your Sysfoo Dashboard.',
       name: auth.displayName || auth.username, priority: 'low', time: formatTime(Date.now())
     })
-      .then(function() { showToast('Test email sent to ' + email, 'success'); })
+      .then(function() { showToast('Test email sent', 'success'); })
       .catch(function() { showToast('Test email failed — check /api/notify backend', 'error'); });
   }
 
   function isValidEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
 
   function callNotifyAPI(payload) {
-    return fetch('/api/notify', {
+    return apiFetch('/api/notify', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
     }).then(function(r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -1709,15 +2518,15 @@
   }
 
   function sendEmailNotification(todo) {
-    if (!todo.email || !isValidEmail(todo.email)) return;
+    if (!todo.assigneeUsername || !todo.notifiable) return;
     todo.emailStatus = 'sending';
     renderTodos();
     callNotifyAPI({
-      to: todo.email, subject: '[Sysfoo] New Task Assigned: ' + todo.text,
+      toUsername: todo.assigneeUsername, subject: '[Sysfoo] New Task Assigned: ' + todo.text,
       taskText: todo.text, name: todo.name || 'Team', priority: todo.priority,
       time: todo.time, date: todo.date
     })
-      .then(function() { todo.emailStatus = 'sent'; renderTodos(); showToast('📧 Notification sent → ' + todo.email, 'success'); })
+      .then(function() { todo.emailStatus = 'sent'; renderTodos(); showToast('📧 Notification sent → ' + (todo.name || todo.assigneeUsername), 'success'); })
       .catch(function() { todo.emailStatus = 'failed'; renderTodos(); showToast('Mail failed — check backend /api/notify', 'error'); });
   }
 
@@ -1815,6 +2624,17 @@
   }
 
   // ── Progress bar update ──────────────────────────────────────────────────────
+  // KNOWN LIMITATION (pagination): total/done/active/high here reflect the
+  // currently-loaded window of tasks (see todosLoadedSize/loadMoreTodos),
+  // not necessarily every task that exists — once someone has more tasks
+  // than fit in one load, these numbers undercount until they click "Load
+  // more tasks". Computing a fully accurate total independent of what's
+  // loaded would need a dedicated stats endpoint (a handful of COUNT
+  // queries, similar to UserController's profile counts) rather than
+  // deriving everything from the array already in memory; not done here to
+  // avoid mixing an accurate total with a partial done/high count, which
+  // would produce more confusing numbers than this simpler, consistent
+  // "based on what's loaded" behavior.
   function updateProgress() {
     var total = todos.length;
     var done = todos.filter(function(t) { return t.done; }).length;
@@ -1981,13 +2801,18 @@
   function getSortedFiltered() {
     var query = (document.getElementById('todo-search').value || '').toLowerCase().trim();
     var filtered = todos.filter(function(t) {
-      if (filter === 'active') return !t.done;
-      if (filter === 'done') return t.done;
-      if (filter === 'high') return t.priority === 'high' && !t.done;
+      var isDone = (t.status || (t.done ? 'DONE' : 'TO_DO')) === 'DONE';
+      if (filter === 'active') return !isDone;
+      if (filter === 'done') return isDone;
+      if (filter === 'high') return t.priority === 'high' && !isDone;
       return true;
     }).filter(function(t) {
       if (!query) return true;
-      return t.text.toLowerCase().includes(query) || (t.name || '').toLowerCase().includes(query);
+      var issue = t.issueKey || 'TASK-' + t.id;
+      return t.text.toLowerCase().includes(query)
+        || (t.name || '').toLowerCase().includes(query)
+        || issue.toLowerCase().includes(query)
+        || (STATUS_LABELS[t.status || 'TO_DO']).toLowerCase().includes(query);
     });
 
     var sort = document.getElementById('todo-sort').value;
@@ -1995,7 +2820,7 @@
       if (sort === 'oldest') return a.createdAt - b.createdAt;
       if (sort === 'priority') return PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority];
       if (sort === 'name') return (a.name || '').localeCompare(b.name || '');
-      return b.createdAt - a.createdAt;
+      return STATUS_ORDER[a.status || (a.done ? 'DONE' : 'TO_DO')] - STATUS_ORDER[b.status || (b.done ? 'DONE' : 'TO_DO')];
     });
     return filtered;
   }
@@ -2005,10 +2830,34 @@
     var list = document.getElementById('todo-list');
     var empty = document.getElementById('todo-empty');
     var count = document.getElementById('todo-count');
-    var active = todos.filter(function(t) { return !t.done; }).length;
-    count.textContent = todos.length + ' task' + (todos.length !== 1 ? 's' : '') + ' · ' + active + ' active';
+    var active = todos.filter(function(t) { return (t.status || (t.done ? 'DONE' : 'TO_DO')) !== 'DONE'; }).length;
+    // ENHANCEMENT: reflect the real total once pagination means "loaded" and
+    // "exists" can differ — otherwise this looked like "here are literally
+    // all your tasks" even when more exist on the server.
+    var countLabel = (todosTotalElements > todos.length) ? (todos.length + ' of ' + todosTotalElements) : String(todos.length);
+    var totalForPlural = todosTotalElements || todos.length;
+    count.textContent = countLabel + ' task' + (totalForPlural !== 1 ? 's' : '') + ' · ' + active + ' active';
 
     updateProgress();
+
+    // CORRECTNESS FIX (no pagination): toggle this regardless of the
+    // early-return below for an empty filtered view — "0 results for this
+    // filter" and "nothing more to load from the server" are independent.
+    document.getElementById('load-more-todos-btn').style.display =
+      (todos.length < todosTotalElements) ? 'block' : 'none';
+
+    // ENHANCEMENT ("...a Kanban or calendar view"): board mode has its own
+    // render path entirely (see renderKanbanBoard) — it deliberately
+    // ignores the list's filter/sort controls since the columns already
+    // separate tasks visually.
+    if (taskViewMode === 'board') {
+      list.style.display = 'none';
+      empty.style.display = 'none';
+      renderKanbanBoard();
+      return;
+    }
+    document.getElementById('kanban-board').style.display = 'none';
+    list.style.display = '';
 
     if (filtered.length === 0) { list.innerHTML = ''; empty.style.display = 'block'; return; }
     empty.style.display = 'none';
@@ -2028,17 +2877,25 @@
             (todo.name ? escapeHtml(todo.name) : 'Unassigned') +
           '</span>';
       var priTag = '<span class="todo-priority ' + todo.priority + '">' + todo.priority + '</span>';
+      var statusValue = todo.status || (todo.done ? 'DONE' : 'TO_DO');
+      var statusTag = '<span class="todo-status ' + statusValue + '">' + STATUS_LABELS[statusValue] + '</span>';
+      var issueKey = todo.issueKey || ('TASK-' + todo.id);
+      var ticketType = (todo.ticketType || 'TASK').toUpperCase();
+      var component = todo.component || 'General';
+      var team = todo.team || 'Unassigned Team';
+      var folder = todo.folder || 'General';
+      var metadataTag = '<span class="todo-metadata-tag">' + escapeHtml(ticketType) + ' · ' + escapeHtml(component) + ' · ' + escapeHtml(team) + ' · ' + escapeHtml(folder) + '</span>';
       var doneTag = '<span class="done-badge">completed</span>';
       var dateStr = todo.date ? todo.date + ' · ' : '';
 
       var emailBadge = '';
-      if (todo.email) {
+      if (todo.notifiable) {
         if (todo.emailStatus === 'sending') {
           emailBadge = '<span class="email-badge sending"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" class="spin-sm"><path d="M21 12a9 9 0 1 1-6.22-8.56"/></svg>Sending…</span>';
         } else if (todo.emailStatus === 'sent') {
-          emailBadge = '<span class="email-badge sent" title="Notification sent to ' + escapeAttr(todo.email) + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>Notified</span>';
+          emailBadge = '<span class="email-badge sent" title="Notification sent to ' + escapeAttr(todo.name || todo.assigneeUsername || '') + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>Notified</span>';
         } else if (todo.emailStatus === 'failed') {
-          emailBadge = '<span class="email-badge failed" title="Failed to send to ' + escapeAttr(todo.email) + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>Mail failed</span>';
+          emailBadge = '<span class="email-badge failed" title="Failed to send to ' + escapeAttr(todo.name || todo.assigneeUsername || '') + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>Mail failed</span>';
         }
       }
 
@@ -2049,6 +2906,22 @@
           '</button>'
         : '';
 
+      // ENHANCEMENT ("task due dates + reminders... tags/labels")
+      var dueDateBadge = '';
+      if (todo.dueDate) {
+        var todayStr = new Date().toISOString().slice(0, 10);
+        var isOverdue = !todo.done && todo.dueDate < todayStr;
+        dueDateBadge = '<span class="todo-duedate' + (isOverdue ? ' overdue' : '') + '" title="' + (isOverdue ? 'Overdue' : 'Due date') + '">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>' +
+          escapeHtml(todo.dueDate) +
+        '</span>';
+      }
+      var tagsRow = (todo.tags && todo.tags.length > 0)
+        ? '<div class="todo-tags-row">' + todo.tags.map(function(tag) {
+            return '<span class="todo-tag-chip">' + escapeHtml(tag) + '</span>';
+          }).join('') + '</div>'
+        : '';
+
       return '<li class="todo-item ' + (todo.done ? 'done' : '') + '" id="todo-' + todo.localId + '">' +
         '<div class="todo-item-left">' +
           '<button class="complete-btn" onclick="toggleTodo(' + todo.localId + ', event)" title="' + (todo.done ? 'Mark as active' : 'Mark as complete') + '">' +
@@ -2056,7 +2929,10 @@
           '</button>' +
         '</div>' +
         '<div class="todo-body">' +
-          '<div class="todo-header-row">' + nameTag + priTag + doneTag + '</div>' +
+          '<div class="todo-header-row">' + nameTag + priTag + statusTag + doneTag + dueDateBadge + '</div>' +
+          '<div class="todo-issue-key">' + escapeHtml(issueKey) + '</div>' +
+          '<div class="todo-metadata">' + metadataTag + '</div>' +
+          tagsRow +
           (todo.editing
             ? '<input class="todo-edit-input" id="edit-input-' + todo.localId + '" value="' + escapeAttr(todo.text) + '" onblur="saveEdit(' + todo.localId + ')" onkeydown="handleEditKey(event,' + todo.localId + ')" />'
             : '<div class="todo-text">' + escapeHtml(todo.text) + '</div>'
@@ -2070,6 +2946,12 @@
             '</button>' +
           '</div>' +
           '<div class="todo-extras-panel' + (todo.extrasOpen ? ' open' : '') + '" id="extras-' + todo.localId + '">' +
+            '<!-- ENHANCEMENT ("subtasks/checklists") -->' +
+            '<div class="subtask-list" id="subtask-list-' + todo.localId + '"></div>' +
+            '<div class="comment-add-row">' +
+              '<input type="text" class="todo-input" id="subtask-input-' + todo.localId + '" placeholder="Add a checklist item…" maxlength="200" onkeydown="if(event.key===\'Enter\'){addSubtaskItem(' + todo.localId + ',' + todo.id + ')}" />' +
+              '<button onclick="addSubtaskItem(' + todo.localId + ',' + todo.id + ')">Add</button>' +
+            '</div>' +
             '<div class="comment-list" id="comment-list-' + todo.localId + '"></div>' +
             '<div class="comment-add-row">' +
               '<input type="text" class="todo-input" id="comment-input-' + todo.localId + '" placeholder="Add a comment…" maxlength="2000" onkeydown="if(event.key===\'Enter\'){addTodoComment(' + todo.localId + ',' + todo.id + ')}" />' +
@@ -2121,6 +3003,72 @@
     todo.extrasFetchedAt = now;
     loadTodoComments(todo.localId, todo.id);
     loadTodoAttachments(todo.localId, todo.id);
+    loadSubtasks(todo.localId, todo.id);
+  }
+
+  // ── Subtasks / checklist (per task) ──────────────────────────────────────────
+  // ENHANCEMENT ("subtasks/checklists... the task manager currently only has
+  // priority + done/not-done"). Same creator-or-assignee visibility as
+  // comments/attachments — see TodoController's canAccess check.
+  function loadSubtasks(localId, todoId) {
+    var list = document.getElementById('subtask-list-' + localId);
+    if (!list) return;
+    list.innerHTML = '<div class="comment-empty">Loading…</div>';
+    fetch('/todos/' + todoId + '/subtasks')
+      .then(function(r) { return r.json(); })
+      .then(function(subtasks) { renderSubtaskList(localId, todoId, subtasks); })
+      .catch(function() { list.innerHTML = '<div class="comment-empty">Could not load checklist</div>'; });
+  }
+
+  function renderSubtaskList(localId, todoId, subtasks) {
+    var list = document.getElementById('subtask-list-' + localId);
+    if (!list) return;
+    if (subtasks.length === 0) { list.innerHTML = '<div class="comment-empty">No checklist items yet</div>'; return; }
+    list.innerHTML = subtasks.map(function(s) {
+      return '<div class="subtask-item' + (s.done ? ' done' : '') + '">' +
+        '<button class="subtask-check" onclick="toggleSubtaskDone(' + localId + ',' + todoId + ',' + s.id + ',' + (!s.done) + ')" title="' + (s.done ? 'Mark as not done' : 'Mark as done') + '">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>' +
+        '</button>' +
+        '<span class="subtask-text">' + escapeHtml(s.text) + '</span>' +
+        '<button class="subtask-remove" onclick="deleteSubtaskItem(' + localId + ',' + todoId + ',' + s.id + ')" title="Remove item">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>' +
+        '</button>' +
+      '</div>';
+    }).join('');
+  }
+
+  function addSubtaskItem(localId, todoId) {
+    var input = document.getElementById('subtask-input-' + localId);
+    var text = input.value.trim();
+    if (!text) return;
+    apiFetch('/todos/' + todoId + '/subtasks', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: text })
+    })
+      .then(function(r) {
+        if (r.status === 401) { goToLogin(); throw new Error('auth'); }
+        return r.json().then(function(d) { return { ok: r.ok, data: d }; });
+      })
+      .then(function(res) {
+        if (!res.ok) { showToast(res.data.message || 'Could not add checklist item', 'error'); return; }
+        input.value = '';
+        loadSubtasks(localId, todoId);
+      })
+      .catch(function(err) { if (err.message !== 'auth') showToast('Could not add checklist item', 'error'); });
+  }
+
+  function toggleSubtaskDone(localId, todoId, subtaskId, newDone) {
+    apiFetch('/todos/' + todoId + '/subtasks/' + subtaskId, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ done: newDone })
+    })
+      .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function() { loadSubtasks(localId, todoId); })
+      .catch(function() { showToast('Could not update checklist item', 'error'); });
+  }
+
+  function deleteSubtaskItem(localId, todoId, subtaskId) {
+    apiFetch('/todos/' + todoId + '/subtasks/' + subtaskId, { method: 'DELETE' })
+      .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); loadSubtasks(localId, todoId); })
+      .catch(function() { showToast('Could not remove checklist item', 'error'); });
   }
 
   // ── Comments & attachments (per task) ────────────────────────────────────────
@@ -2166,7 +3114,7 @@
     var input = document.getElementById('comment-input-' + localId);
     var text = input.value.trim();
     if (!text) return;
-    fetch('/todos/' + todoId + '/comments', {
+    apiFetch('/todos/' + todoId + '/comments', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: text })
     })
       .then(function(r) {
@@ -2204,7 +3152,7 @@
     if (file.size > 20 * 1024 * 1024) { showToast('File exceeds the 20MB limit', 'error'); inputEl.value = ''; return; }
     var formData = new FormData();
     formData.append('file', file);
-    fetch('/todos/' + todoId + '/attachments', { method: 'POST', body: formData })
+    apiFetch('/todos/' + todoId + '/attachments', { method: 'POST', body: formData })
       .then(function(r) {
         if (r.status === 401) { goToLogin(); throw new Error('auth'); }
         return r.json().then(function(d) { return { ok: r.ok, data: d }; });
@@ -2234,7 +3182,7 @@
   // in memory — nothing was sent back to the server, so a page reload (or
   // another teammate loading the dashboard) undid every one of those actions.
   function apiPatchTodo(id, changes) {
-    return fetch('/todos/' + id, {
+    return apiFetch('/todos/' + id, {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(changes)
     }).then(function(r) {
       if (r.status === 401) { goToLogin(); throw new Error('auth'); }
@@ -2244,28 +3192,118 @@
   }
 
   function apiDeleteTodo(id) {
-    return fetch('/todos/' + id, { method: 'DELETE' }).then(function(r) {
+    return apiFetch('/todos/' + id, { method: 'DELETE' }).then(function(r) {
       if (r.status === 401) { goToLogin(); throw new Error('auth'); }
       if (!r.ok && r.status !== 404) throw new Error('HTTP ' + r.status);
     });
   }
 
   // ── Toggle / edit / delete ───────────────────────────────────────────────────
+  // ── Kanban board ──────────────────────────────────────────────────────────
+  // Status workflow columns, matching the new backend persisted status field.
+  var KANBAN_COLUMNS = [
+    { key: 'TO_DO', label: 'To Do' },
+    { key: 'IN_PROGRESS', label: 'In Progress' },
+    { key: 'IN_REVIEW', label: 'In Review' },
+    { key: 'DONE', label: 'Done' }
+  ];
+
+  function setTaskViewMode(mode) {
+    taskViewMode = mode;
+    document.querySelectorAll('#todo-view-toggle .view-toggle-btn').forEach(function(btn) {
+      btn.classList.toggle('active', btn.dataset.view === mode);
+    });
+    document.getElementById('todo-sort').style.display = (mode === 'board') ? 'none' : '';
+    renderTodos();
+  }
+
+  function renderKanbanBoard() {
+    var board = document.getElementById('kanban-board');
+    board.style.display = 'flex';
+
+    board.innerHTML = KANBAN_COLUMNS.map(function(col) {
+      var cardsInColumn = todos.filter(function(t) {
+        return (t.status || (t.done ? 'DONE' : 'TO_DO')) === col.key;
+      });
+      var cardsHtml = cardsInColumn.map(function(t) {
+        var issueKey = t.issueKey || ('TASK-' + t.id);
+        var statusValue = t.status || (t.done ? 'DONE' : 'TO_DO');
+        return '<div class="kanban-card" draggable="true" ondragstart="onKanbanDragStart(event,' + t.localId + ')">' +
+          '<div class="kanban-card-text"><span class="todo-issue-key">' + escapeHtml(issueKey) + '</span> ' + escapeHtml(t.text) + '</div>' +
+          '<div class="kanban-card-assignee">' + escapeHtml(STATUS_LABELS[statusValue]) + ' · ' + escapeHtml(t.name || 'Unassigned') + '</div>' +
+          '<div class="kanban-card-assignee">Priority: ' + escapeHtml(t.priority || 'medium') + '</div>' +
+          (t.dueDate ? '<div class="kanban-card-due">' + escapeHtml(t.dueDate) + '</div>' : '') +
+        '</div>';
+      }).join('');
+      return '<div class="kanban-column" ondragover="onKanbanDragOver(event)" ondrop="onKanbanDrop(event,\'' + col.key + '\')">' +
+        '<div class="kanban-column-header">' + col.label + '<span class="kanban-column-count">' + cardsInColumn.length + '</span></div>' +
+        '<div class="kanban-column-body">' + (cardsHtml || '<div class="kanban-column-empty">Drop a task here</div>') + '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  var kanbanDraggedLocalId = null;
+  function onKanbanDragStart(event, localId) {
+    kanbanDraggedLocalId = localId;
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', String(localId)); // Firefox requires real data to allow the drop
+  }
+  function onKanbanDragOver(event) {
+    event.preventDefault(); // required to allow a drop at all
+  }
+  function onKanbanDrop(event, columnKey) {
+    event.preventDefault();
+    if (kanbanDraggedLocalId == null) return;
+    moveTaskToColumn(kanbanDraggedLocalId, columnKey);
+    kanbanDraggedLocalId = null;
+  }
+
+  function moveTaskToColumn(localId, columnKey) {
+    var t = todos.find(function(x) { return x.localId === localId; });
+    if (!t) return;
+    var statusBefore = t.status || (t.done ? 'DONE' : 'TO_DO');
+    if (statusBefore === columnKey) return;
+
+    var previous = { status: t.status || (t.done ? 'DONE' : 'TO_DO'), done: t.done, priority: t.priority };
+    t.status = columnKey;
+    t.done = columnKey === 'DONE';
+    renderTodos();
+    apiPatchTodo(t.id, { status: columnKey })
+      .then(function(updated) {
+        if (updated && updated.status) t.status = updated.status;
+        if (updated && updated.done !== undefined) t.done = !!updated.done;
+        renderTodos();
+      })
+      .catch(function(err) {
+        Object.assign(t, previous);
+        t.status = previous.status;
+        t.done = previous.done;
+        renderTodos();
+        if (err.message !== 'auth') showToast('Could not move task — try again', 'error');
+      });
+  }
+
   function toggleTodo(localId, event) {
     var t = todos.find(function(x) { return x.localId === localId; });
     if (!t) return;
-    var next = !t.done;
-    t.done = next; // optimistic UI update
+    var nextStatus = (t.status === 'DONE') ? 'TO_DO' : 'DONE';
+    t.status = nextStatus;
+    t.done = nextStatus === 'DONE';
     if (event && event.currentTarget) {
       addRipple(event.currentTarget);
       event.currentTarget.classList.add('pop');
       setTimeout(function() { var b = event.currentTarget; if (b) b.classList.remove('pop'); }, 400);
     }
     renderTodos();
-    apiPatchTodo(t.id, { done: next })
-      .then(function() { showToast(next ? '✓ Task completed' : '↺ Marked as active', next ? 'success' : 'info'); })
+    apiPatchTodo(t.id, { status: nextStatus, done: nextStatus === 'DONE' })
+      .then(function(updated) {
+        if (updated && updated.status) t.status = updated.status;
+        if (updated && updated.done !== undefined) t.done = !!updated.done;
+        showToast(nextStatus === 'DONE' ? '✓ Task completed' : '↺ Marked as active', nextStatus === 'DONE' ? 'success' : 'info');
+      })
       .catch(function(err) {
-        t.done = !next; // revert — the server didn't accept the change
+        t.status = nextStatus === 'DONE' ? 'TO_DO' : 'DONE';
+        t.done = !t.done;
         renderTodos();
         if (err.message !== 'auth') showToast('Could not save that change — try again', 'error');
       });
@@ -2415,10 +3453,10 @@
   function markAllDone() {
     var visible = getSortedFiltered().filter(function(t) { return !t.done; });
     if (visible.length === 0) { showToast('Nothing to mark complete', 'info'); return; }
-    visible.forEach(function(t) { t.done = true; });
+    visible.forEach(function(t) { t.done = true; t.status = 'DONE'; });
     renderTodos();
     Promise.all(visible.map(function(t) {
-      return apiPatchTodo(t.id, { done: true }).catch(function() { t.done = false; return null; });
+      return apiPatchTodo(t.id, { status: 'DONE', done: true }).catch(function() { t.done = false; t.status = 'TO_DO'; return null; });
     })).then(function() {
       renderTodos();
       showToast('All visible tasks marked complete', 'success');
@@ -2433,36 +3471,79 @@
   function todoFromServer(d, overrides) {
     var createdMs = d.createdAt ? new Date(d.createdAt).getTime() : Date.now();
     if (isNaN(createdMs)) createdMs = Date.now();
+    var persistedStatus = d.status || (d.done ? 'DONE' : 'TO_DO');
     var t = {
-      localId: localIdCounter++, id: d.id, name: d.name || '', text: d.text,
-      priority: d.priority || 'medium', done: !!d.done, editing: false,
-      assigneeUsername: d.assigneeUsername || null, createdByUsername: d.createdByUsername || null,
+      localId: localIdCounter++, id: d.id, issueKey: d.issueKey || ('TASK-' + d.id), name: d.name || '', text: d.text,
+      priority: d.priority || 'medium', done: persistedStatus === 'DONE' || !!d.done, status: persistedStatus,
+      ticketType: d.ticketType || 'TASK', component: d.component || null, team: d.team || null, folder: d.folder || null,
+      editing: false, assigneeUsername: d.assigneeUsername || null, createdByUsername: d.createdByUsername || null,
+      dueDate: d.dueDate || null, tags: d.tags || [],
       time: formatTime(createdMs), date: formatDate(createdMs), createdAt: createdMs
     };
     return Object.assign(t, overrides || {});
   }
 
-  // ── Add todo ─────────────────────────────────────────────────────────────────
-  function addTodo() {
+  function openCreateTaskModal() {
     if (!auth.loggedIn) { goToLogin(); return; }
-    var textInput = document.getElementById('todo-text');
-    var assigneeSelect = document.getElementById('todo-assignee');
-    var emailInput = document.getElementById('todo-email');
+    var modal = document.getElementById('create-task-modal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    var modalText = document.getElementById('modal-task-text');
+    if (modalText) modalText.focus();
+  }
+
+  function closeCreateTaskModal() {
+    var modal = document.getElementById('create-task-modal');
+    if (!modal) return;
+    modal.style.display = 'none';
+  }
+
+  function submitCreateTaskFromModal() {
+    if (!auth.loggedIn) { goToLogin(); return; }
+
+    var textInput = document.getElementById('modal-task-text');
+    var assigneeSelect = document.getElementById('modal-task-assignee');
+    var dueDateInput = document.getElementById('modal-task-duedate');
+    var tagsInput = document.getElementById('modal-task-tags');
+    var ticketTypeInput = document.getElementById('modal-task-ticket-type');
+    var componentInput = document.getElementById('modal-task-component');
+    var teamInput = document.getElementById('modal-task-team');
+    var folderInput = document.getElementById('modal-task-folder');
+    var priorityInput = document.getElementById('modal-task-priority');
+    var statusInput = document.getElementById('modal-task-status');
+
     var text = textInput.value.trim();
     var assigneeUsername = assigneeSelect.value;
-    var email = emailInput.value.trim();
+    var assigneeUser = users.find(function(u) { return u.username === assigneeUsername; });
+    var notifiable = !!(assigneeUser && assigneeUser.notifiable);
     var assigneeLabel = assigneeSelect.options[assigneeSelect.selectedIndex]
       ? assigneeSelect.options[assigneeSelect.selectedIndex].text
       : '';
+    var dueDate = dueDateInput.value || null;
+    var tags = tagsInput.value.split(',').map(function(t) { return t.trim(); }).filter(function(t) { return t; });
+    var priority = priorityInput.value || 'medium';
+    var status = statusInput.value || 'TO_DO';
 
     if (!text) { textInput.focus(); showToast('Please enter a task description', 'error'); return; }
+    if (tags.length > 6) { showToast('A task can have at most 6 tags', 'error'); return; }
 
-    var btn = document.getElementById('add-todo-btn');
-    btn.disabled = true;
+    var btn = document.getElementById('modal-create-task-btn');
+    if (btn) btn.disabled = true;
 
-    fetch('/todos', {
+    apiFetch('/todos', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: text, priority: selectedPriority, assigneeUsername: assigneeUsername })
+      body: JSON.stringify({
+        text: text,
+        priority: priority,
+        assigneeUsername: assigneeUsername,
+        dueDate: dueDate,
+        tags: tags,
+        ticketType: ticketTypeInput.value || 'TASK',
+        component: componentInput.value.trim(),
+        team: teamInput.value.trim(),
+        folder: folderInput.value.trim(),
+        status: status
+      })
     })
       .then(function(r) {
         if (r.status === 401) { goToLogin(); throw new Error('auth'); }
@@ -2470,12 +3551,88 @@
       })
       .then(function(res) {
         if (!res.ok) { showToast(res.data.message || 'Failed to add task', 'error'); return; }
-        var newTodo = todoFromServer(res.data, { email: email, emailStatus: email ? null : undefined });
+        var newTodo = todoFromServer(res.data, { notifiable: notifiable, emailStatus: notifiable ? null : undefined });
         todos.push(newTodo);
         textInput.value = '';
+        dueDateInput.value = '';
+        tagsInput.value = '';
+        ticketTypeInput.value = 'TASK';
+        componentInput.value = '';
+        teamInput.value = '';
+        folderInput.value = '';
+        assigneeSelect.value = '';
+        priorityInput.value = 'medium';
+        statusInput.value = 'TO_DO';
+        updateAssigneeEmail();
+        closeCreateTaskModal();
         renderTodos();
         showToast('Task added' + (assigneeUsername ? ' for ' + assigneeLabel : ''), 'success');
-        if (email) sendEmailNotification(newTodo);
+        if (notifiable) sendEmailNotification(newTodo);
+      })
+      .catch(function(err) { if (err.message !== 'auth') showToast('Failed to add task — is the DB connected?', 'error'); })
+      .finally(function() { if (btn) btn.disabled = false; });
+  }
+
+  // ── Add todo ─────────────────────────────────────────────────────────────────
+  function addTodo() {
+    if (!auth.loggedIn) { goToLogin(); return; }
+    var textInput = document.getElementById('todo-text');
+    var assigneeSelect = document.getElementById('todo-assignee');
+    var dueDateInput = document.getElementById('todo-duedate');
+    var tagsInput = document.getElementById('todo-tags');
+    var ticketTypeInput = document.getElementById('todo-ticket-type');
+    var componentInput = document.getElementById('todo-component');
+    var teamInput = document.getElementById('todo-team');
+    var folderInput = document.getElementById('todo-folder');
+    var text = textInput.value.trim();
+    var assigneeUsername = assigneeSelect.value;
+    var assigneeUser = users.find(function(u) { return u.username === assigneeUsername; });
+    var notifiable = !!(assigneeUser && assigneeUser.notifiable);
+    var assigneeLabel = assigneeSelect.options[assigneeSelect.selectedIndex]
+      ? assigneeSelect.options[assigneeSelect.selectedIndex].text
+      : '';
+    // ENHANCEMENT ("task due dates + reminders... tags/labels")
+    var dueDate = dueDateInput.value || null;
+    var tags = tagsInput.value.split(',').map(function(t) { return t.trim(); }).filter(function(t) { return t; });
+
+    if (!text) { textInput.focus(); showToast('Please enter a task description', 'error'); return; }
+    if (tags.length > 6) { showToast('A task can have at most 6 tags', 'error'); return; }
+
+    var btn = document.getElementById('add-todo-btn');
+    btn.disabled = true;
+
+    apiFetch('/todos', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text: text,
+        priority: selectedPriority,
+        assigneeUsername: assigneeUsername,
+        dueDate: dueDate,
+        tags: tags,
+        ticketType: ticketTypeInput.value || 'TASK',
+        component: componentInput.value.trim(),
+        team: teamInput.value.trim(),
+        folder: folderInput.value.trim()
+      })
+    })
+      .then(function(r) {
+        if (r.status === 401) { goToLogin(); throw new Error('auth'); }
+        return r.json().then(function(d) { return { ok: r.ok, data: d }; });
+      })
+      .then(function(res) {
+        if (!res.ok) { showToast(res.data.message || 'Failed to add task', 'error'); return; }
+        var newTodo = todoFromServer(res.data, { notifiable: notifiable, emailStatus: notifiable ? null : undefined });
+        todos.push(newTodo);
+        textInput.value = '';
+        dueDateInput.value = '';
+        tagsInput.value = '';
+        ticketTypeInput.value = 'TASK';
+        componentInput.value = '';
+        teamInput.value = '';
+        folderInput.value = '';
+        renderTodos();
+        showToast('Task added' + (assigneeUsername ? ' for ' + assigneeLabel : ''), 'success');
+        if (notifiable) sendEmailNotification(newTodo);
       })
       .catch(function(err) { if (err.message !== 'auth') showToast('Failed to add task — is the DB connected?', 'error'); })
       .finally(function() { btn.disabled = false; textInput.focus(); });
@@ -2497,10 +3654,18 @@
       if (existing.editing) return existing;
       existing.text = d.text;
       existing.priority = d.priority || 'medium';
-      existing.done = !!d.done;
+      existing.status = d.status || (d.done ? 'DONE' : 'TO_DO');
+      existing.done = existing.status === 'DONE' || !!d.done;
+      existing.issueKey = d.issueKey || ('TASK-' + d.id);
+      existing.ticketType = d.ticketType || 'TASK';
+      existing.component = d.component || null;
+      existing.team = d.team || null;
+      existing.folder = d.folder || null;
       existing.name = d.name || '';
       existing.assigneeUsername = d.assigneeUsername || null;
       existing.createdByUsername = d.createdByUsername || null;
+      existing.dueDate = d.dueDate || null;
+      existing.tags = d.tags || [];
       return existing;
     });
   }
@@ -2526,22 +3691,34 @@
   // startAutoRefresh) so a transient network hiccup doesn't pop an error toast
   // every 30 seconds; the manual "Refresh" button and the initial page load
   // still report failures.
+  // CORRECTNESS FIX (no pagination — see TodoController.getAllTodos()): was
+  // fetch('/todos') returning every visible task every time; now bounded
+  // by page/size, growing via loadMoreTodos() below. Response shape also
+  // changed from a bare array to a Page object ({content, totalElements}).
   function loadTodos(opts) {
     opts = opts || {};
-    if (isEditingAnyTodo()) return;
-    fetch('/todos')
+    if (isEditingAnyTodo()) return Promise.resolve();
+    return fetch('/todos?page=0&size=' + todosLoadedSize)
       .then(function(r) { return r.json(); })
-      .then(function(data) {
+      .then(function(page) {
         if (isEditingAnyTodo()) return; // editing started while this request was in flight
         // BUG FIX: this used to stamp every single task with the same
         // Date.now() captured once for the whole batch, and hardcoded
         // priority: 'medium' / done: false for every row — so a reload wiped
         // out completion state, priority, and made "Newest/Oldest first"
         // sorting meaningless. Now each task keeps its own real values.
-        mergeTodosFromServer(data);
+        mergeTodosFromServer(page.content);
+        todosTotalElements = page.totalElements;
         renderTodos();
       })
       .catch(function() { if (!opts.silent) showToast('Could not load tasks from server', 'error'); });
+  }
+
+  function loadMoreTodos() {
+    var btn = document.getElementById('load-more-todos-btn');
+    btn.disabled = true;
+    todosLoadedSize += 25;
+    loadTodos().finally(function() { btn.disabled = false; });
   }
 
   // ── Copy buttons (event delegation — see BUG FIX note in renderSystemInfo) ──
@@ -2564,6 +3741,8 @@
   // ── Keyboard shortcuts ───────────────────────────────────────────────────────
   document.getElementById('add-todo-btn').addEventListener('click', addTodo);
   document.getElementById('todo-text').addEventListener('keypress', function(e) { if (e.key === 'Enter') addTodo(); });
+  var modalAssignee = document.getElementById('modal-task-assignee');
+  if (modalAssignee) modalAssignee.addEventListener('change', updateAssigneeEmail);
 
   // ── Global keyboard shortcuts ────────────────────────────────────────────────
   // "/" jumps to the task search box (skipped while already typing anywhere so
@@ -2605,6 +3784,23 @@
   // never appeared without a manual full page reload. Now every tick — and
   // the manual Refresh button above — keeps all four in sync; loadTodos()
   // still refuses to run while a task is mid-edit (see isEditingAnyTodo()).
+  // ENHANCEMENT ("real-time updates — right now everything is 30-second
+  // polling... a natural next step given you already track 'who's
+  // online'"): opens a Server-Sent Events connection (see
+  // EventBroadcastService on the backend) and refreshes immediately on a
+  // push instead of waiting for the next poll. The existing interval-based
+  // polling below stays in place as a fallback — if this connection drops,
+  // the periodic poll still eventually catches up, and EventSource
+  // reconnects on its own after a drop anyway.
+  var liveEventSource = null;
+  function connectToLiveEvents() {
+    if (typeof EventSource === 'undefined') return; // very old browser — polling alone still covers it
+    if (liveEventSource) liveEventSource.close();
+    liveEventSource = new EventSource('/api/events');
+    liveEventSource.addEventListener('todos-changed', function() { loadTodos({ silent: true }); });
+    liveEventSource.addEventListener('posts-changed', function() { loadPosts({ silent: true }); });
+  }
+
   function startAutoRefresh() {
     clearInterval(refreshInterval);
     refreshInterval = setInterval(function() {
@@ -2627,8 +3823,6 @@
     applyView((location.hash || '').slice(1) || 'home');
 
     document.getElementById('session-start').textContent = formatTime(sessionStart);
-    var savedEmail = localStorage.getItem('sysfoo_default_email') || '';
-    if (savedEmail) document.getElementById('todo-email').value = savedEmail;
     setInterval(updateClock, 1000);
     updateClock();
     setInterval(updateRelativeTimes, 20000);
@@ -2637,6 +3831,7 @@
     loadUsers().then(loadTodos);
     loadPosts();
     startAutoRefresh();
+    connectToLiveEvents();
   }).catch(function() {
     // checkAuth() already triggered a redirect to login.html; nothing else to do.
   });

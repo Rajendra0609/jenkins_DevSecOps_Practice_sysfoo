@@ -6,7 +6,7 @@ import com.example.sysfoo.repository.AttachmentRepository;
 import com.example.sysfoo.repository.TodoRepository;
 import com.example.sysfoo.service.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -15,9 +15,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
@@ -46,7 +46,9 @@ public class FileController {
     private FileStorageService fileStorageService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> download(@PathVariable Long id, Authentication authentication) {
+    public ResponseEntity<?> download(@PathVariable Long id,
+                                       @RequestParam(name = "thumb", defaultValue = "false") boolean thumb,
+                                       Authentication authentication) {
         Optional<Attachment> attachmentOpt = attachmentRepository.findById(id);
         if (attachmentOpt.isEmpty()) {
             return ResponseEntity.status(404).body(Map.of("status", "error", "message", "File not found"));
@@ -68,9 +70,13 @@ public class FileController {
         }
         // else: attached to a post — public, no check needed.
 
-        File file = fileStorageService.resolve(attachment).toFile();
-        if (!file.exists()) {
-            return ResponseEntity.status(404).body(Map.of("status", "error", "message", "File not found on disk"));
+        // ENHANCEMENT ("image thumbnailing"): ?thumb=true serves the
+        // generated preview when one exists, falling back to the full
+        // original otherwise (older upload, non-image, or thumbnail
+        // generation failed at upload time) — see FileStorageService.store().
+        Resource resource = fileStorageService.loadAsResource(attachment, thumb);
+        if (!resource.exists()) {
+            return ResponseEntity.status(404).body(Map.of("status", "error", "message", "File not found in storage"));
         }
 
         ContentDisposition disposition = (attachment.isImage() ? ContentDisposition.inline() : ContentDisposition.attachment())
@@ -78,13 +84,17 @@ public class FileController {
                 .build();
 
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(attachment.getContentType()))
+                .contentType(thumb && attachment.getThumbnailStoredFilename() != null
+                        ? MediaType.IMAGE_JPEG : MediaType.parseMediaType(attachment.getContentType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION, disposition.toString())
-                .body(new FileSystemResource(file));
+                .body(resource);
     }
 
     /** Same creator-or-assignee rule as TodoController.getAllTodos() — kept in one place would be nicer, small enough to duplicate for now. */
     private boolean canAccessTodo(Todo todo, String username) {
+        if (todo.isDeleted()) {
+            return false;
+        }
         return username.equals(todo.getCreatedByUsername()) || username.equals(todo.getAssigneeUsername());
     }
 }

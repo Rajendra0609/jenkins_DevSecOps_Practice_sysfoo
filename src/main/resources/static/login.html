@@ -167,6 +167,21 @@
 
     .auth-hint { font-size: 11.5px; color: var(--txt-3); text-align: center; margin-top: 4px; }
 
+    .auth-link-row { text-align: center; margin-top: 2px; }
+    .auth-link-btn {
+      background: none; border: none; padding: 0; font: inherit;
+      color: var(--txt-2); font-size: 12.5px; cursor: pointer; text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .auth-link-btn:hover { color: var(--gold); }
+    .auth-banner {
+      display: none; align-items: center; gap: 8px; font-size: 12.5px;
+      padding: 10px 12px; border-radius: var(--radius-xs); margin-bottom: 14px;
+    }
+    .auth-banner.show { display: flex; }
+    .auth-banner.success { background: rgba(127,176,105,0.12); color: var(--grass); border: 1px solid rgba(127,176,105,0.3); }
+    .auth-banner.error { background: var(--red-dim); color: var(--red); border: 1px solid rgba(229,72,77,0.3); }
+
     .auth-gate-check {
       position: fixed; inset: 0; z-index: 10; background: var(--bg);
       display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 14px;
@@ -233,7 +248,12 @@
         <div class="logo-text">Sys<span>foo</span></div>
       </div>
 
-      <div class="auth-tabs">
+      <div class="auth-banner" id="auth-banner">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+        <span id="auth-banner-text"></span>
+      </div>
+
+      <div class="auth-tabs" id="auth-tabs">
         <button class="auth-tab active" id="tab-login" onclick="switchTab('login')" type="button">Sign In</button>
         <button class="auth-tab" id="tab-register" onclick="switchTab('register')" type="button">Join the Pride</button>
       </div>
@@ -256,6 +276,9 @@
             <span class="spinner"></span>
             <span class="btn-label">Sign In</span>
           </button>
+          <div class="auth-link-row">
+            <button type="button" class="auth-link-btn" onclick="showForgotPanel()">Forgot your password?</button>
+          </div>
         </form>
       </div>
 
@@ -273,8 +296,9 @@
             <input id="register-email" type="email" maxlength="120" placeholder="you@example.com" />
           </label>
           <label>Password
-            <input id="register-password" type="password" required minlength="6" autocomplete="new-password" placeholder="At least 6 characters" />
+            <input id="register-password" type="password" required minlength="10" autocomplete="new-password" placeholder="At least 10 characters" />
           </label>
+          <div id="register-captcha-container" style="display:none;"></div>
           <div class="auth-error" id="register-error">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
             <span id="register-error-text"></span>
@@ -283,7 +307,46 @@
             <span class="spinner"></span>
             <span class="btn-label">Create Account</span>
           </button>
-          <div class="auth-hint">Password must be at least 6 characters.</div>
+          <div class="auth-hint">Password must be at least 10 characters and not one that's appeared in a known data breach.</div>
+        </form>
+      </div>
+
+      <div id="forgot-panel" style="display:none;">
+        <div class="auth-heading">Reset your password</div>
+        <div class="auth-subheading">Enter the email on your account and we'll send you a reset link.</div>
+        <form class="auth-form" id="forgot-form" onsubmit="submitForgotPassword(event)">
+          <label>Email
+            <input id="forgot-email" type="email" required maxlength="120" placeholder="you@example.com" />
+          </label>
+          <div class="auth-error" id="forgot-error">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+            <span id="forgot-error-text"></span>
+          </div>
+          <button type="submit" class="auth-submit-btn" id="forgot-submit-btn">
+            <span class="spinner"></span>
+            <span class="btn-label">Send Reset Link</span>
+          </button>
+          <div class="auth-link-row">
+            <button type="button" class="auth-link-btn" onclick="switchTab('login')">Back to sign in</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="reset-panel" style="display:none;">
+        <div class="auth-heading">Choose a new password</div>
+        <div class="auth-subheading">This link is single-use and expires shortly, so finish up now.</div>
+        <form class="auth-form" id="reset-form" onsubmit="submitResetPassword(event)">
+          <label>New Password
+            <input id="reset-password" type="password" required minlength="10" autocomplete="new-password" placeholder="At least 10 characters" />
+          </label>
+          <div class="auth-error" id="reset-error">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+            <span id="reset-error-text"></span>
+          </div>
+          <button type="submit" class="auth-submit-btn" id="reset-submit-btn">
+            <span class="spinner"></span>
+            <span class="btn-label">Set New Password</span>
+          </button>
         </form>
       </div>
     </div>
@@ -292,6 +355,32 @@
 </div>
 
 <script>
+  // ── CSRF helper ──────────────────────────────────────────────────────────
+  // SECURITY FIX: CSRF protection is back on (see SecurityConfig). Spring
+  // Security hands the browser a readable "XSRF-TOKEN" cookie; every
+  // mutating request (anything but GET) must echo it back as the
+  // "X-XSRF-TOKEN" header, or the server rejects it. apiFetch() below is a
+  // drop-in wrapper for fetch() that does this automatically so the rest of
+  // the page never has to think about it.
+  function getCookie(name) {
+    var match = document.cookie.match('(?:^|; )' + name + '=([^;]*)');
+    return match ? decodeURIComponent(match[1]) : null;
+  }
+  function ensureCsrfCookie() {
+    if (!getCookie('XSRF-TOKEN')) {
+      return fetch('/api/csrf').catch(function() {});
+    }
+    return Promise.resolve();
+  }
+  function apiFetch(url, options) {
+    options = options || {};
+    var method = (options.method || 'GET').toUpperCase();
+    if (method !== 'GET' && method !== 'HEAD') {
+      options.headers = Object.assign({}, options.headers, { 'X-XSRF-TOKEN': getCookie('XSRF-TOKEN') || '' });
+    }
+    return fetch(url, options);
+  }
+
   // ── Redirect target after a successful sign-in/registration ─────────────────
   function getRedirectTarget() {
     var params = new URLSearchParams(window.location.search);
@@ -302,23 +391,66 @@
   }
 
   // ── If a session already exists, skip straight to the dashboard ─────────────
-  fetch('/api/auth/me')
-    .then(function(r) { if (!r.ok) throw new Error('unauthenticated'); return r.json(); })
-    .then(function() { window.location.href = getRedirectTarget(); })
-    .catch(function() {
-      document.getElementById('auth-gate-check').classList.add('hidden');
-      var page = document.getElementById('auth-page');
-      page.style.visibility = 'visible';
-    });
+  // (unless we're here to redeem a password-reset link — see boot below)
+  var urlParams = new URLSearchParams(window.location.search);
+  var resetToken = urlParams.get('resetToken');
 
-  // ── Tabs ─────────────────────────────────────────────────────────────────────
-  function switchTab(tab) {
-    var isLogin = tab === 'login';
-    document.getElementById('tab-login').classList.toggle('active', isLogin);
-    document.getElementById('tab-register').classList.toggle('active', !isLogin);
-    document.getElementById('login-panel').style.display = isLogin ? 'block' : 'none';
-    document.getElementById('register-panel').style.display = isLogin ? 'none' : 'block';
+  ensureCsrfCookie().then(function() {
+    if (resetToken) {
+      document.getElementById('auth-gate-check').classList.add('hidden');
+      document.getElementById('auth-page').style.visibility = 'visible';
+      showResetPanel();
+      return;
+    }
+    fetch('/api/auth/me')
+      .then(function(r) { if (!r.ok) throw new Error('unauthenticated'); return r.json(); })
+      .then(function() { window.location.href = getRedirectTarget(); })
+      .catch(function() {
+        document.getElementById('auth-gate-check').classList.add('hidden');
+        var page = document.getElementById('auth-page');
+        page.style.visibility = 'visible';
+        showQueryBanner();
+      });
+  });
+
+  function showQueryBanner() {
+    var verified = urlParams.get('verified');
+    if (verified === '1') showBanner('Your email is verified — you can sign in now.', 'success');
+    else if (verified === '0') showBanner('That verification link is invalid or has expired.', 'error');
   }
+  function showBanner(text, type) {
+    var el = document.getElementById('auth-banner');
+    document.getElementById('auth-banner-text').textContent = text;
+    el.className = 'auth-banner show ' + type;
+  }
+
+  // ── reCAPTCHA (only loaded if the server has it configured) ─────────────
+  var captchaWidgetId = null;
+  fetch('/api/auth/config').then(function(r) { return r.json(); }).then(function(cfg) {
+    if (!cfg.recaptchaEnabled) return;
+    window.__onRecaptchaLoad = function() {
+      var container = document.getElementById('register-captcha-container');
+      container.style.display = 'block';
+      captchaWidgetId = grecaptcha.render(container, { sitekey: cfg.recaptchaSiteKey });
+    };
+    var script = document.createElement('script');
+    script.src = 'https://www.google.com/recaptcha/api.js?onload=__onRecaptchaLoad&render=explicit';
+    script.async = true; script.defer = true;
+    document.head.appendChild(script);
+  }).catch(function() {});
+
+  // ── Tabs / panels ────────────────────────────────────────────────────────
+  var panels = ['login', 'register', 'forgot', 'reset'];
+  function switchTab(tab) {
+    panels.forEach(function(p) {
+      document.getElementById(p + '-panel').style.display = (p === tab) ? 'block' : 'none';
+    });
+    document.getElementById('auth-tabs').style.display = (tab === 'login' || tab === 'register') ? 'flex' : 'none';
+    document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+    document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+  }
+  function showForgotPanel() { switchTab('forgot'); }
+  function showResetPanel() { switchTab('reset'); }
 
   function isValidEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
 
@@ -345,7 +477,7 @@
     if (!username || !password) { showError('login', 'Enter your username and password'); return; }
 
     setLoading('login', true);
-    fetch('/api/auth/login', {
+    apiFetch('/api/auth/login', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: username, password: password })
     })
@@ -365,28 +497,78 @@
     var username = document.getElementById('register-username').value.trim();
     var email = document.getElementById('register-email').value.trim();
     var password = document.getElementById('register-password').value;
+    var captchaToken = (captchaWidgetId !== null && window.grecaptcha) ? grecaptcha.getResponse(captchaWidgetId) : '';
 
     if (username.length < 3) { showError('register', 'Username must be at least 3 characters'); return; }
-    if (password.length < 6) { showError('register', 'Password must be at least 6 characters'); return; }
+    if (password.length < 10) { showError('register', 'Password must be at least 10 characters'); return; }
     if (email && !isValidEmail(email)) { showError('register', 'Invalid email address'); return; }
+    if (captchaWidgetId !== null && !captchaToken) { showError('register', 'Please complete the CAPTCHA'); return; }
 
     setLoading('register', true);
-    fetch('/api/auth/register', {
+    apiFetch('/api/auth/register', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ displayName: displayName, username: username, email: email, password: password })
+      body: JSON.stringify({ displayName: displayName, username: username, email: email, password: password, captchaToken: captchaToken })
     })
       .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
       .then(function(res) {
-        if (!res.ok) { showError('register', res.data.message || 'Registration failed'); setLoading('register', false); return; }
+        if (!res.ok) {
+          showError('register', res.data.message || 'Registration failed');
+          setLoading('register', false);
+          if (captchaWidgetId !== null && window.grecaptcha) grecaptcha.reset(captchaWidgetId);
+          return;
+        }
         window.location.href = getRedirectTarget();
       })
       .catch(function() { showError('register', 'Network error — please try again'); setLoading('register', false); });
   }
 
+  // ── Forgot password ──────────────────────────────────────────────────────────
+  function submitForgotPassword(e) {
+    e.preventDefault();
+    clearError('forgot');
+    var email = document.getElementById('forgot-email').value.trim();
+    if (!email || !isValidEmail(email)) { showError('forgot', 'Enter a valid email address'); return; }
+
+    setLoading('forgot', true);
+    apiFetch('/api/auth/forgot-password', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email })
+    })
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        setLoading('forgot', false);
+        showBanner(d.message || "If that email is registered, we've sent a reset link.", 'success');
+        switchTab('login');
+      })
+      .catch(function() { showError('forgot', 'Network error — please try again'); setLoading('forgot', false); });
+  }
+
+  // ── Reset password ───────────────────────────────────────────────────────────
+  function submitResetPassword(e) {
+    e.preventDefault();
+    clearError('reset');
+    var password = document.getElementById('reset-password').value;
+    if (password.length < 10) { showError('reset', 'Password must be at least 10 characters'); return; }
+
+    setLoading('reset', true);
+    apiFetch('/api/auth/reset-password', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: resetToken, newPassword: password })
+    })
+      .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+      .then(function(res) {
+        setLoading('reset', false);
+        if (!res.ok) { showError('reset', res.data.message || 'Could not reset your password'); return; }
+        showBanner(res.data.message || 'Your password has been reset — you can sign in now.', 'success');
+        window.history.replaceState({}, '', 'login.html');
+        switchTab('login');
+      })
+      .catch(function() { showError('reset', 'Network error — please try again'); setLoading('reset', false); });
+  }
+
   // If the person arrived with ?mode=register (e.g. a "Join the Pride" link elsewhere), open that tab.
   (function() {
-    var params = new URLSearchParams(window.location.search);
-    if (params.get('mode') === 'register') switchTab('register');
+    if (urlParams.get('mode') === 'register') switchTab('register');
   })();
 </script>
 </body>

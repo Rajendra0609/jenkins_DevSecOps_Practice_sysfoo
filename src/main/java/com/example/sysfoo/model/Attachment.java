@@ -38,6 +38,17 @@ public class Attachment {
     @Column(nullable = false, length = 100)
     private String storedFilename;
 
+    /**
+     * ENHANCEMENT ("image thumbnailing for uploaded post images — currently
+     * full-size originals are served every time"): set only for image
+     * attachments (see ImageThumbnailService), null for everything else
+     * (task attachments, non-image post files, and any image uploaded
+     * before this field existed). FileController falls back to the full
+     * original whenever this is null, so nothing breaks for older rows.
+     */
+    @Column(length = 100)
+    private String thumbnailStoredFilename;
+
     @Column(nullable = false, length = 120)
     private String contentType;
 
@@ -91,6 +102,14 @@ public class Attachment {
 
     public void setStoredFilename(String storedFilename) {
         this.storedFilename = storedFilename;
+    }
+
+    public String getThumbnailStoredFilename() {
+        return thumbnailStoredFilename;
+    }
+
+    public void setThumbnailStoredFilename(String thumbnailStoredFilename) {
+        this.thumbnailStoredFilename = thumbnailStoredFilename;
     }
 
     public String getContentType() {
