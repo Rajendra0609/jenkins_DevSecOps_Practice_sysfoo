@@ -1,9 +1,14 @@
 package com.example.sysfoo;
 
+import com.example.sysfoo.model.User;
+import com.example.sysfoo.repository.UserRepository;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * UPDATE: extends SpringBootServletInitializer, paired with
@@ -34,6 +39,24 @@ public class SysfooApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
         SpringApplication.run(SysfooApplication.class, args);
+    }
+
+    @Bean
+    public CommandLineRunner seedDefaultAdmin(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        return args -> {
+            if (userRepository.count() == 0) {
+                User admin = new User(
+                        "admin",
+                        passwordEncoder.encode("admin123"),
+                        "rajendra.daggubati09@gmail.com",
+                        "Admin"
+                );
+                admin.setRole(User.ROLE_ADMIN);
+                admin.setEmailVerified(true);
+                admin.setPasswordChangeRequired(true);
+                userRepository.save(admin);
+            }
+        };
     }
 
     @Override

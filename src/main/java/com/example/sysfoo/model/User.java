@@ -67,6 +67,15 @@ public class User {
     private boolean emailVerified = false;
 
     /**
+     * When true, the application must force the account owner to replace the
+     * seeded/default password before any normal sign-in is allowed. This is
+     * used for the bootstrap admin account and any other account created with
+     * a default password and a known first-login requirement.
+     */
+    @Column(nullable = false)
+    private boolean passwordChangeRequired = false;
+
+    /**
      * ENHANCEMENT ("notification preferences... right now email
      * notifications are all-or-nothing per assignment"): lets a user turn
      * off assignment-notification emails without losing/removing their
@@ -186,6 +195,14 @@ public class User {
 
     public void setEmailVerified(boolean emailVerified) {
         this.emailVerified = emailVerified;
+    }
+
+    public boolean isPasswordChangeRequired() {
+        return passwordChangeRequired;
+    }
+
+    public void setPasswordChangeRequired(boolean passwordChangeRequired) {
+        this.passwordChangeRequired = passwordChangeRequired;
     }
 
     public boolean isNotifyOnAssignment() {

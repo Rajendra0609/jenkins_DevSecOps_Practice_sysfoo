@@ -206,7 +206,7 @@ public class SecurityConfig {
                 // CSRF token bootstrap — must be reachable before the user has a session.
                 .requestMatchers(HttpMethod.GET, "/api/csrf").permitAll()
                 // Public auth endpoints
-                .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login", "/api/auth/force-change-password").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/auth/me", "/api/auth/config").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/auth/verify-email").permitAll()

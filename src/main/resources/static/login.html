@@ -349,6 +349,33 @@
           </button>
         </form>
       </div>
+
+      <div id="force-change-panel" style="display:none;">
+        <div class="auth-heading">Update your password</div>
+        <div class="auth-subheading">Your default password must be replaced before this account can continue.</div>
+        <form class="auth-form" id="force-change-form" onsubmit="submitForceChange(event)">
+          <label>Username
+            <input id="force-username" type="text" readonly />
+          </label>
+          <label>Current Password
+            <input id="force-current-password" type="password" required autocomplete="current-password" placeholder="••••••••" />
+          </label>
+          <label>New Password
+            <input id="force-new-password" type="password" required minlength="10" autocomplete="new-password" placeholder="At least 10 characters" />
+          </label>
+          <div class="auth-error" id="force-change-error">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+            <span id="force-change-error-text"></span>
+          </div>
+          <button type="submit" class="auth-submit-btn" id="force-change-submit-btn">
+            <span class="spinner"></span>
+            <span class="btn-label">Update Password</span>
+          </button>
+          <div class="auth-link-row">
+            <button type="button" class="auth-link-btn" onclick="switchTab('login')">Back to sign in</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 
@@ -440,10 +467,11 @@
   }).catch(function() {});
 
   // ── Tabs / panels ────────────────────────────────────────────────────────
-  var panels = ['login', 'register', 'forgot', 'reset'];
+  var panels = ['login', 'register', 'forgot', 'reset', 'force-change'];
   function switchTab(tab) {
     panels.forEach(function(p) {
-      document.getElementById(p + '-panel').style.display = (p === tab) ? 'block' : 'none';
+      var panelId = p === 'force-change' ? 'force-change-panel' : p + '-panel';
+      document.getElementById(panelId).style.display = (p === tab) ? 'block' : 'none';
     });
     document.getElementById('auth-tabs').style.display = (tab === 'login' || tab === 'register') ? 'flex' : 'none';
     document.getElementById('tab-login').classList.toggle('active', tab === 'login');
@@ -451,6 +479,13 @@
   }
   function showForgotPanel() { switchTab('forgot'); }
   function showResetPanel() { switchTab('reset'); }
+  function showForceChangePanel(username, currentPassword) {
+    document.getElementById('force-username').value = username;
+    document.getElementById('force-current-password').value = currentPassword || '';
+    document.getElementById('force-new-password').value = '';
+    clearError('force-change');
+    switchTab('force-change');
+  }
 
   function isValidEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
 
@@ -483,10 +518,54 @@
     })
       .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
       .then(function(res) {
-        if (!res.ok) { showError('login', res.data.message || 'Sign in failed'); setLoading('login', false); return; }
+        if (!res.ok) {
+          if (res.data && res.data.passwordChangeRequired) {
+            setLoading('login', false);
+            showForceChangePanel(username, password);
+            return;
+          }
+          showError('login', res.data.message || 'Sign in failed');
+          setLoading('login', false);
+          return;
+        }
         window.location.href = getRedirectTarget();
       })
       .catch(function() { showError('login', 'Network error — please try again'); setLoading('login', false); });
+  }
+
+  // ── Force password change after default login ─────────────────────────────
+  function submitForceChange(e) {
+    e.preventDefault();
+    clearError('force-change');
+    var username = document.getElementById('force-username').value.trim();
+    var oldPassword = document.getElementById('force-current-password').value;
+    var newPassword = document.getElementById('force-new-password').value;
+
+    if (!username || !oldPassword || !newPassword) {
+      showError('force-change', 'Username, current password and new password are required');
+      return;
+    }
+    if (newPassword.length < 10) {
+      showError('force-change', 'Password must be at least 10 characters');
+      return;
+    }
+
+    setLoading('force-change', true);
+    apiFetch('/api/auth/force-change-password', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: username, oldPassword: oldPassword, newPassword: newPassword })
+    })
+      .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+      .then(function(res) {
+        setLoading('force-change', false);
+        if (!res.ok) {
+          showError('force-change', res.data.message || 'Could not update your password');
+          return;
+        }
+        showBanner(res.data.message || 'Password updated successfully.', 'success');
+        switchTab('login');
+      })
+      .catch(function() { showError('force-change', 'Network error — please try again'); setLoading('force-change', false); });
   }
 
   // ── Register ─────────────────────────────────────────────────────────────────

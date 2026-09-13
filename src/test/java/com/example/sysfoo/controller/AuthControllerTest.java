@@ -1,5 +1,6 @@
 package com.example.sysfoo.controller;
 
+import com.example.sysfoo.model.User;
 import com.example.sysfoo.repository.UserRepository;
 import com.example.sysfoo.security.RateLimiter;
 import com.example.sysfoo.service.AccountSecurityService;
@@ -126,6 +127,22 @@ public class AuthControllerTest {
                         .content("{\"username\":\"simba\",\"password\":\"longenough1\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("CAPTCHA verification failed — please try again"));
+    }
+
+    @Test
+    public void loginRequiresPasswordChangeForFirstDefaultLogin() throws Exception {
+        User admin = new User("admin", "$2a$10$hash", "admin@example.com", "Admin");
+        admin.setPasswordChangeRequired(true);
+
+        when(userRepository.findByUsername("admin")).thenReturn(Optional.of(admin));
+        when(passwordEncoder.matches("admin123", admin.getPassword())).thenReturn(true);
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"admin\",\"password\":\"admin123\"}"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.passwordChangeRequired").value(true))
+                .andExpect(jsonPath("$.message").value("Password change required before continuing. Please update your password first."));
     }
 
     @Test

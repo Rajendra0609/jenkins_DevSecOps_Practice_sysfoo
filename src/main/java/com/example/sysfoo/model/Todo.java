@@ -88,6 +88,18 @@ public class Todo {
     @Column(length = 50)
     private String team;
 
+    /** Optional epic / release theme for the ticket. */
+    @Column(length = 60)
+    private String epic;
+
+    /** Optional story points estimate for agile planning. */
+    @Column
+    private Integer storyPoints;
+
+    /** Optional effort estimate in logged hours. */
+    @Column
+    private Double effortHours;
+
     /** Optional folder/category bucket for team-centric task grouping. */
     @Column(length = 50)
     private String folder;
@@ -269,6 +281,30 @@ public class Todo {
 
     public void setTeam(String team) {
         this.team = team == null || team.isBlank() ? null : team.trim();
+    }
+
+    public String getEpic() {
+        return epic == null || epic.isBlank() ? null : epic.trim();
+    }
+
+    public void setEpic(String epic) {
+        this.epic = epic == null || epic.isBlank() ? null : epic.trim();
+    }
+
+    public Integer getStoryPoints() {
+        return storyPoints;
+    }
+
+    public void setStoryPoints(Integer storyPoints) {
+        this.storyPoints = storyPoints;
+    }
+
+    public Double getEffortHours() {
+        return effortHours;
+    }
+
+    public void setEffortHours(Double effortHours) {
+        this.effortHours = effortHours;
     }
 
     public String getFolder() {

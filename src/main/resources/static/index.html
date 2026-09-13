@@ -668,6 +668,26 @@
       border: 1px solid rgba(166,126,199,0.28); padding: 1px 8px; border-radius: 999px;
     }
 
+    .todo-folder-manager {
+      background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 10px 12px; margin: 0 0 14px 0;
+    }
+    .folder-manager-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .folder-manager-title { font-size: 11px; font-weight: 700; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; }
+    .folder-manager-controls { display: flex; gap: 8px; align-items: center; }
+    .folder-manager-controls input { min-width: min(260px, 35vw); }
+    .folder-manager-list { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+    .folder-chip { background: var(--bg-3); border: 1px solid var(--border); color: var(--txt-2); border-radius: var(--radius-xs); padding: 4px 9px; font-family: var(--mono); font-size: 10px; }
+    .folder-chip:hover { border-color: var(--gold); color: var(--gold); }
+
+    .todo-inline-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .todo-detail-link {
+      background: var(--gold-dim); border: 1px solid var(--border-hi); color: var(--gold);
+      border-radius: var(--radius-xs); padding: 4px 10px; font-family: var(--mono); font-size: 10px;
+      cursor: pointer; transition: background 0.2s, color 0.2s; min-width: 110px;
+    }
+    .todo-detail-link:hover { color: var(--txt); background: var(--gold); }
+
     .todo-item-actions { display: flex; flex-direction: column; border-left: 1px solid var(--border); flex-shrink: 0; }
     .action-btn {
       flex: 1; background: none; border: none; cursor: pointer;
@@ -1336,6 +1356,32 @@
           <input class="todo-input" id="todo-text" type="text" placeholder="What needs to be done?" maxlength="200" />
         </div>
       </div>
+      <div class="todo-folder-manager" id="folder-manager" style="display:none;">
+        <div class="folder-manager-head">
+          <span class="folder-manager-title">Folder Admin</span>
+          <div class="folder-manager-controls">
+            <input class="todo-input" type="text" id="folder-name-input" placeholder="Create folder" maxlength="50" />
+            <button class="todo-add-btn compact" id="folder-create-btn" onclick="createFolder()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+              Create Folder
+            </button>
+          </div>
+        </div>
+        <div class="folder-manager-list" id="folder-manager-list"></div>
+      </div>
+      <div class="todo-folder-manager" id="ticket-type-manager" style="display:none;">
+        <div class="folder-manager-head">
+          <span class="folder-manager-title">Ticket Type Admin</span>
+          <div class="folder-manager-controls">
+            <input class="todo-input" type="text" id="ticket-type-name-input" placeholder="Create ticket type" maxlength="40" />
+            <button class="todo-add-btn compact" id="ticket-type-create-btn" onclick="createTicketType()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+              Create Type
+            </button>
+          </div>
+        </div>
+        <div class="folder-manager-list" id="ticket-type-list"></div>
+      </div>
       <div class="todo-form-row">
         <div class="todo-field-wrap" style="flex:0 0 auto;width:160px;">
           <label class="todo-field-label">Ticket Type</label>
@@ -1349,16 +1395,42 @@
           </select>
         </div>
         <div class="todo-field-wrap" style="flex:0 0 auto;width:150px;">
+          <label class="todo-field-label">Issue</label>
+          <input class="todo-input" id="todo-issue" type="text" placeholder="ISSUE-01" maxlength="50" />
+        </div>
+        <div class="todo-field-wrap" style="flex:0 0 auto;width:150px;">
           <label class="todo-field-label">Component</label>
           <input class="todo-input" id="todo-component" type="text" placeholder="Auth" maxlength="50" />
         </div>
         <div class="todo-field-wrap" style="flex:0 0 auto;width:150px;">
+          <label class="todo-field-label">Epic</label>
+          <input class="todo-input" id="todo-epic" type="text" placeholder="Platform Migration" maxlength="60" />
+        </div>
+      </div>
+      <div class="todo-form-row">
+        <div class="todo-field-wrap" style="flex:0 0 auto;width:150px;">
           <label class="todo-field-label">Team</label>
-          <input class="todo-input" id="todo-team" type="text" placeholder="Platform" maxlength="50" />
+          <select class="todo-input" id="todo-team">
+            <option value="">Unassigned Team</option>
+            <option value="CCS">CCS</option>
+            <option value="Infra">Infra</option>
+            <option value="Platform">Platform</option>
+            <option value="Security">Security</option>
+          </select>
         </div>
         <div class="todo-field-wrap" style="flex:0 0 auto;width:150px;">
           <label class="todo-field-label">Folder</label>
-          <input class="todo-input" id="todo-folder" type="text" placeholder="Security" maxlength="50" />
+          <select class="todo-input" id="todo-folder">
+            <option value="">General</option>
+          </select>
+        </div>
+        <div class="todo-field-wrap" style="flex:0 0 auto;width:120px;">
+          <label class="todo-field-label">Story Points</label>
+          <input class="todo-input" id="todo-story-points" type="number" min="0" max="100" placeholder="1" />
+        </div>
+        <div class="todo-field-wrap" style="flex:0 0 auto;width:130px;">
+          <label class="todo-field-label">Effort Hours</label>
+          <input class="todo-input" id="todo-effort-hours" type="number" min="0" step="0.5" placeholder="2" />
         </div>
       </div>
       <!-- ENHANCEMENT ("task due dates + reminders... tags/labels") -->
@@ -1451,16 +1523,40 @@
             </select>
           </div>
           <div class="task-modal-field">
+            <label class="task-modal-label">Issue</label>
+            <input class="todo-input" id="modal-task-issue" type="text" placeholder="ISSUE-01" maxlength="50" />
+          </div>
+          <div class="task-modal-field">
             <label class="task-modal-label">Component</label>
             <input class="todo-input" id="modal-task-component" type="text" placeholder="Auth" maxlength="50" />
           </div>
           <div class="task-modal-field">
+            <label class="task-modal-label">Epic</label>
+            <input class="todo-input" id="modal-task-epic" type="text" placeholder="Platform Migration" maxlength="60" />
+          </div>
+          <div class="task-modal-field">
             <label class="task-modal-label">Team</label>
-            <input class="todo-input" id="modal-task-team" type="text" placeholder="Platform" maxlength="50" />
+            <select class="todo-input" id="modal-task-team">
+              <option value="">Unassigned Team</option>
+              <option value="CCS">CCS</option>
+              <option value="Infra">Infra</option>
+              <option value="Platform">Platform</option>
+              <option value="Security">Security</option>
+            </select>
           </div>
           <div class="task-modal-field">
             <label class="task-modal-label">Folder</label>
-            <input class="todo-input" id="modal-task-folder" type="text" placeholder="Security" maxlength="50" />
+            <select class="todo-input" id="modal-task-folder">
+              <option value="">General</option>
+            </select>
+          </div>
+          <div class="task-modal-field">
+            <label class="task-modal-label">Story Points</label>
+            <input class="todo-input" id="modal-task-story-points" type="number" min="0" max="100" placeholder="1" />
+          </div>
+          <div class="task-modal-field">
+            <label class="task-modal-label">Effort Hours</label>
+            <input class="todo-input" id="modal-task-effort-hours" type="number" min="0" step="0.5" placeholder="2" />
           </div>
           <div class="task-modal-field">
             <label class="task-modal-label">Due Date</label>
@@ -1796,6 +1892,213 @@
   var STATUS_LABELS = { TO_DO: 'To Do', IN_PROGRESS: 'In Progress', IN_REVIEW: 'In Review', DONE: 'Done' };
   var STATUS_ORDER = { TO_DO: 0, IN_PROGRESS: 1, IN_REVIEW: 2, DONE: 3 };
   var auth = { loggedIn: false, username: null, displayName: null, isAdmin: false, role: 'MEMBER' };
+  var folders = [];
+  var ticketTypes = ['TASK','BUG','FEATURE','CHORE','IMPROVEMENT','RESEARCH'];
+
+  function loadFoldersFromStorage() {
+    try {
+      folders = JSON.parse(localStorage.getItem('sysfoo_task_folders') || '[]');
+    } catch (e) {
+      folders = [];
+    }
+    if (!Array.isArray(folders)) folders = [];
+    folders = folders.filter(function(f) { return typeof f === 'string' && f.trim(); }).map(function(f) { return f.trim(); });
+  }
+
+  function saveFoldersToStorage() {
+    localStorage.setItem('sysfoo_task_folders', JSON.stringify(folders));
+  }
+
+  function loadTicketTypesFromStorage() {
+    try {
+      ticketTypes = JSON.parse(localStorage.getItem('sysfoo_ticket_types') || '[]');
+    } catch (e) {
+      ticketTypes = [];
+    }
+    if (!Array.isArray(ticketTypes)) ticketTypes = [];
+    ticketTypes = ticketTypes.filter(function(f) { return typeof f === 'string' && f.trim(); }).map(function(f) { return f.trim().toUpperCase(); });
+    if (!ticketTypes.length) ticketTypes = ['TASK','BUG','FEATURE','CHORE','IMPROVEMENT','RESEARCH'];
+  }
+
+  function saveTicketTypesToStorage() {
+    localStorage.setItem('sysfoo_ticket_types', JSON.stringify(ticketTypes));
+  }
+
+  function loadTicketTypesFromServer() {
+    if (!auth.loggedIn) return Promise.resolve();
+    return apiFetch('/api/admin/ticket-types')
+      .then(function(r) { if (!r.ok) return []; return r.json(); })
+      .then(function(data) {
+        var serverTypes = Array.isArray(data) ? data.map(function(x) { return String(x.name || x).trim().toUpperCase(); }).filter(Boolean) : [];
+        if (serverTypes.length) {
+          ticketTypes = serverTypes;
+          saveTicketTypesToStorage();
+          renderTicketTypeOptions();
+        }
+      })
+      .catch(function() { /* silent fallback */ });
+  }
+
+  function renderFolderOptions() {
+    var selects = [document.getElementById('todo-folder'), document.getElementById('modal-task-folder')].filter(Boolean);
+    var folderNames = folders.length ? folders : ['General'];
+    selects.forEach(function(sel) {
+      var selected = sel.value || '';
+      sel.innerHTML = '<option value="">General</option>' + folderNames
+        .filter(function(f) { return f.trim(); })
+        .map(function(f) { return '<option value="' + escapeAttr(f) + '"' + (selected === f ? ' selected' : '') + '>' + escapeHtml(f) + '</option>'; })
+        .join('');
+      if (selected && folderNames.indexOf(selected) === -1) {
+        sel.value = '';
+      }
+    });
+    var list = document.getElementById('folder-manager-list');
+    if (list) {
+      list.innerHTML = folderNames.filter(function(f) { return f && f !== 'General'; }).map(function(f) {
+        return '<span class="folder-chip">' + escapeHtml(f) + '</span>';
+      }).join('') || '<span class="folder-chip">No folders yet</span>';
+    }
+  }
+
+  function renderTicketTypeOptions() {
+    var selects = [document.getElementById('todo-ticket-type'), document.getElementById('modal-task-ticket-type')].filter(Boolean);
+    var typeNames = ticketTypes.length ? ticketTypes : ['TASK','BUG','FEATURE','CHORE','IMPROVEMENT','RESEARCH'];
+    selects.forEach(function(sel) {
+      var selected = sel.value || 'TASK';
+      sel.innerHTML = typeNames
+        .filter(function(f) { return f && f.trim(); })
+        .map(function(f) { return '<option value="' + escapeAttr(f) + '"' + (selected === f ? ' selected' : '') + '>' + escapeHtml(f) + '</option>'; })
+        .join('');
+      if (typeNames.indexOf(selected) === -1) {
+        sel.value = 'TASK';
+      }
+    });
+    var list = document.getElementById('ticket-type-list');
+    if (list) {
+      list.innerHTML = typeNames.map(function(t) { return '<span class="folder-chip">' + escapeHtml(t) + '</span>'; }).join('') || '<span class="folder-chip">No ticket types yet</span>';
+    }
+  }
+
+  function createFolder() {
+    if (!auth.loggedIn || !auth.isAdmin) { showToast('Only admins can create folders', 'error'); return; }
+    var input = document.getElementById('folder-name-input');
+    if (!input) return;
+    var folder = (input.value || '').trim();
+    if (!folder) { showToast('Folder name is required', 'error'); return; }
+    if (folders.indexOf(folder) >= 0) { showToast('Folder already exists', 'info'); return; }
+    folders.push(folder);
+    saveFoldersToStorage();
+    renderFolderOptions();
+    input.value = '';
+    showToast('Folder created', 'success');
+  }
+
+  function createTicketType() {
+    if (!auth.loggedIn || !auth.isAdmin) { showToast('Only admins can create ticket types', 'error'); return; }
+    var input = document.getElementById('ticket-type-name-input');
+    if (!input) return;
+    var name = (input.value || '').trim().toUpperCase();
+    if (!name) { showToast('Ticket type name is required', 'error'); return; }
+    if (ticketTypes.indexOf(name) >= 0) { showToast('Ticket type already exists', 'info'); return; }
+    apiFetch('/api/admin/ticket-types', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name })
+    }).then(function(response) {
+      if (!response.ok) {
+        return response.json().then(function(payload) { throw new Error(payload.message || 'Unable to create ticket type'); });
+      }
+      return response.json();
+    }).then(function(payload) {
+      if (payload && payload.name) {
+        ticketTypes.push(payload.name);
+        saveTicketTypesToStorage();
+        renderTicketTypeOptions();
+        input.value = '';
+        showToast('Ticket type created', 'success');
+      }
+    }).catch(function(err) { showToast(err.message || 'Unable to create ticket type', 'error'); });
+  }
+
+  function openTaskDetailsInNewTab(localId, event) {
+    if (event) event.preventDefault();
+    var task = todos.find(function(t) { return t.localId === localId; });
+    if (!task) return;
+    var win = window.open('', '_blank');
+    if (!win) { showToast('Please allow pop-ups to open the task details', 'error'); return; }
+
+    win.document.open();
+    win.document.write('<!doctype html><html><head><meta charset="UTF-8"><title>Task Details - ' + escapeHtml(task.issueKey || ('TASK-' + task.id)) + '</title>' +
+      '<style>' +
+      'body{font-family:Arial,Helvetica,sans-serif;background:#17130d;color:#ffe8d7;margin:0;padding:30px}'+
+      '.task-detail{max-width:780px;margin:auto;background:#221a13;border:1px solid #5d4930;border-radius:12px;padding:24px;box-shadow:0 8px 26px rgba(0,0,0,.45)}'+
+      '.kicker{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#f3b45f}'+
+      '.title{font-size:28px;font-weight:700;margin:8px 0 12px;color:#ffe7bd}'+
+      '.meta-grid{display:grid;grid-template-columns:repeat(2,minmax(160px,1fr));gap:12px;margin-top:16px}'+
+      '.meta{background:#110f0b;border:1px solid #5d4930;border-radius:8px;padding:12px}'+
+      '.label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#a39678}'+
+      '.value{font-size:14px;color:#ffe7bd;margin-top:4px}'+
+      '.notes{margin-top:12px;padding-top:14px;border-top:1px solid #5d4930}'+
+      '.comment{border-left:2px solid #f3b45f;margin:8px 0;padding:6px 10px;background:#110f0b;color:#e9d299}'+
+      'button{border:0;background:#f3b45f;color:#221a13;padding:8px 12px;border-radius:6px;cursor:pointer}'+
+      '</style></head><body>');
+
+    win.document.write('<div class="task-detail">');
+    win.document.write('<div class="kicker">Task / ' + escapeHtml((task.ticketType || 'TASK').toUpperCase()) + ' / ' + escapeHtml(task.folder || 'General') + '</div>');
+    win.document.write('<div class="title">' + escapeHtml(task.text || '') + '</div>');
+    win.document.write('<div class="meta-grid">' +
+      '<div class="meta"><div class="label">Issue</div><div class="value">' + escapeHtml(task.issueKey || ('TASK-' + task.id)) + '</div></div>' +
+      '<div class="meta"><div class="label">Assignee</div><div class="value">' + escapeHtml(task.name || 'Unassigned') + '</div></div>' +
+      '<div class="meta"><div class="label">Status</div><div class="value">' + escapeHtml(STATUS_LABELS[task.status || (task.done ? 'DONE' : 'TO_DO')] || 'To Do') + '</div></div>' +
+      '<div class="meta"><div class="label">Priority</div><div class="value">' + escapeHtml(task.priority || 'medium') + '</div></div>' +
+      '<div class="meta"><div class="label">Ticket Type</div><div class="value">' + escapeHtml((task.ticketType || 'TASK').toUpperCase()) + '</div></div>' +
+      '<div class="meta"><div class="label">Component</div><div class="value">' + escapeHtml(task.component || 'General') + '</div></div>' +
+      '<div class="meta"><div class="label">Epic</div><div class="value">' + escapeHtml(task.epic || '—') + '</div></div>' +
+      '<div class="meta"><div class="label">Team</div><div class="value">' + escapeHtml(task.team || 'Unassigned Team') + '</div></div>' +
+      '<div class="meta"><div class="label">Folder</div><div class="value">' + escapeHtml(task.folder || 'General') + '</div></div>' +
+      '<div class="meta"><div class="label">Story Points</div><div class="value">' + escapeHtml(task.storyPoints == null ? '—' : String(task.storyPoints)) + '</div></div>' +
+      '<div class="meta"><div class="label">Effort Hours</div><div class="value">' + escapeHtml(task.effortHours == null ? '—' : String(task.effortHours)) + '</div></div>' +
+      '<div class="meta"><div class="label">Due Date</div><div class="value">' + escapeHtml(task.dueDate || '—') + '</div></div>' +
+      '<div class="meta"><div class="label">Tags</div><div class="value">' + escapeHtml((task.tags || []).join(', ') || '—') + '</div></div>' +
+      '<div class="meta"><div class="label">Created By</div><div class="value">' + escapeHtml(task.createdByUsername || '—') + '</div></div>' +
+      '<div class="meta"><div class="label">Created</div><div class="value">' + escapeHtml(task.time || '') + '</div></div>' +
+    '</div>');
+
+    win.document.write('<div class="notes"><div class="meta"><div class="label">Comments</div><div id="comments" class="value">Loading…</div></div><div class="meta"><div class="label">Checklist</div><div id="subtasks" class="value">Loading…</div></div><div class="meta"><div class="label">Attachments</div><div id="attachments" class="value">Loading…</div></div></div>');
+    win.document.write('</div></body></html>');
+    win.document.close();
+
+    function renderDetailCollections(id) {
+      Promise.all([
+        fetch('/todos/' + id + '/comments').then(function(r) { return r.json(); }).catch(function() { return []; }),
+        fetch('/todos/' + id + '/subtasks').then(function(r) { return r.json(); }).catch(function() { return []; }),
+        fetch('/todos/' + id + '/attachments').then(function(r) { return r.json(); }).catch(function() { return []; })
+      ]).then(function(parts) {
+        var comments = parts[0];
+        var subtasks = parts[1];
+        var attachments = parts[2];
+        if (comments && comments.length > 0) {
+          win.document.getElementById('comments').innerHTML = comments.map(function(c) {
+            return '<div class="comment"><b>' + escapeHtml(c.authorDisplayName || c.authorUsername || 'Commenter') + '</b>: ' + escapeHtml(c.text || '') + '</div>';
+          }).join('');
+        } else {
+          win.document.getElementById('comments').innerHTML = 'No comments yet';
+        }
+        if (subtasks && subtasks.length > 0) {
+          win.document.getElementById('subtasks').innerHTML = subtasks.map(function(s) { return '<div class="comment">' + escapeHtml(s.text || '') + '</div>'; }).join('');
+        } else {
+          win.document.getElementById('subtasks').innerHTML = 'No checklist items';
+        }
+        if (attachments && attachments.length > 0) {
+          win.document.getElementById('attachments').innerHTML = attachments.map(function(a) { return '<a href="/api/files/' + a.id + '" target="_blank" rel="noopener" style="color:#f3b45f">' + escapeHtml(a.originalFilename || 'Attachment') + '</a>' }).join('<br>');
+        } else {
+          win.document.getElementById('attachments').innerHTML = 'No attachments';
+        }
+      });
+    }
+
+    if (task.id) renderDetailCollections(task.id);
+  }
 
   // ── CSRF helper ──────────────────────────────────────────────────────────
   // SECURITY FIX: CSRF protection is back on (see SecurityConfig). Spring
@@ -1900,6 +2203,8 @@
     if (box && !box.contains(e.target)) hideGlobalSearchResults();
   });
 
+  loadFoldersFromStorage();
+  renderFolderOptions();
 
   var ACCENTS = ['gold', 'violet', 'jungle'];
   var ACCENT_LABELS = { gold: 'Savanna Gold', violet: 'Twilight Violet', jungle: 'Jungle Teal' };
@@ -2000,6 +2305,9 @@
     // ENHANCEMENT ("roles & permissions")
     var adminGroup = document.getElementById('admin-settings-group');
     if (adminGroup) adminGroup.style.display = auth.isAdmin ? 'block' : 'none';
+
+    var folderManager = document.getElementById('folder-manager');
+    if (folderManager) folderManager.style.display = auth.isAdmin ? 'block' : 'none';
   }
 
   // ENHANCEMENT ("in user profile if click it i need to get all the user
@@ -3475,7 +3783,8 @@
     var t = {
       localId: localIdCounter++, id: d.id, issueKey: d.issueKey || ('TASK-' + d.id), name: d.name || '', text: d.text,
       priority: d.priority || 'medium', done: persistedStatus === 'DONE' || !!d.done, status: persistedStatus,
-      ticketType: d.ticketType || 'TASK', component: d.component || null, team: d.team || null, folder: d.folder || null,
+      ticketType: d.ticketType || 'TASK', component: d.component || null, team: d.team || null, epic: d.epic || null,
+      storyPoints: d.storyPoints || null, effortHours: d.effortHours || null, folder: d.folder || null,
       editing: false, assigneeUsername: d.assigneeUsername || null, createdByUsername: d.createdByUsername || null,
       dueDate: d.dueDate || null, tags: d.tags || [],
       time: formatTime(createdMs), date: formatDate(createdMs), createdAt: createdMs
@@ -3509,6 +3818,10 @@
     var componentInput = document.getElementById('modal-task-component');
     var teamInput = document.getElementById('modal-task-team');
     var folderInput = document.getElementById('modal-task-folder');
+    var issueInput = document.getElementById('modal-task-issue');
+    var epicInput = document.getElementById('modal-task-epic');
+    var storyPointsInput = document.getElementById('modal-task-story-points');
+    var effortHoursInput = document.getElementById('modal-task-effort-hours');
     var priorityInput = document.getElementById('modal-task-priority');
     var statusInput = document.getElementById('modal-task-status');
 
@@ -3523,9 +3836,13 @@
     var tags = tagsInput.value.split(',').map(function(t) { return t.trim(); }).filter(function(t) { return t; });
     var priority = priorityInput.value || 'medium';
     var status = statusInput.value || 'TO_DO';
+    var storyPoints = storyPointsInput.value === '' ? null : Number(storyPointsInput.value);
+    var effortHours = effortHoursInput.value === '' ? null : Number(effortHoursInput.value);
 
     if (!text) { textInput.focus(); showToast('Please enter a task description', 'error'); return; }
     if (tags.length > 6) { showToast('A task can have at most 6 tags', 'error'); return; }
+    if (storyPoints !== null && (storyPoints < 0 || storyPoints > 100)) { showToast('Story points must be between 0 and 100', 'error'); return; }
+    if (effortHours !== null && effortHours < 0) { showToast('Effort hours must be positive', 'error'); return; }
 
     var btn = document.getElementById('modal-create-task-btn');
     if (btn) btn.disabled = true;
@@ -3539,8 +3856,12 @@
         dueDate: dueDate,
         tags: tags,
         ticketType: ticketTypeInput.value || 'TASK',
+        issueKey: issueInput.value.trim() || null,
         component: componentInput.value.trim(),
         team: teamInput.value.trim(),
+        epic: epicInput.value.trim(),
+        storyPoints: storyPoints,
+        effortHours: effortHours,
         folder: folderInput.value.trim(),
         status: status
       })
@@ -3557,9 +3878,13 @@
         dueDateInput.value = '';
         tagsInput.value = '';
         ticketTypeInput.value = 'TASK';
+        issueInput.value = '';
         componentInput.value = '';
+        epicInput.value = '';
         teamInput.value = '';
         folderInput.value = '';
+        storyPointsInput.value = '';
+        effortHoursInput.value = '';
         assigneeSelect.value = '';
         priorityInput.value = 'medium';
         statusInput.value = 'TO_DO';
@@ -3584,6 +3909,10 @@
     var componentInput = document.getElementById('todo-component');
     var teamInput = document.getElementById('todo-team');
     var folderInput = document.getElementById('todo-folder');
+    var issueInput = document.getElementById('todo-issue');
+    var epicInput = document.getElementById('todo-epic');
+    var storyPointsInput = document.getElementById('todo-story-points');
+    var effortHoursInput = document.getElementById('todo-effort-hours');
     var text = textInput.value.trim();
     var assigneeUsername = assigneeSelect.value;
     var assigneeUser = users.find(function(u) { return u.username === assigneeUsername; });
@@ -3594,9 +3923,13 @@
     // ENHANCEMENT ("task due dates + reminders... tags/labels")
     var dueDate = dueDateInput.value || null;
     var tags = tagsInput.value.split(',').map(function(t) { return t.trim(); }).filter(function(t) { return t; });
+    var storyPoints = storyPointsInput.value === '' ? null : Number(storyPointsInput.value);
+    var effortHours = effortHoursInput.value === '' ? null : Number(effortHoursInput.value);
 
     if (!text) { textInput.focus(); showToast('Please enter a task description', 'error'); return; }
     if (tags.length > 6) { showToast('A task can have at most 6 tags', 'error'); return; }
+    if (storyPoints !== null && (storyPoints < 0 || storyPoints > 100)) { showToast('Story points must be between 0 and 100', 'error'); return; }
+    if (effortHours !== null && effortHours < 0) { showToast('Effort hours must be positive', 'error'); return; }
 
     var btn = document.getElementById('add-todo-btn');
     btn.disabled = true;
@@ -3610,8 +3943,12 @@
         dueDate: dueDate,
         tags: tags,
         ticketType: ticketTypeInput.value || 'TASK',
+        issueKey: issueInput.value.trim() || null,
         component: componentInput.value.trim(),
         team: teamInput.value.trim(),
+        epic: epicInput.value.trim(),
+        storyPoints: storyPoints,
+        effortHours: effortHours,
         folder: folderInput.value.trim()
       })
     })
@@ -3627,8 +3964,12 @@
         dueDateInput.value = '';
         tagsInput.value = '';
         ticketTypeInput.value = 'TASK';
+        issueInput.value = '';
         componentInput.value = '';
         teamInput.value = '';
+        epicInput.value = '';
+        storyPointsInput.value = '';
+        effortHoursInput.value = '';
         folderInput.value = '';
         renderTodos();
         showToast('Task added' + (assigneeUsername ? ' for ' + assigneeLabel : ''), 'success');
@@ -3660,6 +4001,9 @@
       existing.ticketType = d.ticketType || 'TASK';
       existing.component = d.component || null;
       existing.team = d.team || null;
+      existing.epic = d.epic || null;
+      existing.storyPoints = d.storyPoints || null;
+      existing.effortHours = d.effortHours || null;
       existing.folder = d.folder || null;
       existing.name = d.name || '';
       existing.assigneeUsername = d.assigneeUsername || null;

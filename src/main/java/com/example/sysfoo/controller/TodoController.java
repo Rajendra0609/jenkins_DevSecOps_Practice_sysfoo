@@ -87,6 +87,12 @@ public class TodoController {
         if (todo.getTicketType() == null || todo.getTicketType().isBlank()) {
             todo.setTicketType("TASK");
         }
+        if (todo.getEffortHours() != null && todo.getEffortHours() < 0) {
+            return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Effort hours must be a positive number"));
+        }
+        if (todo.getStoryPoints() != null && (todo.getStoryPoints() < 0 || todo.getStoryPoints() > 100)) {
+            return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Story points must be between 0 and 100"));
+        }
 
         // ENHANCEMENT ("tags/labels"): validated (not just accepted as-is)
         // so a caller can't sneak a value past the 200-char DB column via a
@@ -197,6 +203,38 @@ public class TodoController {
             Object rawTeam = updates.get("team");
             String team = rawTeam == null ? "" : String.valueOf(rawTeam).trim();
             todo.setTeam(team);
+        }
+
+        if (updates.containsKey("epic")) {
+            Object rawEpic = updates.get("epic");
+            String epic = rawEpic == null ? "" : String.valueOf(rawEpic).trim();
+            todo.setEpic(epic);
+        }
+
+        if (updates.containsKey("storyPoints")) {
+            Object rawPoints = updates.get("storyPoints");
+            try {
+                Integer points = rawPoints == null || String.valueOf(rawPoints).isBlank() ? null : Integer.valueOf(String.valueOf(rawPoints));
+                if (points != null && (points < 0 || points > 100)) {
+                    return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Story points must be between 0 and 100"));
+                }
+                todo.setStoryPoints(points);
+            } catch (NumberFormatException e) {
+                return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Story points must be an integer"));
+            }
+        }
+
+        if (updates.containsKey("effortHours")) {
+            Object rawEffort = updates.get("effortHours");
+            try {
+                Double effort = rawEffort == null || String.valueOf(rawEffort).isBlank() ? null : Double.valueOf(String.valueOf(rawEffort));
+                if (effort != null && effort < 0) {
+                    return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Effort hours must be a positive number"));
+                }
+                todo.setEffortHours(effort);
+            } catch (NumberFormatException e) {
+                return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Effort hours must be numeric"));
+            }
         }
 
         if (updates.containsKey("folder")) {

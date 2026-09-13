@@ -163,11 +163,10 @@ public class AuthController {
                 email.isBlank() ? null : email,
                 displayName.isBlank() ? username : displayName
         );
-        // ENHANCEMENT ("roles & permissions"): the very first account on a
-        // fresh database becomes ADMIN — see User.role's javadoc for why.
-        if (userRepository.count() == 0) {
-            user.setRole(User.ROLE_ADMIN);
-        }
+        // Administrative promotion is not auto-granted on first registration.
+        // Every account created through the normal register flow stays a
+        // default MEMBER and can be promoted later by an existing ADMIN.
+        user.setRole(User.ROLE_MEMBER);
         userRepository.save(user);
 
         // Auto sign-in right after registration for a smoother first-run experience.
@@ -215,6 +214,18 @@ public class AuthController {
                             "This account is temporarily locked after too many failed attempts. Try again in " + minutesLeft + " minute(s)."));
         }
 
+        if (existingUser != null && existingUser.isPasswordChangeRequired()) {
+            boolean passwordMatchesDefault = passwordEncoder.matches(password, existingUser.getPassword());
+            if (passwordMatchesDefault) {
+                return ResponseEntity.status(403)
+                        .body(Map.of(
+                                "status", "error",
+                                "message", "Password change required before continuing. Please update your password first.",
+                                "passwordChangeRequired", true
+                        ));
+            }
+        }
+
         try {
             authenticateAndPersist(username, password, request, response);
         } catch (LockedException e) {
@@ -243,6 +254,40 @@ public class AuthController {
                 "role", (user != null) ? user.getRole() : User.ROLE_MEMBER,
                 "isAdmin", user != null && user.isAdmin()
         ));
+    }
+
+    @PostMapping("/force-change-password")
+    public ResponseEntity<Map<String, String>> forceChangePassword(@RequestBody Map<String, String> body) {
+        String username = body.getOrDefault("username", "").trim();
+        String oldPassword = body.getOrDefault("oldPassword", "");
+        String newPassword = body.getOrDefault("newPassword", "");
+
+        if (username.isBlank() || oldPassword.isBlank() || newPassword.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Username, current password and new password are required."));
+        }
+
+        User user = userRepository.findByUsername(username).orElse(null);
+        if (user == null) {
+            return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Invalid username or password."));
+        }
+        if (!user.isPasswordChangeRequired()) {
+            return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "This account does not need a password reset."));
+        }
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Current password is incorrect."));
+        }
+
+        var passwordError = passwordPolicyService.validate(newPassword, user.getUsername());
+        if (passwordError.isPresent()) {
+            return ResponseEntity.badRequest().body(Map.of("status", "error", "message", passwordError.get()));
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPasswordChangeRequired(false);
+        userRepository.save(user);
+        accountSecurityService.recordSuccessfulLogin(user);
+
+        return ResponseEntity.ok(Map.of("status", "ok", "message", "Password updated successfully. You can now sign in with your new password."));
     }
     public ResponseEntity<Map<String, String>> logout(HttpServletRequest request) {
         SecurityContextHolder.clearContext();
