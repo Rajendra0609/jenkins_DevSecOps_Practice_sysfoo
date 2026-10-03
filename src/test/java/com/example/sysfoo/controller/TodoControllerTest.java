@@ -1,20 +1,38 @@
 package com.example.sysfoo.controller;
 
+import com.example.sysfoo.model.Project;
 import com.example.sysfoo.model.Todo;
+import com.example.sysfoo.repository.AttachmentRepository;
+import com.example.sysfoo.repository.CommentRepository;
+import com.example.sysfoo.repository.IssueLinkRepository;
+import com.example.sysfoo.repository.ProjectRepository;
+import com.example.sysfoo.repository.SprintRepository;
+import com.example.sysfoo.repository.SubtaskRepository;
+import com.example.sysfoo.repository.TodoRepository;
+import com.example.sysfoo.repository.UserRepository;
+import com.example.sysfoo.service.FileStorageService;
+import com.example.sysfoo.service.EventBroadcastService;
+import com.example.sysfoo.service.TaskAuditService;
 import com.example.sysfoo.service.TodoService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -26,7 +44,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 // task actually persist) were previously untested.
 // Security filters are disabled here, same as AuthControllerTest/
 // SystemInfoControllerTest — this slice test only exercises TodoController's
-// own request handling, not the security filter chain.
+// own request handling, not the security filter chain (that's what
+// addFilters = false means). @WithMockUser still works with filters disabled
+// — it populates the SecurityContext directly, which is what lets the
+// controller's `Authentication authentication` parameter resolve, without
+// needing SecurityConfig's actual authorization rules to run.
+//
+// ENHANCEMENT: TodoController now also depends on UserRepository (assignee
+// lookup), CommentRepository/AttachmentRepository (comment/attachment
+// sub-resources), FileStorageService (attachment uploads) and
+// TaskAuditService (history log) — all mocked here so the @WebMvcTest slice
+// context has something to wire in, even though most tests below don't
+// touch them directly.
 @WebMvcTest(TodoController.class)
 @AutoConfigureMockMvc(addFilters = false)
 public class TodoControllerTest {
@@ -37,7 +66,51 @@ public class TodoControllerTest {
     @MockBean
     private TodoService todoService;
 
+    @MockBean
+    private UserRepository userRepository;
+
+    @MockBean
+    private CommentRepository commentRepository;
+
+    @MockBean
+    private AttachmentRepository attachmentRepository;
+
+    @MockBean
+    private FileStorageService fileStorageService;
+
+    @MockBean
+    private TaskAuditService taskAuditService;
+
+    @MockBean
+    private SubtaskRepository subtaskRepository;
+
+    @MockBean
+    private SprintRepository sprintRepository;
+
+    @MockBean
+    private ProjectRepository projectRepository;
+
+    @MockBean
+    private IssueLinkRepository issueLinkRepository;
+
+    @MockBean
+    private TodoRepository todoRepository;
+
+    /** A project with id 1 and key SYS — issues must be created inside one. */
+    private Project sysProject() {
+        Project p = new Project();
+        p.setId(1L);
+        p.setProjectKey("SYS");
+        p.setName("Sysfoo");
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(p));
+        return p;
+    }
+
+    @MockBean
+    private EventBroadcastService eventBroadcastService;
+
     @Test
+    @WithMockUser(username = "alice")
     public void addTodoRejectsBlankText() throws Exception {
         mockMvc.perform(post("/todos")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -47,6 +120,7 @@ public class TodoControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "alice")
     public void addTodoRejectsOversizedText() throws Exception {
         String longText = "x".repeat(201);
         mockMvc.perform(post("/todos")
@@ -57,6 +131,7 @@ public class TodoControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "alice")
     public void addTodoRejectsInvalidPriority() throws Exception {
         mockMvc.perform(post("/todos")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -66,7 +141,31 @@ public class TodoControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "alice")
+    public void addTodoRejectsInvalidIssueType() throws Exception {
+        sysProject();
+        mockMvc.perform(post("/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"text\":\"Ship the release\",\"issueType\":\"NOPE\",\"projectId\":1}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Issue type must be TASK, BUG, STORY or EPIC"));
+    }
+
+    @Test
+    @WithMockUser(username = "alice")
+    public void addTodoRejectsOutOfRangeStoryPoints() throws Exception {
+        sysProject();
+        mockMvc.perform(post("/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"text\":\"Ship the release\",\"storyPoints\":500,\"projectId\":1}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Story points must be between 0 and 100"));
+    }
+
+    @Test
+    @WithMockUser(username = "alice")
     public void addTodoDefaultsPriorityToMedium() throws Exception {
+        sysProject();
         when(todoService.save(any(Todo.class))).thenAnswer(invocation -> {
             Todo t = invocation.getArgument(0);
             t.setId(1L);
@@ -75,13 +174,82 @@ public class TodoControllerTest {
 
         mockMvc.perform(post("/todos")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"text\":\"Ship the release\"}"))
+                        .content("{\"text\":\"Ship the release\",\"projectId\":1}"))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.issueKey").value("SYS-1"))
+                .andExpect(jsonPath("$.projectKey").value("SYS"))
                 .andExpect(jsonPath("$.priority").value("medium"))
-                .andExpect(jsonPath("$.done").value(false));
+                .andExpect(jsonPath("$.done").value(false))
+                // ENHANCEMENT: the creator is now stamped from the
+                // authenticated user, not left blank.
+                .andExpect(jsonPath("$.createdByUsername").value("alice"));
     }
 
     @Test
+    @WithMockUser(username = "alice")
+    public void addTodoRequiresProject() throws Exception {
+        mockMvc.perform(post("/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"text\":\"Ship the release\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Project is required"));
+    }
+
+    @Test
+    @WithMockUser(username = "alice")
+    public void addTodoRejectsUnknownProject() throws Exception {
+        when(projectRepository.findById(99L)).thenReturn(Optional.empty());
+        mockMvc.perform(post("/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"text\":\"Ship the release\",\"projectId\":99}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Unknown project"));
+    }
+
+    @Test
+    @WithMockUser(username = "alice")
+    public void addTodoRejectsUnknownAssignee() throws Exception {
+        sysProject();
+        when(userRepository.findByUsername("nobody")).thenReturn(Optional.empty());
+
+        mockMvc.perform(post("/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"text\":\"Ship the release\",\"assigneeUsername\":\"nobody\",\"projectId\":1}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Unknown assignee"));
+    }
+
+    // ENHANCEMENT: GET /todos now filters to only what the caller created or
+    // is assigned to (see TodoService.findVisibleToUser) — this is the actual
+    // regression test for "assignee can only see the task, rest can't view
+    // it": bob's task must not appear for alice.
+    // CORRECTNESS FIX: also now paginated — the endpoint returns a Page<Todo>
+    // (content/totalElements/...) instead of a bare JSON array.
+    @Test
+    @WithMockUser(username = "alice")
+    public void getAllTodosOnlyReturnsOwnedOrAssignedTasks() throws Exception {
+        Todo mine = new Todo("Ship the release");
+        mine.setId(1L);
+        mine.setCreatedByUsername("alice");
+
+        Todo assignedToMe = new Todo("Review the PR");
+        assignedToMe.setId(2L);
+        assignedToMe.setCreatedByUsername("bob");
+        assignedToMe.setAssigneeUsername("alice");
+
+        Page<Todo> page = new PageImpl<>(List.of(mine, assignedToMe));
+        when(todoService.findVisibleToUser(org.mockito.ArgumentMatchers.eq("alice"), any(Pageable.class)))
+                .thenReturn(page);
+
+        mockMvc.perform(get("/todos"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[1].id").value(2));
+    }
+
+    @Test
+    @WithMockUser(username = "alice")
     public void updateTodoReturns404ForUnknownId() throws Exception {
         when(todoService.findById(99L)).thenReturn(Optional.empty());
 
@@ -92,9 +260,11 @@ public class TodoControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "alice")
     public void updateTodoMarksDone() throws Exception {
-        Todo existing = new Todo("Alice", "Ship the release");
+        Todo existing = new Todo("Ship the release");
         existing.setId(1L);
+        existing.setCreatedByUsername("alice");
         when(todoService.findById(1L)).thenReturn(Optional.of(existing));
         when(todoService.save(any(Todo.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -106,9 +276,110 @@ public class TodoControllerTest {
     }
 
     @Test
-    public void updateTodoRejectsBlankText() throws Exception {
-        Todo existing = new Todo("Alice", "Ship the release");
+    @WithMockUser(username = "alice")
+    public void completingATaskRecordsCompletionTime() throws Exception {
+        Todo existing = new Todo("Ship the release");
         existing.setId(1L);
+        existing.setCreatedByUsername("alice");
+        when(todoService.findById(1L)).thenReturn(Optional.of(existing));
+        when(todoService.save(any(Todo.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        mockMvc.perform(patch("/todos/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"status\":\"DONE\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.completedAt").isNotEmpty());
+    }
+
+    @Test
+    @WithMockUser(username = "alice")
+    public void movingAnIssueGivesItANewKeyAndClearsSprint() throws Exception {
+        Project ops = new Project();
+        ops.setId(2L);
+        ops.setProjectKey("OPS");
+        ops.setName("Ops");
+        ops.setNextIssueNumber(7);
+        when(projectRepository.findById(2L)).thenReturn(Optional.of(ops));
+
+        Todo existing = new Todo("Ship the release");
+        existing.setId(1L);
+        existing.setCreatedByUsername("alice");
+        existing.setProjectId(1L);
+        existing.setProjectKey("SYS");
+        existing.setIssueNumber(3);
+        existing.setSprintId(10L);
+        when(todoService.findById(1L)).thenReturn(Optional.of(existing));
+        when(todoService.save(any(Todo.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        mockMvc.perform(patch("/todos/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"projectId\":2}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.issueKey").value("OPS-7"))
+                .andExpect(jsonPath("$.projectId").value(2))
+                .andExpect(jsonPath("$.sprintId").doesNotExist());
+    }
+
+    @Test
+    @WithMockUser(username = "alice")
+    public void deletingAnEpicDetachesItsChildIssues() throws Exception {
+        Todo epic = new Todo("Payments");
+        epic.setId(1L);
+        epic.setCreatedByUsername("alice");
+        epic.setIssueType(Todo.TYPE_EPIC);
+        Todo child = new Todo("Add card form");
+        child.setId(2L);
+        child.setCreatedByUsername("alice");
+        child.setEpicId(1L);
+        when(todoService.findById(1L)).thenReturn(Optional.of(epic));
+        when(todoRepository.findByEpicIdAndDeletedFalse(1L)).thenReturn(List.of(child));
+
+        mockMvc.perform(delete("/todos/1"))
+                .andExpect(status().isOk());
+
+        org.junit.jupiter.api.Assertions.assertNull(child.getEpicId());
+    }
+
+    @Test
+    @WithMockUser(username = "alice")
+    public void cannotLinkAnIssueToItself() throws Exception {
+        Todo existing = new Todo("Ship the release");
+        existing.setId(1L);
+        existing.setCreatedByUsername("alice");
+        when(todoService.findById(1L)).thenReturn(Optional.of(existing));
+
+        mockMvc.perform(post("/todos/1/links")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"type\":\"BLOCKS\",\"targetId\":1}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("An issue can't be linked to itself"));
+    }
+
+    @Test
+    @WithMockUser(username = "alice")
+    public void cannotLinkToAnIssueYouCannotSee() throws Exception {
+        Todo mine = new Todo("Mine");
+        mine.setId(1L);
+        mine.setCreatedByUsername("alice");
+        Todo theirs = new Todo("Theirs");
+        theirs.setId(2L);
+        theirs.setCreatedByUsername("bob");
+        when(todoService.findById(1L)).thenReturn(Optional.of(mine));
+        when(todoService.findById(2L)).thenReturn(Optional.of(theirs));
+
+        mockMvc.perform(post("/todos/1/links")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"type\":\"RELATES\",\"targetId\":2}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Unknown issue to link to"));
+    }
+
+    @Test
+    @WithMockUser(username = "alice")
+    public void updateTodoRejectsBlankText() throws Exception {
+        Todo existing = new Todo("Ship the release");
+        existing.setId(1L);
+        existing.setCreatedByUsername("alice");
         when(todoService.findById(1L)).thenReturn(Optional.of(existing));
 
         mockMvc.perform(patch("/todos/1")
@@ -117,20 +388,183 @@ public class TodoControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    // ENHANCEMENT ("Jira-style status workflow — To Do / In Progress / In
+    // Review / Done instead of just done/not-done")
     @Test
+    @WithMockUser(username = "alice")
+    public void updateTodoAcceptsValidStatusTransition() throws Exception {
+        Todo existing = new Todo("Ship the release");
+        existing.setId(1L);
+        existing.setCreatedByUsername("alice");
+        when(todoService.findById(1L)).thenReturn(Optional.of(existing));
+        when(todoService.save(any(Todo.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        mockMvc.perform(patch("/todos/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"status\":\"IN_PROGRESS\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("IN_PROGRESS"))
+                .andExpect(jsonPath("$.done").value(false));
+    }
+
+    @Test
+    @WithMockUser(username = "alice")
+    public void updateTodoRejectsInvalidStatus() throws Exception {
+        Todo existing = new Todo("Ship the release");
+        existing.setId(1L);
+        existing.setCreatedByUsername("alice");
+        when(todoService.findById(1L)).thenReturn(Optional.of(existing));
+
+        mockMvc.perform(patch("/todos/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"status\":\"BOGUS\"}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    // Regression test: status DONE and status TODO/IN_PROGRESS/IN_REVIEW
+    // must keep the old `done` boolean in sync (see Todo.setStatus) since
+    // other code (profile counts, "Clear Done") still reads it directly.
+    @Test
+    @WithMockUser(username = "alice")
+    public void updateTodoStatusDoneAlsoSetsDoneFlag() throws Exception {
+        Todo existing = new Todo("Ship the release");
+        existing.setId(1L);
+        existing.setCreatedByUsername("alice");
+        when(todoService.findById(1L)).thenReturn(Optional.of(existing));
+        when(todoService.save(any(Todo.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        mockMvc.perform(patch("/todos/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"status\":\"DONE\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("DONE"))
+                .andExpect(jsonPath("$.done").value(true));
+    }
+
+    // ENHANCEMENT: someone who is neither the creator nor the assignee gets a
+    // 404 (not a 403 — see TodoController's comment on why: not confirming
+    // the task even exists to someone outside it), even though the row
+    // itself is real.
+    @Test
+    @WithMockUser(username = "mallory")
+    public void updateTodoReturns404WhenNotOwnerOrAssignee() throws Exception {
+        Todo existing = new Todo("Ship the release");
+        existing.setId(1L);
+        existing.setCreatedByUsername("alice");
+        when(todoService.findById(1L)).thenReturn(Optional.of(existing));
+
+        mockMvc.perform(patch("/todos/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"done\":true}"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(username = "alice")
     public void deleteTodoReturns404ForUnknownId() throws Exception {
-        when(todoService.delete(99L)).thenReturn(false);
+        when(todoService.findById(99L)).thenReturn(Optional.empty());
 
         mockMvc.perform(delete("/todos/99"))
                 .andExpect(status().isNotFound());
     }
 
+    // CORRECTNESS FIX: delete no longer calls todoService.delete(id) (hard
+    // delete) — it soft-deletes via todoService.softDelete(todo, username)
+    // and records a DELETED audit entry. See TodoController.deleteTodo().
     @Test
+    @WithMockUser(username = "alice")
     public void deleteTodoSucceeds() throws Exception {
-        when(todoService.delete(1L)).thenReturn(true);
+        Todo existing = new Todo("Ship the release");
+        existing.setId(1L);
+        existing.setCreatedByUsername("alice");
+        when(todoService.findById(1L)).thenReturn(Optional.of(existing));
+        when(todoService.softDelete(any(Todo.class), org.mockito.ArgumentMatchers.eq("alice")))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         mockMvc.perform(delete("/todos/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("ok"));
+
+        org.mockito.Mockito.verify(taskAuditService).log(
+                org.mockito.ArgumentMatchers.eq(1L), org.mockito.ArgumentMatchers.eq("alice"),
+                org.mockito.ArgumentMatchers.eq("DELETED"), any());
+    }
+
+    // CORRECTNESS FIX: an already soft-deleted task can't be deleted again
+    // (it's already gone from every normal query — see Todo.deleted).
+    @Test
+    @WithMockUser(username = "alice")
+    public void deleteTodoRejectsAlreadyDeleted() throws Exception {
+        Todo existing = new Todo("Ship the release");
+        existing.setId(1L);
+        existing.setCreatedByUsername("alice");
+        existing.setDeleted(true);
+        when(todoService.findById(1L)).thenReturn(Optional.of(existing));
+
+        mockMvc.perform(delete("/todos/1"))
+                .andExpect(status().isNotFound());
+    }
+
+    // ENHANCEMENT: delete is creator-only — an assignee (not the creator)
+    // gets 404, same as someone with no relationship to the task at all.
+    @Test
+    @WithMockUser(username = "assignee-bob")
+    public void deleteTodoRejectsNonCreatorAssignee() throws Exception {
+        Todo existing = new Todo("Ship the release");
+        existing.setId(1L);
+        existing.setCreatedByUsername("alice");
+        existing.setAssigneeUsername("assignee-bob");
+        when(todoService.findById(1L)).thenReturn(Optional.of(existing));
+
+        mockMvc.perform(delete("/todos/1"))
+                .andExpect(status().isNotFound());
+    }
+
+    // ENHANCEMENT ("subtasks/checklists")
+    @Test
+    @WithMockUser(username = "alice")
+    public void addSubtaskSucceedsForCreator() throws Exception {
+        Todo existing = new Todo("Ship the release");
+        existing.setId(1L);
+        existing.setCreatedByUsername("alice");
+        when(todoService.findById(1L)).thenReturn(Optional.of(existing));
+        when(subtaskRepository.countByTodoId(1L)).thenReturn(0L);
+        when(subtaskRepository.save(any(com.example.sysfoo.model.Subtask.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
+
+        mockMvc.perform(post("/todos/1/subtasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"text\":\"Write the tests\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.text").value("Write the tests"));
+    }
+
+    @Test
+    @WithMockUser(username = "mallory")
+    public void addSubtaskRejectsNonCreatorAssignee() throws Exception {
+        Todo existing = new Todo("Ship the release");
+        existing.setId(1L);
+        existing.setCreatedByUsername("alice");
+        existing.setAssigneeUsername("bob");
+        when(todoService.findById(1L)).thenReturn(Optional.of(existing));
+
+        mockMvc.perform(post("/todos/1/subtasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"text\":\"Sneaky item\"}"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(username = "alice")
+    public void addSubtaskRejectsBlankText() throws Exception {
+        Todo existing = new Todo("Ship the release");
+        existing.setId(1L);
+        existing.setCreatedByUsername("alice");
+        when(todoService.findById(1L)).thenReturn(Optional.of(existing));
+
+        mockMvc.perform(post("/todos/1/subtasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"text\":\"   \"}"))
+                .andExpect(status().isBadRequest());
     }
 }

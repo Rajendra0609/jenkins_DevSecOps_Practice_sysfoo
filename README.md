@@ -175,3 +175,173 @@ point it was fixed; summary:
   produce a single WAR that runs standalone via `java -jar` (same as the old
   plain jar) or deploys to an external Tomcat server. See "Running the
   packaged artifact" above for the `ROOT.war` context-path note.
+
+## Second pass — cleanup, a container config bug, and a real escaping bug
+
+- **`AppProperties.java` was still shipped** even though the note above says
+  it was removed — it was dead code (nothing referenced it) and contradicted
+  its own changelog entry. Deleted.
+- **Orphaned `static/css/style.css`** — an old stylesheet from an earlier
+  design iteration, not linked from either `index.html` or `login.html`
+  (both use their own embedded `<style>`). Deleted to stop it misleading the
+  next person who edits the CSS and wonders why their changes do nothing.
+- **The container silently ran SQLite without its documented safety
+  settings.** `application-default.properties` sets
+  `?journal_mode=WAL&busy_timeout=30000` on the datasource URL specifically
+  to avoid `SQLITE_BUSY` locking errors, but the `Dockerfile`'s
+  `SPRING_DATASOURCE_URL` env var was a bare `jdbc:sqlite:/data/sysfoo.db` —
+  an env var override replaces the *whole* property value, so every
+  container run quietly lost that protection. Fixed by carrying the same
+  query params through.
+- **A real escaping bug in two places in `index.html`.** `escapeAttr()`
+  correctly protects a plain HTML attribute, but it was also being used to
+  embed values inside a *nested* single-quoted string — `style="background-
+  image:url('...')"` for post images, and `onclick="copyToClipboard('...')"`
+  for the system-info copy buttons. Browsers HTML-decode an attribute's text
+  *before* treating it as CSS/JS, so an escaped `&#39;` decodes back to a
+  literal `'` and breaks out of the inner string — any post image URL
+  containing an apostrophe corrupted the card's styling. Fixed by moving
+  both values into `data-*` attributes and setting them via the CSSOM /
+  reading them in a delegated click handler, which never re-parses the
+  string as code.
+- **A redundant duplicate network call** — `fetchSystemInfo()` fetched both
+  `/system-info` and `/version` and wrote the same value into the same
+  `#app-version` element from both, on every load and every 30-second
+  auto-refresh tick. Removed the second call.
+- **A more thorough `.dockerignore` existed but was never active** — it had
+  been saved as a file literally named `dockerignore`, missing the leading
+  dot, so Docker never read it; the shorter, older `.dockerignore` was the
+  one silently in effect. Consolidated into the real `.dockerignore` and
+  removed the dead file.
+
+### UI/UX enhancements
+
+- **Accent theme picker** (Savanna Gold / Twilight Violet / Jungle Teal) in
+  the header — swaps only the brand-accent CSS variables so the base
+  contrast never regresses, persisted to `localStorage`, and mirrored on
+  `login.html` so the two pages stay in sync.
+- **Live relative timestamps** ("5m ago") on tasks and posts, refreshing
+  every 20s, with the absolute time still available as a tooltip on posts.
+- **The task list and Watering Hole board now actually refresh live.** The
+  30s auto-refresh cycle and the "Refresh" button previously only touched
+  system-info/database-info, even though both surfaces are described as
+  shared/team data — a teammate's new task or post never showed up without a
+  manual reload. It's now merged in place rather than replaced wholesale,
+  and a task currently being edited is left completely untouched (checked
+  both before and after the network round trip) so a poll can never
+  overwrite unsaved keystrokes.
+- **Accessibility**: the toast container announces itself
+  (`role="status" aria-live="polite"`), and the filter/priority buttons now
+  expose `aria-pressed` state.
+- **Keyboard shortcuts**: `/` focuses the task search box, `Escape` clears
+  it — mirrored in the search box's placeholder text.
+
+## Third pass — real user assignment, task privacy, comments & file uploads
+
+This pass changes what kind of app this is in one important way: tasks are
+no longer a fully shared team list — **a task is now only visible to the
+person who created it and the person it's assigned to.** Everything else
+below builds on that.
+
+- **Version bug fixed properly.** `app.version` in `application.properties`
+  was a hand-typed string with no connection to `pom.xml`'s own `<version>`
+  — two numbers to remember to keep in sync, and they'd drifted
+  (`0.0.1-SNAPSHOT` vs `1.0.0`). It's now `@project.version@`, filled in by
+  Maven at build time from `pom.xml` — bump the version in exactly one
+  place.
+- **User directory + profile.** `GET /api/users` lists every registered
+  account (username, display name, email) for the assignee picker; `GET
+  /api/users/me/profile` backs a new profile panel (click your name in the
+  header) showing your email, member-since date, and task counts.
+- **Real assignees, not free text.** `Todo.assigneeUsername` now references
+  an actual account, validated server-side. The "Assigned To" field in the
+  Task Manager is a dropdown of real users (including yourself), and the
+  notification email is *always* looked up from that account — never typed
+  by hand. That also closes an abuse vector the old free-text email field
+  had: previously anyone could type any address at all into the notify
+  field and the backend would happily email it.
+- **Task visibility.** `GET /todos` now requires login and returns only
+  tasks you created or are assigned to (previously public to anyone,
+  authenticated or not). Editing is scoped the same way; deleting is
+  creator-only. A task you're not part of 404s rather than 403s, so its
+  existence isn't confirmed to someone outside it.
+- **Comments** on a task — `GET`/`POST /todos/{id}/comments` — visible to
+  and postable by the creator and the assignee.
+- **Task attachments** — `.txt`/`.zip` only, 20MB max, `GET`/`POST
+  /todos/{id}/attachments`. Stored on disk under a fresh random filename
+  (never the user-supplied name) specifically to close off path traversal;
+  the original filename is kept only for display.
+- **Post uploads.** `POST /api/posts` moved from a JSON body to
+  `multipart/form-data`: an image URL, an uploaded image, and a separate
+  general file attachment are all optional and independent. An uploaded
+  image takes priority over a pasted URL if a post somehow has both.
+  `GET /api/files/{id}` serves any attachment back — public for a post's
+  files (the board itself is public), creator-or-assignee-only for a task's.
+- **Found and fixed a real deployment bug while wiring up file storage:**
+  the upload directory was configured as a path relative to the app's
+  working directory, which inside the Docker image resolves *inside the
+  container*, not on the mounted `/data` volume — uploaded files would have
+  been silently deleted on every container restart, the same class of bug
+  as the SQLite URL fix in the second pass. Fixed with the same pattern: an
+  explicit absolute-path override in the Dockerfile.
+- Updated the existing `TodoControllerTest` (it would have failed outright —
+  the controller gained several new required dependencies) and added
+  coverage for the new visibility/ownership rules.
+
+### Known gaps from this pass
+
+- No automated tests for the new frontend behavior (comments, attachments,
+  the profile modal) — only the Java-side tests were updated.
+- No UI to change *display name*; only the account owner's email is shown
+  as read-only.
+- The Black Duck-style "does uploaded content actually match its claimed
+  type" byte-level check isn't implemented — only the file extension and
+  the browser-supplied Content-Type are validated.
+- A few judgment calls were made without being able to ask first — worth
+  revisiting if they don't match what you had in mind: delete is
+  creator-only (not assignee); both creator and assignee (not just
+  assignee) can comment; the post-upload file whitelist (images + pdf/txt/
+  zip/doc/docx) was invented since none was specified; and every signed-in
+  user can see every other user's email via the directory, which is what
+  makes the auto-fill possible but is a real privacy trade-off worth
+  knowing about.
+
+
+
+## Jira-style task features
+
+Tasks now behave like Jira issues (open any card/key to see the issue popup):
+
+- **Issue types**: Task, Bug, Story, Epic; **Description**, **Story points**, **Labels**, **Components**
+- **Status workflow**: To Do / In Progress / In Review / Done (drag on the Board or use the status dropdown)
+- **Sprints**: create, start (one active at a time), complete (unfinished issues return to the backlog) under **Tasks -> Backlog & Sprints**
+- **Epics**: link issues to an epic; the epic shows its children and progress
+- **Time tracking** (estimate / logged hours), checklist, attachments, comments, activity history
+- **Filters**: by type and sprint, plus search across key, labels and components
+
+API: `GET/POST /sprints`, `PATCH/DELETE /sprints/{id}`, `POST /sprints/{id}/start|complete`; new PATCH fields on `/todos/{id}`:
+`issueType`, `description`, `storyPoints`, `sprintId`, `epicId`, `components`, `estimateHours`, `loggedHours`.
+
+
+### Projects (Jira-style)
+
+- Every issue is created **inside a project**. Pick the project first in *Create issue*; the rest of the form appears after.
+- Each project has a permanent **key** (e.g. `SYS`), so issues are numbered per project: `SYS-1`, `SYS-2`, ...
+- Project cards sit above the task list; click one to filter the List, Board and Backlog to that project. Sprints and epics belong to one project.
+- Extra fields: **Fix version**, **Environment**, **Estimate**. The issue popup has **Details / Comments / Attachments / History** tabs and a grouped sidebar (Details, People, Dates, Time tracking).
+- Existing issues and sprints are moved into a default project with key `TASK` on first startup, keeping their old `TASK-<id>` keys.
+- API: `GET/POST /projects`, `PATCH/DELETE /projects/{id}`; `POST /todos` now requires `projectId`; sprints require `projectId` too.
+
+### Linked issues, burndown, moving issues
+
+- **Linked issues:** in the issue popup (Details tab) link an issue as *blocks / is blocked by / relates to / duplicates / is duplicated by*. A card whose blocker isn't done yet shows a red **Blocked** badge. You can only link issues you can see.
+- **Burndown chart:** an active sprint with dates and story points shows remaining points per day against the ideal line (Tasks -> Backlog & Sprints). Completed sprints show points delivered.
+- **Move issue:** change the Project in the popup. The issue gets a new key (e.g. `SYS-3` -> `OPS-7`) and its sprint/epic are cleared. An epic with child issues can't be moved.
+- **Assignee filter:** All / Assigned to me / Unassigned / a specific person.
+- API: `GET /todos/links`, `GET|POST /todos/{id}/links`, `DELETE /todos/{id}/links/{linkId}`; `PATCH /todos/{id}` accepts `projectId`; issues now carry `completedAt`.
+
+### Safety fixes (bulk actions and deletes)
+
+- **Clear Done / Clear All** now only affect the project you have selected (or all projects when "All projects" is selected), and both ask for confirmation first.
+- Deleting an **epic** detaches its child issues; deleting any issue also removes its links.
+- A project whose issues have all been deleted can now be deleted.
